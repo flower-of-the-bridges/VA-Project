@@ -1,0 +1,45 @@
+{
+  "name": "va-project",
+  "version": "0.0.1",
+  "description": "Project for Visual Analytics Course",
+  "author": "Group 3",
+  "license": "LGPL-3.0",
+  "private": true,
+  "main": "dist/bundle.js",
+  "homepage": "https://github.com/FlowerOfTheBridges/VA-Project",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FlowerOfTheBridges/VA-Project.git"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.12.10",
+    "@babel/core": "7.7.5",
+    "@babel/preset-env": "7.7.6",
+    "autoprefixer": "9.7.3",
+    "babel-loader": "8.0.6",
+    "clean-webpack-plugin": "3.0.0",
+    "css-loader": "3.3.2",
+    "html-webpack-harddisk-plugin": "1.0.1",
+    "html-webpack-plugin": "3.2.0",
+    "mini-css-extract-plugin": "0.8.0",
+    "node-sass": "4.13.1",
+    "postcss-loader": "3.0.0",
+    "sass-loader": "8.0.0",
+    "style-loader": "1.0.1",
+    "webpack": "4.41.3",
+    "webpack-cli": "3.3.10",
+    "webpack-dev-server": "^3.11.0"
+  },
+  "dependencies": {
+    "d3": "5.14.2",
+    "normalize.css": "8.0.1"
+  },
+  "browserslist": [
+    "last 2 versions",
+    "> 1%"
+  ],
+  "scripts": {
+    "start": "webpack-dev-server --mode development --hot --inline --open",
+    "build": "webpack --mode production"
+  }
+}
