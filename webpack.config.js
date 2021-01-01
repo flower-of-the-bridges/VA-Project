@@ -77,6 +77,9 @@ module.exports = (_, argv) => {
       modules: true,
       children: true
     }
+    config.plugins.push(new HtmlWebpackHarddiskPlugin({
+      outputPath: path.resolve(__dirname, 'prod')
+    }))
   }
   return config
 }

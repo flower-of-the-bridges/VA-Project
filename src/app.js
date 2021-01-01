@@ -1,7 +1,7 @@
 import * as d3 from 'd3'
 
 import controller from './controller'
-import data from './res/data.csv'
+import data from './res/demo.csv'
 
 const app = function() {
   window.app = controller
