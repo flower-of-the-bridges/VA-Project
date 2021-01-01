@@ -4,11 +4,14 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const HtmlWebpackHarddiskPlugin = require('html-webpack-harddisk-plugin')
 const meta = require('./package.json')
 
+const DEV_FOLDER = "dist";
+const PROD_FOLDER = "prod";
+
 const config = {
   entry: { main: './src/index.js' },
   target: 'web',
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, DEV_FOLDER),
     filename: 'main.js'
   },
   module: {
@@ -58,12 +61,12 @@ module.exports = (_, argv) => {
     config.devtool = 'inline-source-map'
     config.watch = true
     config.devServer = {
-      contentBase: path.resolve(__dirname, 'dist'),
+      contentBase: path.resolve(__dirname, DEV_FOLDER),
       historyApiFallback: true,
       watchContentBase: true
     }
     config.plugins.push(new HtmlWebpackHarddiskPlugin({
-      outputPath: path.resolve(__dirname, 'dist')
+      outputPath: path.resolve(__dirname, DEV_FOLDER)
     }))
   }
   else if (argv.mode === 'production') {
@@ -77,9 +80,9 @@ module.exports = (_, argv) => {
       modules: true,
       children: true
     }
-    config.output.path = path.resolve(__dirname, 'prod')
+    config.output.path = path.resolve(__dirname, PROD_FOLDER)
     config.plugins.push(new HtmlWebpackHarddiskPlugin({
-      outputPath: path.resolve(__dirname, 'prod')
+      outputPath: path.resolve(__dirname, PROD_FOLDER)
     }))
   }
   return config
