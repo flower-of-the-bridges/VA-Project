@@ -18,6 +18,35 @@ class Controller {
   handleAddEntry(entry) {
     this.model.addEntry(entry)
   }
+
+  /** 
+   * calls model to add covid data 
+   */
+  addCovidData(entry, index) {
+    this.model.addRecord(entry, true, index)
+  }
+
+  /** 
+   * calls model to add mobility data 
+   */
+  addMobilityData(entry) {
+    if (entry.sub_region_1 != "" && entry.sub_region_2 == "") {
+      // add only if its related to only the region in general
+      this.model.addRecord(entry, false)
+    }
+  }
+
+  saveDataset() {
+    let header = Object.keys(this.model.entries[0])
+    let csv = [
+      header.join(','), // header row first
+      ...this.model.entries.map(row => header.map(fieldName => row[fieldName]).join(','))
+    ].join('\r\n')
+
+    let uriContent = "data:text/csv," + encodeURIComponent(csv);
+    window.open(uriContent, '');
+  }
+
   handleUpdateEntry(entry) {
     this.model.updateEntry(entry)
   }
