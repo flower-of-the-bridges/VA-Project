@@ -4,7 +4,7 @@ import controller from './controller'
 import demo from './res/demo.csv'
 import covidData from './res/covid.csv'
 import mobilityData from './res/mobility.csv'
-import dataset from './res/dataset.csv'
+import dataset from './res/pca.csv'
 
 const app = async function () {
   window.app = controller
@@ -30,6 +30,8 @@ const app = async function () {
   */
   //await preProcessData();
 
+
+
   let loaded = await loadData()
     .catch(err => {
       console.log(err);
@@ -37,6 +39,13 @@ const app = async function () {
 
   if (loaded) {
     console.log("model loaded. entry #5000: %o", controller.model.entries[5000]);
+    // Create container
+    const scatterContainer = d3.select('#root')
+      .append('div')
+      .attr('id', '#bar__ascending')
+    // Invoke ascending view function
+    scatterContainer.call(window.app.scatter)
+    window.app.onEntriesListChanged();
   }
 
 }

@@ -8,6 +8,7 @@ class Controller {
     // Views
     this.barchartAscending = views.barchart()
     this.barchartDescending = views.barchart()
+    this.scatter = views.scatter()
     // Model functions binding
     this.model.bindEntriesListChanged(this.onEntriesListChanged.bind(this))
     // Views functions binding
@@ -57,6 +58,8 @@ class Controller {
   onEntriesListChanged() {
     this.barchartAscending.data(this.model.entries)
     this.barchartDescending.data(this.model.entries.slice().reverse())
+    // scatter 
+    this.scatter.data(this.model.entries)
   }
 }
 

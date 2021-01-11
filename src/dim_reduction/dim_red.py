@@ -11,16 +11,14 @@ def generateFile(label, Y, dataFile):
     att = ['Y1', 'Y2']+label
     f = open('../res/pca.csv', 'w')
     fin = open(dataFile)
-    for i in range(len(att)-1):
-        print(att[i], ',', end='', file=f)
-    print(att[-1], file=f)
+    print(','.join(att), file=f)
     fin.readline()
     for i in range(len(Y)-1):
-        s = fin.readline().strip()
-        print(Y[i][0], ',', Y[i][1], ',', s, file=f)
+        s = str(Y[i][0])+','+str(Y[i][1])+','+fin.readline().strip()
+        print(s, file=f)
     f.close()
 
-att = ['new','death','healed','positives','hospitalized','isolated','intensiveCare','groceriesPharmacy','parks','residential','retailRecreation','transit','workplaces']
+att = ['id','date','region','new','death','healed','positives','hospitalized','isolated','intensiveCare','index','groceriesPharmacy','parks','residential','retailRecreation','transit','workplaces']
 d = pd.io.parsers.read_csv('../res/dataset.csv').to_numpy()
 d = np.delete(d, [0,1,2,10], 1)  # delete columns
 #plotting d on a 2D scatterplot

@@ -1,3 +1,4 @@
-import barchart from './barchart'
+import barchart from './barchart';
+import scatter from './scatter';
 
-export default { barchart }
+export default { barchart, scatter }
