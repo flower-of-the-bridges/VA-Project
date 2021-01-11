@@ -41,6 +41,7 @@ class Model {
       // if is covid  data, add to dataset and create unique id
       let id = record.data+"_"+record.codice_regione;
       let obj = {
+        id: id,
         date: record.data,
         region: record.codice_regione,
         new: record.nuovi_positivi,
@@ -50,7 +51,6 @@ class Model {
         hospitalized: record.totale_ospedalizzati,
         isolated: record.isolamento_domiciliare,
         intensiveCare: record.terapia_intensiva,
-        id: id
       };
       this.entries.push(obj);
       this.dataset[id] = obj;

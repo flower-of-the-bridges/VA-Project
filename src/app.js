@@ -29,6 +29,7 @@ const app = async function () {
     })
   */
   //await preProcessData();
+
   let loaded = await loadData()
     .catch(err => {
       console.log(err);
@@ -37,6 +38,7 @@ const app = async function () {
   if (loaded) {
     console.log("model loaded. entry #5000: %o", controller.model.entries[5000]);
   }
+
 }
 
 const preProcessData = async function () {
