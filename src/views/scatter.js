@@ -7,7 +7,7 @@ export default function () {
 
   let updateData;
 
-  let margin = { top: 20, right: 20, bottom: 110, left: 50 },
+  let margin = { top: 20, right: 20, bottom: 20, left: 20 },
     margin2 = { top: 430, right: 20, bottom: 30, left: 40 },
     height2 = 500 - margin2.top - margin2.bottom;
 
@@ -49,19 +49,19 @@ export default function () {
         .attr("class", "context")
         .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
 
-
-
+    
       updateData = function () {
         // remove previous elements ( if any)
-        
+
         focus.selectAll("*")
           .transition()
           .duration(100)
           .remove();
+        x.ticks(1);
         x.domain(d3.extent(data, function (d) { return +d["Y1"];/*return +d[chiavi[0]];*/ }));
+
         y.domain(d3.extent(data, function (d) { return +d["Y2"];/*return +d[chiavi[1]];*/ }));
-        x2.domain(x.domain());
-        y2.domain(y.domain());
+        y.ticks(1)
 
         let xAxis = d3.axisBottom(x),
           xAxis2 = d3.axisBottom(x2),
@@ -70,15 +70,16 @@ export default function () {
 
         let dots = focus.append("g");
         dots.attr("clip-path", "url(#clip)");
-        
+
         dots.selectAll("dot")
           .data(data)
           .join(
             enter => enter.append("circle")
               .attr('class', 'dot')
               .attr("r", 5)
-              .attr("fill", "grey")
-              .attr("opacity", ".3")
+              .attr("stroke", d => !d.selected ? "grey" : "black")
+              .attr("stroke-width", ".5")
+              .attr("opacity", d => d.selected ? ".9" : ".1")
               .attr("cx", function (d) { if (d.selected) return x(d["Y1"])/**return x(+d[chiavi[0]]);*/ })
               .attr("cy", function (d) { if (d.selected) return y(d["Y2"])/**return y(+d[chiavi[1]]);*/ })
               .style("fill", d => d.selected ? color(d.id) : "transparent")
