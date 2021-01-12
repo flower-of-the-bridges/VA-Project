@@ -63,7 +63,9 @@ class Controller {
   }
 
   updateDates() {
-    console.log("update dates", start.value, finish.value)
+    console.log("update dates", start, finish);
+    start.max = finish.value;
+    finish.min = start.value;
     let daysPerRegion = Object.keys(this.model.entriesById);
     let idsToChange = daysPerRegion.filter(id => {
       let date = id.split("_")[0];
@@ -83,7 +85,7 @@ class Controller {
     });
 
     this.model.onEntriesListChanged();
-    
+
   }
 }
 

@@ -7,7 +7,10 @@ import mobilityData from './res/mobility.csv'
 import dataset from './res/pca.csv'
 
 const app = async function () {
-  window.app = controller
+  window.app = controller;
+  // init dates
+  start.max = finish.value;
+  finish.min = start.value;
   /** 
   loadData()
     .then(() => {
