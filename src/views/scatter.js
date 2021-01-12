@@ -20,7 +20,7 @@ export default function () {
 
   let brush = d3.brushX()
     .extent([[0, 0], [width, height2]])
-    .on("brush", () => { console.log("brush")});
+    .on("brush", () => { console.log("brush") });
 
   var brushTot = d3.brush()
     .extent([[0, 0], [width, height]])
@@ -52,6 +52,12 @@ export default function () {
 
 
       updateData = function () {
+        // remove previous elements ( if any)
+        
+        focus.selectAll("*")
+          .transition()
+          .duration(100)
+          .remove();
         x.domain(d3.extent(data, function (d) { return +d["Y1"];/*return +d[chiavi[0]];*/ }));
         y.domain(d3.extent(data, function (d) { return +d["Y2"];/*return +d[chiavi[1]];*/ }));
         x2.domain(x.domain());
@@ -61,19 +67,23 @@ export default function () {
           xAxis2 = d3.axisBottom(x2),
           yAxis = d3.axisLeft(y);
         // append scatter plot to main chart area 
+
         let dots = focus.append("g");
         dots.attr("clip-path", "url(#clip)");
+        
         dots.selectAll("dot")
           .data(data)
-          .enter().append("circle")
-          .attr('class', 'dot')
-          .attr("r", 5)
-          .attr("fill", "grey")
-          .attr("opacity", ".3")
-          .attr("cx", function (d) { return x(d["Y1"])/**return x(+d[chiavi[0]]);*/ })
-          .attr("cy", function (d) { return y(d["Y2"])/**return y(+d[chiavi[1]]);*/ })
-          .style("fill", function (d) { return color(d.id) });
+          .join(
+            enter => enter.append("circle")
+              .attr('class', 'dot')
+              .attr("r", 5)
+              .attr("fill", "grey")
+              .attr("opacity", ".3")
+              .attr("cx", function (d) { if (d.selected) return x(d["Y1"])/**return x(+d[chiavi[0]]);*/ })
+              .attr("cy", function (d) { if (d.selected) return y(d["Y2"])/**return y(+d[chiavi[1]]);*/ })
+              .style("fill", d => d.selected ? color(d.id) : "transparent")
 
+          );
 
         focus.append("g")
           .attr("class", "axis axis--x")
@@ -104,34 +114,33 @@ export default function () {
           .call(brushTot);
 
         // append scatter plot to brush chart area      
-        dots = context.append("g");
-        dots.attr("clip-path", "url(#clip)");
-        dots.selectAll("dot")
-          .data(data)
-          .enter().append("circle")
-          .attr('class', 'dotContext')
-          .attr("r", 3)
-          .style("opacity", .5)
-          .attr("cx", function (d) { return x2(d["Y1"])/**return x2(d[chiavi[0]]);*/ })
-          .attr("cy", function (d) { return y2(d["Y2"])/**return y2(d[chiavi[1]]);*/ })
-          .style("fill", function (d) { return color(d["id"]) });
+        // dots = context.append("g");
+        // dots.attr("clip-path", "url(#clip)");
+        // dots.selectAll("dot")
+        //   .data(data)
+        //   .enter().append("circle")
+        //   .attr('class', 'dotContext')
+        //   .attr("r", 3)
+        //   .style("opacity", .5)
+        //   .attr("cx", function (d) { if(d.selected) return x2(d["Y1"])/**return x2(d[chiavi[0]]);*/ })
+        //   .attr("cy", function (d) { if(d.selected) return y2(d["Y2"])/**return y2(d[chiavi[1]]);*/ })
+        //   .style("fill", function (d) { if(d.selected) return color(d["id"]) });
 
-        context.append("g")
-          .attr("class", "axis axis--x")
-          .attr("transform", "translate(0," + height2 + ")")
-          .call(xAxis2);
+        // context.append("g")
+        //   .attr("class", "axis axis--x")
+        //   .attr("transform", "translate(0," + height2 + ")")
+        //   .call(xAxis2);
 
-        context.append("g")
-          .attr("class", "brush")
-          .call(brush)
-          .call(brush.move, x.range());
+        // context.append("g")
+        //   .attr("class", "brush")
+        //   .call(brush)
+        //   .call(brush.move, x.range());
       }
-      console.log("finish")
+
     })
   }
 
   scatter.data = function (_) {
-    console.log(typeof updateData);
     if (!arguments.length) {
       return data
     }

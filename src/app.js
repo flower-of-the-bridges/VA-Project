@@ -30,8 +30,6 @@ const app = async function () {
   */
   //await preProcessData();
 
-
-
   let loaded = await loadData()
     .catch(err => {
       console.log(err);
@@ -73,10 +71,10 @@ const loadData = function () {
   return new Promise((resolve, reject) => {
     d3.csv(dataset)
       .then(entries => {
-        entries.forEach(e => {
+        entries.forEach((e) => {
           controller.handleAddEntry({
             ...e,
-            selected: false
+            selected: new Date(start.value) <= new Date(e.date) && new Date(finish.value) >= new Date(e.date)
           })
         })
         resolve(true)
@@ -102,7 +100,7 @@ const loadMobilityData = function () {
   return new Promise((resolve, reject) => {
     d3.csv(mobilityData)
       .then(entries => {
-        entries.forEach((e, index) => {
+        entries.forEach((e) => {
           controller.addMobilityData(e)
         })
         resolve(true)

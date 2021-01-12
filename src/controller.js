@@ -61,6 +61,30 @@ class Controller {
     // scatter 
     this.scatter.data(this.model.entries)
   }
+
+  updateDates() {
+    console.log("update dates", start.value, finish.value)
+    let daysPerRegion = Object.keys(this.model.entriesById);
+    let idsToChange = daysPerRegion.filter(id => {
+      let date = id.split("_")[0];
+      return new Date(start.value) <= new Date(date) && new Date(finish.value) >= new Date(date)
+    });
+
+    this.model.entries = this.model.entries.map(e => {
+      e.selected = false;
+      return e;
+    });
+
+    idsToChange.forEach(id => {
+      let entry = this.model.entries[this.model.entriesById[id]];
+      if (entry) {
+        entry.selected = true;
+      }
+    });
+
+    this.model.onEntriesListChanged();
+    
+  }
 }
 
 export default new Controller()

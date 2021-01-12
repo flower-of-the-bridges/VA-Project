@@ -1,12 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title><%= htmlWebpackPlugin.options.title %></title>
+  <title>
+    <%= htmlWebpackPlugin.options.title %>
+  </title>
 </head>
+
 <body>
-  <div id="root"></div>
+  <div align="center">
+    <p>Start:</p>
+    <input type="date" id="start" value="2020-02-24" min="2020-2-24" max="2020-12-31" onchange="app.updateDates()">
+    <p>Finish:</p>
+    <input type="date" id="finish" value="2020-12-31" min="2020-2-24" max="2020-12-31" onchange="app.updateDates()">
+  </div>
+  <div id="root">
+  </div>
 </body>
+
 </html>
