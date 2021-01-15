@@ -1,32 +1,22 @@
 import * as d3 from 'd3'
 
 export default function () {
-  let data = [],
-    width = 400,
-    height = 400
+  let data = [];
 
-  let updateData;
 
-  let margin = { top: 20, right: 20, bottom: 20, left: 20 },
-    margin2 = { top: 430, right: 20, bottom: 30, left: 40 },
-    height2 = 500 - margin2.top - margin2.bottom;
+  let updateData, zoom, brushended;
+
+  let margin = { top: 20, right: 20, bottom: 30, left: 30 };
+
+  let width = 500 - margin.left - margin.right;
+  let height = 280 - margin.top - margin.bottom;
 
   let x = d3.scaleLinear().range([0, width]),
-    x2 = d3.scaleLinear().range([0, width]),
-    y = d3.scaleLinear().range([height, 0]),
-    y2 = d3.scaleLinear().range([height2, 0]);
-
-
-
-  let brush = d3.brushX()
-    .extent([[0, 0], [width, height2]])
-    .on("brush", () => { console.log("brush") });
-
-  var brushTot = d3.brush()
-    .extent([[0, 0], [width, height]])
-    .on("end", () => { });
+    y = d3.scaleLinear().range([height, 0]);
 
   let color = d3.scaleOrdinal(d3.schemeCategory10);
+
+  let idleTimeout, idleDelay = 350;
 
   const scatter = function (selection) {
     selection.each(function () {
@@ -43,99 +33,106 @@ export default function () {
 
       const focus = svg.append("g")
         .attr("class", "focus")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
-      const context = svg.append("g")
-        .attr("class", "context")
-        .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
-
-    
       updateData = function () {
         // remove previous elements ( if any)
 
-        focus.selectAll("*")
-          .transition()
-          .duration(100)
-          .remove();
-        x.ticks(1);
-        x.domain(d3.extent(data, function (d) { return +d["Y1"];/*return +d[chiavi[0]];*/ }));
+        x.domain(d3.extent(data, function (d) { return +d["Y1"];/*return +d[chiavi[0]];*/ })).nice();
+        y.domain(d3.extent(data, function (d) { return +d["Y2"];/*return +d[chiavi[1]];*/ })).nice();
 
-        y.domain(d3.extent(data, function (d) { return +d["Y2"];/*return +d[chiavi[1]];*/ }));
-        y.ticks(1)
 
-        let xAxis = d3.axisBottom(x),
-          xAxis2 = d3.axisBottom(x2),
-          yAxis = d3.axisLeft(y);
+        let xAxis = d3.axisBottom(x), yAxis = d3.axisLeft(y);
         // append scatter plot to main chart area 
 
-        let dots = focus.append("g");
-        dots.attr("clip-path", "url(#clip)");
+        //let dots = focus.append("g");
+        //dots.attr("clip-path", "url(#clip)");
 
-        dots.selectAll("dot")
-          .data(data)
-          .join(
-            enter => enter.append("circle")
-              .attr('class', 'dot')
-              .attr("r", 5)
-              .attr("stroke", d => !d.selected ? "grey" : "black")
-              .attr("stroke-width", ".5")
-              .attr("opacity", d => d.selected ? ".9" : ".1")
-              .attr("cx", function (d) { if (d.selected) return x(d["Y1"])/**return x(+d[chiavi[0]]);*/ })
-              .attr("cy", function (d) { if (d.selected) return y(d["Y2"])/**return y(+d[chiavi[1]]);*/ })
-              .style("fill", d => d.selected ? color(d.id) : "transparent")
+        let dots = focus.selectAll("circle")
+          .data(data);
 
-          );
+        dots.enter()
+          .append("circle")
+          .attr('class', 'dot')
+          .attr("clip-path", "url(#clip)")
+          .attr("r", 5)
+          .merge(dots)
+          .transition()
+          .duration(1000)
+          .ease(d3.easeBackIn)
+          .attr("stroke", d => !d.selected ? "grey" : "black")
+          .attr("stroke-width", ".5")
+          .attr("opacity", d => d.selected ? ".9" : ".1")
+          .attr("cx", function (d) { if (d.selected) return x(d["Y1"])/**return x(+d[chiavi[0]]);*/ })
+          .attr("cy", function (d) { if (d.selected) return y(d["Y2"])/**return y(+d[chiavi[1]]);*/ })
+          .style("fill", d => d.selected ? color(d.id) : "transparent");
 
-        focus.append("g")
-          .attr("class", "axis axis--x")
-          .attr("transform", "translate(0," + height + ")")
-          .call(xAxis);
+        if (svg.select("#axis--x").empty()) {
+          console.log("creating axis")
+          focus.append("g")
+            .attr("class", "axis axis--x")
+            .attr('id', "axis--x")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxis);
 
-        focus.append("g")
-          .attr("class", "axis axis--y")
-          .call(yAxis);
+          focus.append("g")
+            .attr('id', "axis--y")
+            .attr("class", "axis axis--y")
+            .call(yAxis);
 
-        focus.append("text")
-          .attr("transform", "rotate(-90)")
-          .attr("y", 0 - margin.left)
-          .attr("x", 0 - (height / 2))
-          .attr("dy", "1em")
-          .style("text-anchor", "middle")
-          .text("Y[2]"/**chiavi[1]*/);
+          focus.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - margin.left)
+            .attr("x", 0 - (height / 2))
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .text("Y[2]"/**chiavi[1]*/);
 
-        svg.append("text")
-          .attr("transform",
-            "translate(" + ((width + margin.right + margin.left) / 2) + " ," +
-            (height + margin.top + margin.bottom) + ")")
-          .style("text-anchor", "middle")
-          .text("Y[1]"/**chiavi[0]*/);
+          svg.append("text")
+            .attr("transform",
+              "translate(" + ((width + margin.right + margin.left) / 2) + " ," +
+              (height + margin.top + margin.bottom) + ")")
+            .style("text-anchor", "middle")
+            .text("Y[1]"/**chiavi[0]*/);
 
-        focus.append("g")
-          .attr("class", "brushT")
-          .call(brushTot);
+          let idled = function () {
+            idleTimeout = null;
+          }
 
-        // append scatter plot to brush chart area      
-        // dots = context.append("g");
-        // dots.attr("clip-path", "url(#clip)");
-        // dots.selectAll("dot")
-        //   .data(data)
-        //   .enter().append("circle")
-        //   .attr('class', 'dotContext')
-        //   .attr("r", 3)
-        //   .style("opacity", .5)
-        //   .attr("cx", function (d) { if(d.selected) return x2(d["Y1"])/**return x2(d[chiavi[0]]);*/ })
-        //   .attr("cy", function (d) { if(d.selected) return y2(d["Y2"])/**return y2(d[chiavi[1]]);*/ })
-        //   .style("fill", function (d) { if(d.selected) return color(d["id"]) });
+          brushended = function () {
+            let s = d3.event.selection;
+            console.log("brushnede", s)
+            if (!s) {
+              if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
+              x.domain(d3.extent(data, function (d) { return +d["Y1"]; })).nice();
+              y.domain(d3.extent(data, function (d) { return +d["Y2"]; })).nice();
+            } else {
 
-        // context.append("g")
-        //   .attr("class", "axis axis--x")
-        //   .attr("transform", "translate(0," + height2 + ")")
-        //   .call(xAxis2);
+              x.domain([s[0][0], s[1][0]].map(x.invert, x));
+              y.domain([s[1][1], s[0][1]].map(y.invert, y));
+              focus.select(".brush").call(brush.move, null);
+            }
+            zoom();
+          }
 
-        // context.append("g")
-        //   .attr("class", "brush")
-        //   .call(brush)
-        //   .call(brush.move, x.range());
+          zoom = function () {
+            console.log("zoom");
+            let transition = svg.transition().duration(750);
+            svg.select("#axis--x").transition(transition).call(xAxis);
+            svg.select("#axis--y").transition(transition).call(yAxis);
+            svg.selectAll("circle").transition(transition)
+              .attr("cx", function (d) { if (d.selected) return x(d["Y1"]); })
+              .attr("cy", function (d) { if (d.selected) return y(d["Y2"]); });
+          }
+
+          const brush = d3.brush().extent([[0, 0], [width, height]]).on("end", brushended)
+
+          focus.append("g")
+            .attr("class", "brush")
+            .call(brush);
+        }
+
+
       }
 
     })

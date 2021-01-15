@@ -1,6 +1,6 @@
 body {
   font-family: sans-serif;
-  #root {
+  #scatter {
     margin: 1em;
     display: flex;
     flex-flow: row wrap;
@@ -23,12 +23,6 @@ svg {
 .foreground path {
   fill: none;
   stroke: steelblue;
-}
-
-.brush .extent {
-  fill-opacity: 0.3;
-  stroke: #fff;
-  shape-rendering: crispEdges;
 }
 
 .axis line,

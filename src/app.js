@@ -41,9 +41,7 @@ const app = async function () {
   if (loaded) {
     console.log("model loaded. entry #5000: %o", controller.model.entries[5000]);
     // Create container
-    const scatterContainer = d3.select('#root')
-      .append('div')
-      .attr('id', '#bar__ascending')
+    const scatterContainer = d3.select('#scatter')
     // Invoke ascending view function
     scatterContainer.call(window.app.scatter)
     window.app.onEntriesListChanged();
