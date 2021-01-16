@@ -11,26 +11,24 @@ const app = async function () {
   // init dates
   start.max = finish.value;
   finish.min = start.value;
-  /** 
-  loadData()
-    .then(() => {
-      // Create ascending container
-      const ascendingContainer = d3.select('#root')
-        .append('div')
-        .attr('id', '#bar__ascending')
-      // Invoke ascending view function
-      ascendingContainer.call(window.app.barchartAscending)
-      // Create descending container
-      const descendingContainer = d3.select('#root')
-        .append('div')
-        .attr('id', '#bar__descending')
-      // Invoke descending view function
-      descendingContainer.call(window.app.barchartDescending)
-    })
-    .catch(err =>{
-      console.log("error loading data: %o", err)
-    })
-  */
+  // init radio buttons with callback
+  window.radios = document.querySelectorAll('input[type=radio][name="region"]');
+  window.radios.forEach(radio => {
+    if(radio.checked){
+      window.selectedRegion = radio.value
+    }
+  });
+  console.log("selectedRegion is ", selectedRegion);
+  function changeHandler(event) {
+    selectedRegion = this.value;
+    console.log("selectedRegion is ", selectedRegion);
+    window.app.updateEntries();
+  }
+
+  radios.forEach(radio => {
+    radio.addEventListener('change', changeHandler);
+  });
+
   //await preProcessData();
 
   let loaded = await loadData()
@@ -41,9 +39,11 @@ const app = async function () {
   if (loaded) {
     console.log("model loaded. entry #5000: %o", controller.model.entries[5000]);
     // Create container
-    const scatterContainer = d3.select('#scatter')
-    // Invoke ascending view function
-    scatterContainer.call(window.app.scatter)
+    const scatterContainer = d3.select('#scatter');
+    // Invoke view function
+    scatterContainer.call(window.app.scatter);
+    const timeContainer = d3.select('#time');
+    timeContainer.call(window.app.time);
     window.app.onEntriesListChanged();
   }
 
@@ -70,12 +70,15 @@ const preProcessData = async function () {
 // Load data
 const loadData = function () {
   return new Promise((resolve, reject) => {
+    //The format in the CSV, which d3 will read
+    var formatTime = d3.timeParse("%Y-%m-%d");
     d3.csv(dataset)
       .then(entries => {
         entries.forEach((e) => {
+          e.date = formatTime(e.date);
           controller.handleAddEntry({
             ...e,
-            selected: new Date(start.value) <= new Date(e.date) && new Date(finish.value) >= new Date(e.date)
+            selected: formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date && e.region == selectedRegion
           })
         })
         resolve(true)

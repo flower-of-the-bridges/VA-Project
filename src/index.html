@@ -12,13 +12,76 @@
 
 <body>
   <div align="center">
+    <div>
+      <input type="radio" id="it" name="region" value="0" checked>
+      <label for="it">Italia</label>
+
+      <input type="radio" id="la" name="region" value="12">
+      <label for="la">Lazio</label>
+
+      <input type="radio" id="abr" name="region" value="13">
+      <label for="abr">Abruzzo</label>
+
+      <input type="radio" id="um" name="region" value="10">
+      <label for="um">Umbria</label>
+
+      <input type="radio" id="ve" name="region" value="05" checked>
+      <label for="ve">Veneto</label>
+
+      <input type="radio" id="ma" name="region" value="11">
+      <label for="ma">Marche</label>
+
+      <input type="radio" id="mo" name="region" value="14">
+      <label for="mo">Molise</label>
+
+      <input type="radio" id="ca" name="region" value="15">
+      <label for="ca">Campania</label>
+
+      <input type="radio" id="si" name="region" value="19" checked>
+      <label for="si">Sicilia</label>
+
+      <input type="radio" id="sa" name="region" value="20">
+      <label for="sa">Sardegna</label>
+
+      <input type="radio" id="ba" name="region" value="17">
+      <label for="ba">Basilicata</label>
+
+      <input type="radio" id="ca" name="region" value="18">
+      <label for="ca">Calabria</label>
+
+      <input type="radio" id="to" name="region" value="09" checked>
+      <label for="to">Toscana</label>
+
+      <input type="radio" id="pu" name="region" value="16">
+      <label for="pu">Puglia</label>
+
+      <input type="radio" id="em" name="region" value="08">
+      <label for="em">Emila-Romagna</label>
+
+      <input type="radio" id="li" name="region" value="07" checked>
+      <label for="to">Liguria</label>
+
+      <input type="radio" id="ao" name="region" value="02">
+      <label for="ao">Valle D'Aosta</label>
+
+      <input type="radio" id="lom" name="region" value="03">
+      <label for="lom">Lombardia</label>
+
+      <input type="radio" id="pie" name="region" value="01">
+      <label for="pie">Piemonte</label>
+
+      <input type="radio" id="fri" name="region" value="06">
+      <label for="fri">Friuli</label>
+    </div>
     <p style="display: inline;">Start:</p>
-    <input type="date" id="start" value="2020-02-24" min="2020-02-24" max="2020-12-31" onchange="app.updateDates()">
+    <input type="date" id="start" value="2020-02-24" min="2020-02-24" max="2020-12-31" onchange="app.updateEntries()">
     <span></span>
     <p style="display: inline;">Finish:</p>
-    <input type="date" id="finish" value="2020-12-31" min="2020-02-24" max="2020-12-31" onchange="app.updateDates()">
+    <input type="date" id="finish" value="2020-12-31" min="2020-02-24" max="2020-12-31" onchange="app.updateEntries()">
   </div>
   <div id="scatter">
+  </div>
+  <div id="time">
   </div>
 </body>
 

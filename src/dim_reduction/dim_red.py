@@ -20,7 +20,7 @@ def generateFile(label, Y, dataFile):
 
 att = ['id','date','region','new','death','healed','positives','hospitalized','isolated','intensiveCare','index','groceriesPharmacy','parks','residential','retailRecreation','transit','workplaces']
 d = pd.io.parsers.read_csv('../res/dataset.csv').to_numpy()
-d = np.delete(d, [0,1,2,10], 1)  # delete columns
+d = np.delete(d, [0,1,2], 1)  # delete columns
 #plotting d on a 2D scatterplot
 plt.plot(d[:,0],d[:,1],
          'o', markersize=7,

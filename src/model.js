@@ -68,6 +68,7 @@ class Model {
         transit: record.transit_stations_percent_change_from_baseline,
         workplaces: record.workplaces_percent_change_from_baseline
       });
+      delete newObj.index;
       this.entries[entryIndex] = newObj;
       this.dataset[record.date+"_"+record.sub_region_1] = newObj;
     }

@@ -65,7 +65,7 @@ export default function () {
           .attr("opacity", d => d.selected ? ".9" : ".1")
           .attr("cx", function (d) { if (d.selected) return x(d["Y1"])/**return x(+d[chiavi[0]]);*/ })
           .attr("cy", function (d) { if (d.selected) return y(d["Y2"])/**return y(+d[chiavi[1]]);*/ })
-          .style("fill", d => d.selected ? color(d.id) : "transparent");
+          .style("fill", d => d.selected ? color(d.region) : "transparent");
 
         if (svg.select("#axis--x").empty()) {
           console.log("creating axis")

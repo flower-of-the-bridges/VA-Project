@@ -9,6 +9,7 @@ class Controller {
     this.barchartAscending = views.barchart()
     this.barchartDescending = views.barchart()
     this.scatter = views.scatter()
+    this.time = views.time()
     // Model functions binding
     this.model.bindEntriesListChanged(this.onEntriesListChanged.bind(this))
     // Views functions binding
@@ -56,14 +57,16 @@ class Controller {
   }
   //
   onEntriesListChanged() {
-    this.barchartAscending.data(this.model.entries)
-    this.barchartDescending.data(this.model.entries.slice().reverse())
+    this.barchartAscending.data(this.model.entries);
+    this.barchartDescending.data(this.model.entries.slice().reverse());
     // scatter 
-    this.scatter.data(this.model.entries)
+    this.scatter.data(this.model.entries);
+    // time series
+    this.time.data(this.model.entries);
   }
 
-  updateDates() {
-    console.log("update dates", start, finish);
+  updateEntries() {
+    console.log("update dates", start, finish, selectedRegion);
     start.max = finish.value;
     finish.min = start.value;
     let daysPerRegion = Object.keys(this.model.entriesById);
@@ -79,7 +82,7 @@ class Controller {
 
     idsToChange.forEach(id => {
       let entry = this.model.entries[this.model.entriesById[id]];
-      if (entry) {
+      if (entry && entry.region == selectedRegion) {
         entry.selected = true;
       }
     });
