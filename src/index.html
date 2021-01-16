@@ -12,7 +12,7 @@
 
 <body>
   <div align="center">
-    <div>
+    <div style="margin-bottom: 30px;">
       <input type="radio" id="it" name="region" value="0" checked>
       <label for="it">Italia</label>
 
@@ -79,10 +79,58 @@
     <p style="display: inline;">Finish:</p>
     <input type="date" id="finish" value="2020-12-31" min="2020-02-24" max="2020-12-31" onchange="app.updateEntries()">
   </div>
-  <div id="scatter">
+  <div style="display: inline-flex; margin-top: 50px;">
+    <div id="scatter">
+    </div>
+    <div id="mobility">
+      <!-- groceriesPharmacy,parks,residential,retailRecreation,transit,workplaces -->
+      <div id="mobility-choice" style="margin-left: 20px;">
+        <input type="radio" id="groceriesPharmacy" name="mobil" value="groceriesPharmacy" checked>
+        <label for="groceriesPharmacy">Groceries/Pharmacy</label>
+
+        <input type="radio" id="parks" name="mobil" value="parks">
+        <label for="parks">Parks</label>
+
+        <input type="radio" id="residential" name="mobil" value="residential">
+        <label for="residential">Residential</label>
+
+        <input type="radio" id="retailRecreation" name="mobil" value="retailRecreation">
+        <label for="retailRecreation">Retail/Recreation</label>
+
+        <input type="radio" id="transit" name="mobil" value="transit">
+        <label for="transit">Transit</label>
+
+        <!-- <input type="radio" id="workplaces" name="mobil" value="workplaces">
+        <label for="workplaces">Workplaces</label> -->
+      </div>
+    </div>
   </div>
-  <div id="time">
+  <div id="time" align="center">
+    <div id="covid-choice" style="margin-left: 20px;">
+      <input type="radio" id="new" name="covid" value="new" checked>
+      <label for="new">New Cases</label>
+
+      <input type="radio" id="healed" name="covid" value="healed">
+      <label for="healed">Healed</label>
+
+      <input type="radio" id="positives" name="covid" value="positives">
+      <label for="positives">Positives</label>
+
+      <input type="radio" id="hospitalized" name="covid" value="hospitalized">
+      <label for="hospitalized">Hospitalized</label>
+
+      <input type="radio" id="isolated" name="covid" value="isolated">
+      <label for="isolated">Isolated</label>
+
+      <input type="radio" id="ic" name="covid" value="intensiveCare">
+      <label for="ic">Intensive Care</label>
+
+      <input type="radio" id="death" name="covid" value="death">
+      <label for="death">Death</label>
+    </div>
   </div>
+
+
 </body>
 
 </html>

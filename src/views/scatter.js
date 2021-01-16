@@ -18,6 +18,8 @@ export default function () {
 
   let idleTimeout, idleDelay = 350;
 
+  let onBrush = (s) => { console.log("brushed portion of scatter ", s) } // default callback when data is brushed
+
   const scatter = function (selection) {
     selection.each(function () {
       const dom = d3.select(this)
@@ -36,8 +38,6 @@ export default function () {
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
       updateData = function () {
-        // remove previous elements ( if any)
-
         x.domain(d3.extent(data, function (d) { return +d["Y1"];/*return +d[chiavi[0]];*/ })).nice();
         y.domain(d3.extent(data, function (d) { return +d["Y2"];/*return +d[chiavi[1]];*/ })).nice();
 
@@ -107,11 +107,11 @@ export default function () {
               x.domain(d3.extent(data, function (d) { return +d["Y1"]; })).nice();
               y.domain(d3.extent(data, function (d) { return +d["Y2"]; })).nice();
             } else {
-
               x.domain([s[0][0], s[1][0]].map(x.invert, x));
               y.domain([s[1][1], s[0][1]].map(y.invert, y));
               focus.select(".brush").call(brush.move, null);
             }
+            //onBrush(s);
             zoom();
           }
 
@@ -121,7 +121,12 @@ export default function () {
             svg.select("#axis--x").transition(transition).call(xAxis);
             svg.select("#axis--y").transition(transition).call(yAxis);
             svg.selectAll("circle").transition(transition)
-              .attr("cx", function (d) { if (d.selected) return x(d["Y1"]); })
+              .attr("cx", function (d) {
+                if (d.selected) {
+                  //onBrush(d, x(d["Y1"]) >= x.range()[0] && x(d["Y1"]) <= x.range()[1]);
+                  return x(d["Y1"]);
+                }
+              })
               .attr("cy", function (d) { if (d.selected) return y(d["Y2"]); });
           }
 
@@ -148,5 +153,8 @@ export default function () {
     }
     return scatter
   }
+
+  scatter.bindBrush = (callback) => onBrush = callback
+
   return scatter;
 }

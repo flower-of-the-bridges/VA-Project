@@ -16,9 +16,9 @@ class Model {
     this.entriesById[entry.id] = this.entries.length - 1
     this.onEntriesListChanged()
   }
-  updateEntry(entry) {
+  updateEntry(entry, timeOnly) {
     this.entries[this.entriesById[entry.id]] = { ...this.entriesById[entry.id], ...entry }
-    this.onEntriesListChanged()
+    this.onEntriesListChanged(timeOnly)
   }
   deleteEntry(entryId) {
     const entryIndex = this.entriesById[entryId]
@@ -40,12 +40,21 @@ class Model {
     if (isCovid) {
       // if is covid  data, add to dataset and create unique id
       let id = record.data+"_"+record.codice_regione;
+      // find daily day by looking for previous date 
+      let dailyDeath = record.deceduti;
+      if(record.data != "2020-02-24"){
+        let dateFields = record.data.split("-");
+        let previousDate = new Date(new Date(Number(dateFields[0]), Number(dateFields[1])-1, Number(dateFields[2])).getTime() - 1000*60*60*24).toLocaleDateString('en-CA');
+        let previousDateObj = this.dataset[previousDate+"_"+record.codice_regione];
+        dailyDeath = dailyDeath - previousDateObj.deathTotal;
+      }
       let obj = {
         id: id,
         date: record.data,
         region: record.codice_regione,
         new: record.nuovi_positivi,
-        death: record.deceduti,
+        deathTotal: record.deceduti,
+        death: dailyDeath,
         healed: record.dimessi_guariti,
         positives: record.totale_positivi,
         hospitalized: record.totale_ospedalizzati,

@@ -6,15 +6,15 @@ class Controller {
     // Model
     this.model = model
     // Views
-    this.barchartAscending = views.barchart()
-    this.barchartDescending = views.barchart()
-    this.scatter = views.scatter()
-    this.time = views.time()
+    this.barchartAscending = views.barchart();
+    this.barchartDescending = views.barchart();
+    this.scatter = views.scatter();
+    this.time = views.time();
+    this.boxplot = views.boxplot();
     // Model functions binding
     this.model.bindEntriesListChanged(this.onEntriesListChanged.bind(this))
     // Views functions binding
-    this.barchartAscending.bindClick((entry) => this.handleUpdateEntry({ id: entry.id, selected: !entry.selected })).bind(this)
-    this.barchartDescending.bindClick((entry) => this.handleUpdateEntry({ id: entry.id, selected: !entry.selected })).bind(this)
+    this.scatter.bindBrush((scatterZone) => this.onBrushChanged(scatterZone)).bind(this);
   }
   //
   handleAddEntry(entry) {
@@ -49,20 +49,26 @@ class Controller {
     window.open(uriContent, '');
   }
 
-  handleUpdateEntry(entry) {
-    this.model.updateEntry(entry)
+  handleUpdateEntry(entry, timeOnly) {
+    this.model.updateEntry(entry, timeOnly)
   }
   handleDeleteEntry(entryId) {
     this.model.deleteEntry(entryId)
   }
   //
-  onEntriesListChanged() {
-    this.barchartAscending.data(this.model.entries);
-    this.barchartDescending.data(this.model.entries.slice().reverse());
-    // scatter 
-    this.scatter.data(this.model.entries);
-    // time series
-    this.time.data(this.model.entries);
+  onEntriesListChanged(timeOnly) {
+
+    if (timeOnly) {
+      this.time.data(this.model.entries);
+    }
+    else {
+      // scatter 
+      this.scatter.data(this.model.entries);
+      // time series
+      this.time.data(this.model.entries);
+      // boxplot
+      this.boxplot.data(this.model.entries);
+    }
   }
 
   updateEntries() {
@@ -77,6 +83,7 @@ class Controller {
 
     this.model.entries = this.model.entries.map(e => {
       e.selected = false;
+      e.brushed = false;
       return e;
     });
 
@@ -84,11 +91,30 @@ class Controller {
       let entry = this.model.entries[this.model.entriesById[id]];
       if (entry && entry.region == selectedRegion) {
         entry.selected = true;
+        entry.brushed = true;
       }
     });
 
     this.model.onEntriesListChanged();
 
+  }
+
+  updateTimeSeries(){
+    this.time.updateY(selectedTimeType);
+  }
+
+  updateBoxPlot(){
+    this.boxplot.updateY(selectedMobility);
+  }
+
+  /**
+   * callback raised whenever a new portion of a vis is brushed by the user
+   * @param {any} s 
+   */
+  onBrushChanged(d, brushed) {
+    console.log("controller brush");
+    //d.brushed = brushed;
+    //this.handleUpdateEntry(d, true);
   }
 }
 

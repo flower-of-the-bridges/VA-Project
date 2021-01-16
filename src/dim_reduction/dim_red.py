@@ -18,7 +18,7 @@ def generateFile(label, Y, dataFile):
         print(s, file=f)
     f.close()
 
-att = ['id','date','region','new','death','healed','positives','hospitalized','isolated','intensiveCare','index','groceriesPharmacy','parks','residential','retailRecreation','transit','workplaces']
+att = ['id','date','region','new', 'deathTotal', 'death','healed','positives','hospitalized','isolated','intensiveCare','index','groceriesPharmacy','parks','residential','retailRecreation','transit','workplaces']
 d = pd.io.parsers.read_csv('../res/dataset.csv').to_numpy()
 d = np.delete(d, [0,1,2], 1)  # delete columns
 #plotting d on a 2D scatterplot
@@ -37,7 +37,7 @@ plt.show()
 # normalize the data with StandardScaler
 d_std = np.nan_to_num(preprocessing.StandardScaler().fit_transform(d))
 # compute PCA
-pca = PCA(n_components=13)
+pca = PCA(n_components=14)
 d_pca = pca.fit_transform(d_std)
 # d_pca is a numpy array with transformed data and pca is a
 # PCA variable  with useful attributes (e.g., explained_variance_)
