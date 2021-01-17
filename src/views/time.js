@@ -39,15 +39,20 @@ export default function () {
         .attr("width", width)
         .attr("height", height);
 
-      svg.append("defs").append("clipPath")
-        .attr("id", "clip3")
-        .append("rect")
-        .attr("width", width)
-        .attr("height", height);
-
       const focus = svg.append("g")
         .attr("class", "focus")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      const line = d3.line()
+        .defined((d, i) => {
+          if (i != 0) {
+            if (d.date.getDate() - data[i - 1].date.getDate() > 1) {
+              return false;
+            }
+            else return true;
+          }
+          else return false;
+        })
 
       let idled = function () {
         idleTimeout = null;
@@ -69,23 +74,23 @@ export default function () {
         focus.selectAll("#boxes").remove();
         let boxes = focus
           .selectAll("boxes")
+          .attr("clip-path", "url(#clip2)")
           .data(data)
-        boxes
-          .enter()
-          .append("rect")
-          .attr("id", "boxes")
-          .attr("clip-path", "url(#clip3)")
-          .merge(boxes)
-          .transition()
-          .duration(1000)
-          .ease(d3.easeBackIn)
-          .attr("x", 1)
-          .attr("transform", function (d, i) { return "translate(" + x(bins[i].x0) + "," + y(d[yTopic]) + ")"; })
-          .attr("width", function (d, i) { return x(bins[i].x1) - x(bins[i].x0) - 1; })
-          .attr("height", function (d) { return height - y(d[yTopic]) })
-          .attr("stroke", "black")
-          .attr("stroke-width", ".5")
-          .style("fill", "#69b3a2");
+        // boxes
+        //   .enter()
+        //   .append("rect")
+        //   .attr("id", "boxes")
+        //   .merge(boxes)
+        //   .transition()
+        //   .duration(1000)
+        //   .ease(d3.easeBackIn)
+        //   .attr("x", 1)
+        //   .attr("transform", function (d, i) { return "translate(" + x(bins[i].x0) + "," + y(d[yTopic]) + ")"; })
+        //   .attr("width", function (d, i) { return x(bins[i].x1) - x(bins[i].x0) - 1; })
+        //   .attr("height", function (d) { return height - y(d[yTopic]) })
+        //   .attr("stroke", "black")
+        //   .attr("stroke-width", ".5")
+        //   .style("fill", "#69b3a2");
 
         focus.selectAll("#data--path")
           .transition()
@@ -99,12 +104,19 @@ export default function () {
           .attr("stroke", "steelblue")
           .attr("stroke-width", "2")
           .attr("clip-path", "url(#clip2)")
-          .attr("d", d3.line()
-            .x(function (d) { return x(d.date) })
-            .y(function (d) {
-              return y(d[yTopic])
-            })
+          .attr("d",
+            line
+              .x(function (d) { return x(d.date) })
+              .y(function (d) {
+                return y(d[yTopic])
+              })
           );
+
+        focus.selectAll("#empty--path")
+          .transition()
+          .duration(100)
+          .ease(d3.easeBackOut)
+          .remove();
 
         /** AXIS */
         xAxis = d3.axisBottom(x)
@@ -180,7 +192,7 @@ export default function () {
             svg.select("#axis2--x").transition(transition).call(xAxis2);
             svg.select("#axis--y").transition(transition).call(yAxis);
             focus.select("#data--path").transition(transition)
-              .attr("d", d3.line()
+              .attr("d", line
                 .x(function (d) {
                   let xValue = x(d.date);
                   onBrush(
@@ -192,7 +204,7 @@ export default function () {
                   return xValue;
                 })
                 .y(function (d) { return y(d[yTopic]) })
-              )
+              );
 
             focus.selectAll("#boxes").transition(transition)
               .attr("transform", function (d, i) { return "translate(" + x(bins[i].x0) + "," + y(d[yTopic]) + ")"; })

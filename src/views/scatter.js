@@ -39,37 +39,17 @@ export default function () {
 
       const focus = svg.append("g")
         .attr("class", "focus")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
 
       updateData = function () {
-        x.domain(d3.extent(data, function (d) { return +d["Y1"];})).nice();
-        y.domain(d3.extent(data, function (d) { return +d["Y2"];})).nice();
+        x.domain(d3.extent(data, function (d) { return +d["Y1"]; })).nice();
+        y.domain(d3.extent(data, function (d) { return +d["Y2"]; })).nice();
 
 
         let xAxis = d3.axisBottom(x), yAxis = d3.axisLeft(y);
         // append scatter plot to main chart area
-        
-        focus.selectAll("#dots").remove();
-        let dots = focus.selectAll("circle")
-          .data(data);
-
-        dots.enter()
-          .append("circle")
-          .attr("id", "dots")
-          .attr('class', 'dot')
-          .attr("clip-path", "url(#clip)")
-          .attr("r", 5)
-          .merge(dots)
-          .transition()
-          .duration(1000)
-          .ease(d3.easeBackIn)
-          .attr("stroke", d => !d.selected ? "grey" : "black")
-          .attr("stroke-width", ".5")
-          .attr("opacity", d => d.selected ? ".9" : ".1")
-          .attr("cx", function (d) { return x(d["Y1"]) })
-          .attr("cy", function (d) { return y(d["Y2"]) })
-          .style("fill", d => d.selected ? color(d.region) : "transparent");
-
         if (svg.select("#axis--x").empty()) {
           focus.append("g")
             .attr("class", "axis axis--x")
@@ -117,7 +97,7 @@ export default function () {
             }
 
             zoom();
-            onBrushCompleted(brushMode ? views : null);
+            //onBrushCompleted(brushMode ? views : null);
           }
 
           zoom = function () {
@@ -129,12 +109,12 @@ export default function () {
               .attr("cx", function (d) {
                 let xValue = x(d["Y1"]);
                 let yValue = y(d["Y2"]);
-                onBrush(
-                  brushMode, // brush mode
-                  d, // value to update
-                  xValue >= x.range()[0] && xValue <= x.range()[1] && yValue <= y.range()[0] && yValue >= y.range()[1],
-                  views // views to update
-                );
+                //onBrush(
+                //  brushMode, // brush mode
+                //  d, // value to update
+                //  xValue >= x.range()[0] && xValue <= x.range()[1] && yValue <= y.range()[0] && yValue >= y.range()[1],
+                //  views // views to update
+                //);
                 return xValue;
               })
               .attr("cy", function (d) { if (d.selected) return y(d["Y2"]); });
@@ -145,7 +125,51 @@ export default function () {
           focus.append("g")
             .attr("class", "brush")
             .call(brush);
+
+          // Define the div for the tooltip
+
         }
+
+
+        focus.selectAll("#dots").remove();
+        let dots = focus.selectAll("circle")
+          .data(data)
+          .enter()
+          .append("circle")
+          .attr("id", "dots")
+          .attr('class', 'dot')
+          .attr("clip-path", "url(#clip)")
+          .attr("r", 5)
+          .style("fill", d => d.selected ? color(d.region) : "transparent")
+          .attr("stroke", "black")
+          .attr("stroke-width", "1")
+          .attr("opacity", d => d.brushed ? "1" : ".2")
+          .attr("cx", function (d) { return x(d["Y1"]) })
+          .attr("cy", function (d) { return y(d["Y2"]) });
+
+        dots
+          .transition()
+          .duration(1000)
+          .ease(d3.easeBackIn);
+
+        const div = d3.select("body").append("div")
+          .attr("class", "tooltip")
+          .style("opacity", 0);
+
+        dots.on("mouseover", function (d) {
+          console.log("over");
+          div.transition()
+            .duration(200)
+            .style("opacity", .9);
+          div.html(JSON.stringify(d) + "<br/>" + d.close)
+            .style("left", (d3.event.pageX) + "px")
+            .style("top", (d3.event.pageY - 28) + "px");
+        })
+          .on("mouseout", function (d) {
+            div.transition()
+              .duration(500)
+              .style("opacity", 0);
+          });
       }
     })
   }
@@ -164,7 +188,7 @@ export default function () {
   }
 
   scatter.setBrushMode = function (mode) {
-    brushMode = mode;
+    //brushMode = mode;
     return scatter
   }
 

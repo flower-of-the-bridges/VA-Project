@@ -29,6 +29,11 @@ export default function () {
     idleTimeout = null;
   }
 
+  let onBrush = (mode, d, brush) => { console.log("brush mode %o for object %o and brush %o ", mode, d, brush) } // default callback when data is brushed
+  let onBrushCompleted = (mode) => { console.log("brush completed ", mode) }
+
+  let views = ["scatter", "time"]
+
   const boxplot = function (selection) {
     selection.each(function () {
       const dom = d3.select(this)
@@ -137,7 +142,8 @@ export default function () {
           .attr("cx", function () { return (x(yTopic) - jitterWidth / 2 + Math.random() * jitterWidth) })
           .attr("cy", function (d) { return (y(d[yTopic])) })
           .attr("r", 4)
-          .style("fill", "white")
+          .style("fill", "steelblue")
+          .attr("opacity", d => d.brushed ? '1' : '.5')
           .attr("stroke", "black")
 
 
@@ -172,15 +178,15 @@ export default function () {
             console.log("zoom");
             let transition = svg.transition().duration(750);
             svg.selectAll("circle").transition(transition)
-              .style("fill", function (d) {
+              .attr("opacity", function (d) {
                 let yValue = newY && newY(d[yTopic]);
-                // onBrush(
-                //   brushMode, // brush mode
-                //   d, // value to update
-                //   xValue >= x.range()[0] && xValue <= x.range()[1] && yValue <= y.range()[0] && yValue >= y.range()[1],
-                //   views // views to update
-                // );
-                return newY && yValue >= newY.range()[1] && yValue <= newY.range()[0] ? 'steelblue' : 'white';
+                onBrush(
+                  brushMode, // brush mode
+                  d, // value to update
+                  newY && yValue >= newY.range()[1] && yValue <= newY.range()[0],
+                  views // views to update
+                );
+                return newY && yValue >= newY.range()[1] && yValue <= newY.range()[0] ? '1' : '.5';
               })
           }
           brushended = function () {
@@ -199,7 +205,7 @@ export default function () {
 
             highlight(newY);
 
-            //onBrushCompleted(brushMode ? views : null);
+            onBrushCompleted(brushMode ? views : null);
           }
 
           const brush = d3.brushY().extent([[0, 0], [width, height]]).on("end", brushended)
@@ -219,7 +225,7 @@ export default function () {
     }
     data = _
     if (typeof updateData === 'function') {
-      data = data.filter(d => { return brushMode ? d.selected && d.brushed : d.selected });
+      data = data.filter(d => { return d.selected });
       updateData()
     }
     return boxplot
@@ -231,7 +237,7 @@ export default function () {
     }
     yTopic = _
     if (typeof updateData === 'function') {
-      data = data.filter(d => { return brushMode ? d.selected && d.brushed : d.selected });
+      data = data.filter(d => { return d.selected });
       updateData()
     }
     return boxplot
@@ -241,6 +247,10 @@ export default function () {
     brushMode = mode;
     return boxplot
   }
+
+  // bindings
+  boxplot.bindBrush = (callback) => onBrush = callback
+  boxplot.bindBrushComplete = (callback) => onBrushCompleted = callback
 
   return boxplot;
 }

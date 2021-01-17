@@ -14,8 +14,8 @@ class Controller {
     // Model functions binding
     this.model.bindEntriesListChanged(this.onEntriesListChanged.bind(this))
     // Views functions binding
-    this.scatter.bindBrush((brushMode, d, brush, views) => this.onBrushChanged(brushMode, d, brush, views)).bind(this);
-    this.scatter.bindBrushComplete((views) => this.onBrushCompleted(views)).bind(this);
+    this.boxplot.bindBrush((brushMode, d, brush, views) => this.onBrushChanged(brushMode, d, brush, views)).bind(this);
+    this.boxplot.bindBrushComplete((views) => this.onBrushCompleted(views)).bind(this);
     this.time.bindBrush((brushMode, d, brush, views) => this.onBrushChanged(brushMode, d, brush, views)).bind(this);
     this.time.bindBrushComplete((views) => this.onBrushCompleted(views)).bind(this);
   }
@@ -60,7 +60,8 @@ class Controller {
   }
   //
   onEntriesListChanged(views) {
-
+    prova.textContent = this.model.entries.filter(d => { return d.selected && d.brushed}).length + "/" +this.model.entries.length
+    //data = ;
     if (views && Array.isArray(views)) {
       views.forEach(view =>{
         this[view].data(this.model.entries)
@@ -88,7 +89,7 @@ class Controller {
 
     this.model.entries = this.model.entries.map(e => {
       e.selected = false;
-      e.brushed = false;
+      //e.brushed = false;
       return e;
     });
 
@@ -96,7 +97,7 @@ class Controller {
       let entry = this.model.entries[this.model.entriesById[id]];
       if (entry && entry.region == selectedRegion) {
         entry.selected = true;
-        entry.brushed = true;
+        //entry.brushed = false;
       }
     });
 
