@@ -64,7 +64,7 @@ const loadData = function () {
           e.date = formatTime(e.date);
           controller.handleAddEntry({
             ...e,
-            brushed: true,
+            brushed: false,
             selected: formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date && e.region == selectedRegion
           })
         })

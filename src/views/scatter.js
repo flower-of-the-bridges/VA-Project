@@ -18,7 +18,11 @@ export default function () {
 
   let idleTimeout, idleDelay = 350;
 
-  let onBrush = (s) => { console.log("brushed portion of scatter ", s) } // default callback when data is brushed
+  // brush callbacks
+  let onBrush = (mode, d, brush) => { console.log("brush mode %o for object %o and brush %o ", mode, d, brush) } // default callback when data is brushed
+  let onBrushCompleted = (mode) => { console.log("brush completed ", mode) }
+  let brushMode = false;
+  let views = ["time", "boxplot"]; // other views
 
   const scatter = function (selection) {
     selection.each(function () {
@@ -38,8 +42,8 @@ export default function () {
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
       updateData = function () {
-        x.domain(d3.extent(data, function (d) { return +d["Y1"];/*return +d[chiavi[0]];*/ })).nice();
-        y.domain(d3.extent(data, function (d) { return +d["Y2"];/*return +d[chiavi[1]];*/ })).nice();
+        x.domain(d3.extent(data, function (d) { return +d["Y1"];})).nice();
+        y.domain(d3.extent(data, function (d) { return +d["Y2"];})).nice();
 
 
         let xAxis = d3.axisBottom(x), yAxis = d3.axisLeft(y);
@@ -48,11 +52,14 @@ export default function () {
         //let dots = focus.append("g");
         //dots.attr("clip-path", "url(#clip)");
 
+        
+        focus.selectAll("#dots").remove();
         let dots = focus.selectAll("circle")
           .data(data);
 
         dots.enter()
           .append("circle")
+          .attr("id", "dots")
           .attr('class', 'dot')
           .attr("clip-path", "url(#clip)")
           .attr("r", 5)
@@ -63,12 +70,11 @@ export default function () {
           .attr("stroke", d => !d.selected ? "grey" : "black")
           .attr("stroke-width", ".5")
           .attr("opacity", d => d.selected ? ".9" : ".1")
-          .attr("cx", function (d) { if (d.selected) return x(d["Y1"])/**return x(+d[chiavi[0]]);*/ })
-          .attr("cy", function (d) { if (d.selected) return y(d["Y2"])/**return y(+d[chiavi[1]]);*/ })
+          .attr("cx", function (d) { return x(d["Y1"]) })
+          .attr("cy", function (d) { return y(d["Y2"]) })
           .style("fill", d => d.selected ? color(d.region) : "transparent");
 
         if (svg.select("#axis--x").empty()) {
-          console.log("creating axis")
           focus.append("g")
             .attr("class", "axis axis--x")
             .attr('id', "axis--x")
@@ -106,13 +112,16 @@ export default function () {
               if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
               x.domain(d3.extent(data, function (d) { return +d["Y1"]; })).nice();
               y.domain(d3.extent(data, function (d) { return +d["Y2"]; })).nice();
+              brushMode = false;
             } else {
               x.domain([s[0][0], s[1][0]].map(x.invert, x));
               y.domain([s[1][1], s[0][1]].map(y.invert, y));
               focus.select(".brush").call(brush.move, null);
+              brushMode = true;
             }
-            //onBrush(s);
+
             zoom();
+            onBrushCompleted(brushMode ? views : null);
           }
 
           zoom = function () {
@@ -122,10 +131,15 @@ export default function () {
             svg.select("#axis--y").transition(transition).call(yAxis);
             svg.selectAll("circle").transition(transition)
               .attr("cx", function (d) {
-                if (d.selected) {
-                  //onBrush(d, x(d["Y1"]) >= x.range()[0] && x(d["Y1"]) <= x.range()[1]);
-                  return x(d["Y1"]);
-                }
+                let xValue = x(d["Y1"]);
+                let yValue = y(d["Y2"]);
+                onBrush(
+                  brushMode, // brush mode
+                  d, // value to update
+                  xValue >= x.range()[0] && xValue <= x.range()[1] && yValue <= y.range()[0] && yValue >= y.range()[1],
+                  views // views to update
+                );
+                return xValue;
               })
               .attr("cy", function (d) { if (d.selected) return y(d["Y2"]); });
           }
@@ -136,25 +150,31 @@ export default function () {
             .attr("class", "brush")
             .call(brush);
         }
-
-
       }
-
     })
   }
 
   scatter.data = function (_) {
     if (!arguments.length) {
-      return data
+      return data;
     }
     data = _
     if (typeof updateData === 'function') {
+      data = data.filter(d => { return brushMode ? d.selected && d.brushed : d.selected });
+      console.log("scatter receives %d elements", data.length);
       updateData()
     }
     return scatter
   }
 
+  scatter.setBrushMode = function (mode) {
+    brushMode = mode;
+    return scatter
+  }
+
+  // bindings
   scatter.bindBrush = (callback) => onBrush = callback
+  scatter.bindBrushComplete = (callback) => onBrushCompleted = callback
 
   return scatter;
 }

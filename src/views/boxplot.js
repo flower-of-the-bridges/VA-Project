@@ -5,6 +5,8 @@ export default function () {
 
   let yTopic = "";
 
+  let brushMode = false;
+
   let updateData;
 
   // rectangle for the main box
@@ -38,9 +40,7 @@ export default function () {
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
       updateData = function () {
-        let filteredData = data.filter(d => { return d.selected });
-
-        console.log("updateData", filteredData.length);
+        console.log("updateData", data.length);
         // Compute quartiles, median, inter quantile range min and max --> these info are then used to draw the box.
         const sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
           .key(function () { return yTopic; })
@@ -49,16 +49,16 @@ export default function () {
             let median = d3.quantile(d.map(function (g) { return +g[yTopic]; }).sort(d3.ascending), .5)
             let q3 = d3.quantile(d.map(function (g) { return +g[yTopic]; }).sort(d3.ascending), .75)
             let interQuantileRange = q3 - q1
-            let min = q1 - 1.5 * interQuantileRange
-            let max = q3 + 1.5 * interQuantileRange
+            let min = d3.min(d.map(function (g) { return +g[yTopic]; }))//q1 - interQuantileRange
+            let max = d3.max(d.map(function (g) { return +g[yTopic]; }))//q3 + interQuantileRange
             return ({ q1: q1, median: median, q3: q3, interQuantileRange: interQuantileRange, min: min, max: max })
           })
-          .entries(filteredData)
+          .entries(data)
 
         x.domain([yTopic])
           .paddingInner(1)
           .paddingOuter(.5);
-        y.domain(d3.extent(filteredData, function (d) { return +d[yTopic]; }));
+        y.domain(d3.extent(data, function (d) { return +d[yTopic]; }));
         /** boxplot */
 
 
@@ -117,14 +117,16 @@ export default function () {
         // Add individual points with jitter
         var jitterWidth = 50;
 
-        const points = focus
+        focus.selectAll("#data-points").remove();
+        let points = focus
           .selectAll("circle")
-          .data(filteredData);
-
+          .data(data);
+        
         points.enter()
           .append("circle")
           .merge(points)
           .attr("id", "data-points")
+          .attr("class", "dot")
           .attr("cx", function () { return (x(yTopic) - jitterWidth / 2 + Math.random() * jitterWidth) })
           .attr("cy", function (d) { return (y(d[yTopic])) })
           .attr("r", 4)
@@ -167,6 +169,7 @@ export default function () {
     }
     data = _
     if (typeof updateData === 'function') {
+      data = data.filter(d => { return brushMode? d.selected && d.brushed : d.selected });
       updateData()
     }
     return boxplot
@@ -178,8 +181,14 @@ export default function () {
     }
     yTopic = _
     if (typeof updateData === 'function') {
+      data = data.filter(d => { return brushMode? d.selected && d.brushed : d.selected });
       updateData()
     }
+    return boxplot
+  }
+
+  boxplot.setBrushMode = function (mode) {
+    brushMode = mode;
     return boxplot
   }
 

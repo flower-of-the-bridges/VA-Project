@@ -14,7 +14,10 @@ class Controller {
     // Model functions binding
     this.model.bindEntriesListChanged(this.onEntriesListChanged.bind(this))
     // Views functions binding
-    this.scatter.bindBrush((scatterZone) => this.onBrushChanged(scatterZone)).bind(this);
+    this.scatter.bindBrush((brushMode, d, brush, views) => this.onBrushChanged(brushMode, d, brush, views)).bind(this);
+    this.scatter.bindBrushComplete((views) => this.onBrushCompleted(views)).bind(this);
+    this.time.bindBrush((brushMode, d, brush, views) => this.onBrushChanged(brushMode, d, brush, views)).bind(this);
+    this.time.bindBrushComplete((views) => this.onBrushCompleted(views)).bind(this);
   }
   //
   handleAddEntry(entry) {
@@ -49,17 +52,19 @@ class Controller {
     window.open(uriContent, '');
   }
 
-  handleUpdateEntry(entry, timeOnly) {
-    this.model.updateEntry(entry, timeOnly)
+  handleUpdateEntry(entry, preventDefault) {
+    this.model.updateEntry(entry, preventDefault)
   }
   handleDeleteEntry(entryId) {
     this.model.deleteEntry(entryId)
   }
   //
-  onEntriesListChanged(timeOnly) {
+  onEntriesListChanged(views) {
 
-    if (timeOnly) {
-      this.time.data(this.model.entries);
+    if (views && Array.isArray(views)) {
+      views.forEach(view =>{
+        this[view].data(this.model.entries)
+      });
     }
     else {
       // scatter 
@@ -111,10 +116,26 @@ class Controller {
    * callback raised whenever a new portion of a vis is brushed by the user
    * @param {any} s 
    */
-  onBrushChanged(d, brushed) {
-    console.log("controller brush");
-    //d.brushed = brushed;
-    //this.handleUpdateEntry(d, true);
+  onBrushChanged(brushMode, d, brush, views) {
+    if(brushMode){
+      d.brushed = brush;
+      this.handleUpdateEntry(d, true);
+    }
+    else{
+      this.model.entries = this.model.entries.map(e => {
+        e.brushed = false;
+        return e;
+      });
+      // reset brush
+    }
+    
+    Array.isArray(views) && views.forEach(view =>{
+      this[view].setBrushMode(brushMode);
+    })
+  }
+
+  onBrushCompleted(views){
+    this.model.onEntriesListChanged(views);
   }
 }
 

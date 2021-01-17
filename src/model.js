@@ -16,9 +16,9 @@ class Model {
     this.entriesById[entry.id] = this.entries.length - 1
     this.onEntriesListChanged()
   }
-  updateEntry(entry, timeOnly) {
+  updateEntry(entry, preventDefault) {
     this.entries[this.entriesById[entry.id]] = { ...this.entriesById[entry.id], ...entry }
-    this.onEntriesListChanged(timeOnly)
+    !preventDefault && this.onEntriesListChanged()
   }
   deleteEntry(entryId) {
     const entryIndex = this.entriesById[entryId]
