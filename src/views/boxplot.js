@@ -6,8 +6,9 @@ export default function () {
   let yTopic = "";
 
   let brushMode = false;
+  let brushes = []; // array of brushes
 
-  let updateData;
+  let updateData, highlight, brushended;
 
   // rectangle for the main box
   let boxWidth = 100
@@ -21,6 +22,12 @@ export default function () {
     y = d3.scaleLinear().range([height, 0]);
 
   let xAxis, yAxis;
+
+  let idleTimeout, idleDelay = 350;
+
+  let idled = function () {
+    idleTimeout = null;
+  }
 
   const boxplot = function (selection) {
     selection.each(function () {
@@ -68,10 +75,10 @@ export default function () {
           .selectAll("vertLines")
           .data(sumstat);
 
-        lines 
+        lines
           .enter()
           .append("line")
-          .attr("id", "vert-lines")     
+          .attr("id", "vert-lines")
           .attr("x1", function (d) { return (x(d.key)) })
           .attr("x2", function (d) { return (x(d.key)) })
           .attr("y1", function (d) { return (y(d.value.min)) })
@@ -115,13 +122,13 @@ export default function () {
           .style("width", 80);
 
         // Add individual points with jitter
-        var jitterWidth = 50;
+        var jitterWidth = 250;
 
         focus.selectAll("#data-points").remove();
         let points = focus
           .selectAll("circle")
           .data(data);
-        
+
         points.enter()
           .append("circle")
           .merge(points)
@@ -159,6 +166,49 @@ export default function () {
           .style("text-anchor", "middle")
           .text("%");
 
+        if (focus.select("#boxbrush").empty()) {
+
+          highlight = function (newY) {
+            console.log("zoom");
+            let transition = svg.transition().duration(750);
+            svg.selectAll("circle").transition(transition)
+              .style("fill", function (d) {
+                let yValue = newY && newY(d[yTopic]);
+                // onBrush(
+                //   brushMode, // brush mode
+                //   d, // value to update
+                //   xValue >= x.range()[0] && xValue <= x.range()[1] && yValue <= y.range()[0] && yValue >= y.range()[1],
+                //   views // views to update
+                // );
+                return newY && yValue >= newY.range()[1] && yValue <= newY.range()[0] ? 'steelblue' : 'white';
+              })
+          }
+          brushended = function () {
+            let s = d3.event.selection;
+            console.log("brushnede", s)
+            let newY = null;
+            if (!s) {
+              if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
+              brushMode = false;
+            } else {
+              newY = y.copy();
+              newY.domain(s.map(newY.invert, newY));
+              focus.select(".brush").call(brush.move, null);
+              brushMode = true;
+            }
+
+            highlight(newY);
+
+            //onBrushCompleted(brushMode ? views : null);
+          }
+
+          const brush = d3.brushY().extent([[0, 0], [width, height]]).on("end", brushended)
+
+          focus.append("g")
+            .attr("id", "boxbrush")
+            .attr("class", "brush")
+            .call(brush);
+        }
       }
     })
   }
@@ -169,7 +219,7 @@ export default function () {
     }
     data = _
     if (typeof updateData === 'function') {
-      data = data.filter(d => { return brushMode? d.selected && d.brushed : d.selected });
+      data = data.filter(d => { return brushMode ? d.selected && d.brushed : d.selected });
       updateData()
     }
     return boxplot
@@ -181,7 +231,7 @@ export default function () {
     }
     yTopic = _
     if (typeof updateData === 'function') {
-      data = data.filter(d => { return brushMode? d.selected && d.brushed : d.selected });
+      data = data.filter(d => { return brushMode ? d.selected && d.brushed : d.selected });
       updateData()
     }
     return boxplot

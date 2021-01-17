@@ -47,11 +47,7 @@ export default function () {
 
 
         let xAxis = d3.axisBottom(x), yAxis = d3.axisLeft(y);
-        // append scatter plot to main chart area 
-
-        //let dots = focus.append("g");
-        //dots.attr("clip-path", "url(#clip)");
-
+        // append scatter plot to main chart area
         
         focus.selectAll("#dots").remove();
         let dots = focus.selectAll("circle")
