@@ -11,6 +11,7 @@ class Controller {
     this.scatter = views.scatter();
     this.time = views.time();
     this.boxplot = views.boxplot();
+    this.mapView = views.mapView();
     // Model functions binding
     this.model.bindEntriesListChanged(this.onEntriesListChanged.bind(this))
     // Views functions binding

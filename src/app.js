@@ -1,7 +1,6 @@
 import * as d3 from 'd3'
 
 import controller from './controller'
-import demo from './res/demo.csv'
 import covidData from './res/covid.csv'
 import mobilityData from './res/mobility.csv'
 import dataset from './res/pca.csv'
@@ -11,6 +10,15 @@ const app = async function () {
 
   initUI();
   //await preProcessData();
+
+  
+  const mapContainer = d3.select('#map');
+  mapContainer.call(window.app.mapView);
+
+  let mapLoaded = await loadMap()
+    .catch(err => {
+      console.log(err);
+    });
 
   let loaded = await loadData()
     .catch(err => {
@@ -29,7 +37,6 @@ const app = async function () {
     scatterContainer.call(window.app.scatter);
     timeContainer.call(window.app.time);
     boxContainer.call(window.app.boxplot);
-
     window.app.onEntriesListChanged();
   }
 
@@ -51,6 +58,29 @@ const preProcessData = async function () {
       })
 
   }
+}
+
+/**
+ * loads the map 
+ * 
+ * */
+const loadMap = function () {
+  return new Promise((resolve, reject) => {
+    //The format in the json, which d3 will read
+    d3.json("https://raw.githubusercontent.com/openpolis/geojson-italy/master/geojson/limits_IT_regions.geojson")
+      .then(geoJson => {
+        geoJson.features.forEach(feature =>{
+          feature.properties.clicked = false;
+        });
+        geoJson.clickCount = 0;
+        window.app.mapView.data(geoJson);
+        console.log("map loaded");
+        resolve(true)
+      })
+      .catch(err => {
+        reject(err);
+      })
+  })
 }
 
 // Load data
