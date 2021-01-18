@@ -18,6 +18,7 @@ export default function () {
     if (data.clickCount < 3 || d.properties.clicked) {
       d.properties.clicked = !d.properties.clicked;
       d.properties.clicked ? data.clickCount++ : data.clickCount--;
+      data.wholeMap = data.clickCount == 0;
       mapCallback();
       updateData(); // this will go inside the map callback on the controller
       console.log("clicked %o . selected regions: %d", d, data.clickCount);
@@ -46,7 +47,7 @@ export default function () {
           .join(
             enter => enter
               .append("path")
-              .attr("fill", "white") // first time, no region is selected: all white 
+              .attr("fill", "steelblue") // first time, no region is selected: all white 
               .attr("d", d3.geoPath()
                 .projection(projection)
               )
@@ -59,7 +60,7 @@ export default function () {
               .call(update => update
                 .transition()
                 .duration(1000)
-                .style('fill', d => d.properties.clicked ? 'green' : 'white')
+                .style('fill', d => d.properties.clicked ? 'green' : 'steelblue')
               ),
             exit => exit
               .call(exit => exit

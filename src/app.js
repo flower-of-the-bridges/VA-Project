@@ -25,7 +25,7 @@ const app = async function () {
       console.log(err);
     });
 
-  if (loaded) {
+  if (loaded && mapLoaded) {
     console.log("model loaded. entry #5000: %o", controller.model.entries[5000]);
     // Create container
     const scatterContainer = d3.select('#scatter');
@@ -73,6 +73,7 @@ const loadMap = function () {
           feature.properties.clicked = false;
         });
         geoJson.clickCount = 0;
+        geoJson.wholeMap = true;
         window.app.mapView.data(geoJson);
         console.log("map loaded");
         resolve(true)
@@ -94,8 +95,9 @@ const loadData = function () {
           e.date = formatTime(e.date);
           controller.handleAddEntry({
             ...e,
-            brushed: false,
-            selected: formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date && e.region == selectedRegion
+            jitter: Math.random(),
+            brushed: formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date && e.region == selectedRegion,
+            selected: /**formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date && */e.region == selectedRegion
           })
         })
         resolve(true)

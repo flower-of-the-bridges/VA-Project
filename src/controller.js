@@ -61,10 +61,10 @@ class Controller {
   }
   //
   onEntriesListChanged(views) {
-    prova.textContent = this.model.entries.filter(d => { return d.selected && d.brushed}).length + "/" +this.model.entries.length
+    prova.textContent = this.model.entries.filter(d => { return d.selected && d.brushed }).length + "/" + this.model.entries.length
     //data = ;
     if (views && Array.isArray(views)) {
-      views.forEach(view =>{
+      views.forEach(view => {
         this[view].data(this.model.entries)
       });
     }
@@ -84,21 +84,24 @@ class Controller {
     finish.min = start.value;
     let daysPerRegion = Object.keys(this.model.entriesById);
     let idsToChange = daysPerRegion.filter(id => {
-      let date = id.split("_")[0];
-      return new Date(start.value) <= new Date(date) && new Date(finish.value) >= new Date(date)
+      let region = id.split("_")[1];
+      return region == selectedRegion
     });
 
     this.model.entries = this.model.entries.map(e => {
       e.selected = false;
-      //e.brushed = false;
+      e.brushed = false;
       return e;
     });
 
     idsToChange.forEach(id => {
       let entry = this.model.entries[this.model.entriesById[id]];
-      if (entry && entry.region == selectedRegion) {
+      if (entry) {
         entry.selected = true;
-        //entry.brushed = false;
+        if (entry.region == selectedRegion) {
+          let date = id.split("_")[0];
+          entry.brushed = new Date(start.value) <= new Date(date) && new Date(finish.value) >= new Date(date);
+        }
       }
     });
 
@@ -106,11 +109,11 @@ class Controller {
 
   }
 
-  updateTimeSeries(){
+  updateTimeSeries() {
     this.time.updateY(selectedTimeType);
   }
 
-  updateBoxPlot(){
+  updateBoxPlot() {
     this.boxplot.updateY(selectedMobility);
   }
 
@@ -119,24 +122,24 @@ class Controller {
    * @param {any} s 
    */
   onBrushChanged(brushMode, d, brush, views) {
-    if(brushMode){
+    if (brushMode) {
       d.brushed = brush;
       this.handleUpdateEntry(d, true);
     }
-    else{
+    else {
       this.model.entries = this.model.entries.map(e => {
         e.brushed = false;
         return e;
       });
       // reset brush
     }
-    
-    Array.isArray(views) && views.forEach(view =>{
+
+    Array.isArray(views) && views.forEach(view => {
       this[view].setBrushMode(brushMode);
     })
   }
 
-  onBrushCompleted(views){
+  onBrushCompleted(views) {
     this.model.onEntriesListChanged(views);
   }
 }

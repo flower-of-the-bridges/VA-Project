@@ -139,7 +139,7 @@ export default function () {
           .merge(points)
           .attr("id", "data-points")
           .attr("class", "dot")
-          .attr("cx", function () { return (x(yTopic) - jitterWidth / 2 + Math.random() * jitterWidth) })
+          .attr("cx", function (d) { return (x(yTopic) - jitterWidth / 2 + d.jitter * jitterWidth) })
           .attr("cy", function (d) { return (y(d[yTopic])) })
           .attr("r", 4)
           .style("fill", "steelblue")
