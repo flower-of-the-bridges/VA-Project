@@ -12,7 +12,7 @@
 
 <body>
   <div align="center">
-    <div style="margin-bottom: 30px;">
+    <!-- <div style="margin-bottom: 30px;">
       <input type="radio" id="it" name="region" value="0" checked>
       <label for="it">Italia</label>
 
@@ -72,13 +72,13 @@
 
       <input type="radio" id="fri" name="region" value="06">
       <label for="fri">Friuli</label>
-    </div>
+    </div> -->
     <div id="map" align="center"></div>
     <p style="display: inline;">Start:</p>
-    <input type="date" id="start" value="2020-02-24" min="2020-02-24" max="2020-12-31" onchange="app.updateEntries()">
+    <input type="date" id="start" value="2020-02-24" min="2020-02-24" max="2020-12-31" onchange="app.onMapUpdated()">
     <span></span>
     <p style="display: inline;">Finish:</p>
-    <input type="date" id="finish" value="2020-12-31" min="2020-02-24" max="2020-12-31" onchange="app.updateEntries()">
+    <input type="date" id="finish" value="2020-12-31" min="2020-02-24" max="2020-12-31" onchange="app.onMapUpdated()">
   </div>
   <div style="display: inline-flex; margin-top: 50px;">
     <div id="scatter">
@@ -130,15 +130,7 @@
       <input type="radio" id="death" name="covid" value="death">
       <label for="death">Death</label>
     </div>
-    
-    <div align="left" style="margin-left: 60px;">
-      <p style="display: inline;">Mode:</p>
-      <input type="radio" id="zoom" name="mode" value="zoom" checked>
-      <label for="zoom">Zoom</label>
 
-      <input type="radio" id="brush" name="mode" value="brush">
-      <label for="brush">Brush</label>
-    </div>
   </div>
 
 

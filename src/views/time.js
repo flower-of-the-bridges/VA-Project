@@ -3,6 +3,7 @@ import * as d3 from 'd3'
 export default function () {
   let data = [];
   let bins = [];
+  let dataRegions = {};
 
   let yTopic = "";
 
@@ -43,17 +44,6 @@ export default function () {
         .attr("class", "focus")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-      const line = d3.line()
-        .defined((d, i) => {
-          if (i != 0) {
-            if (d.date.getDate() - data[i - 1].date.getDate() > 1) {
-              return false;
-            }
-            else return true;
-          }
-          else return false;
-        })
-
       let idled = function () {
         idleTimeout = null;
       }
@@ -92,31 +82,48 @@ export default function () {
         //   .attr("stroke-width", ".5")
         //   .style("fill", "#69b3a2");
 
-        focus.selectAll("#data--path")
+        focus.selectAll("path")
           .transition()
           .duration(100)
           .ease(d3.easeBackOut)
           .remove();
 
-        focus.append("path")
-          .datum(data)
-          .attr("id", "data--path")
-          .attr("stroke", "steelblue")
-          .attr("stroke-width", "2")
-          .attr("clip-path", "url(#clip2)")
-          .attr("d",
-            line
-              .x(function (d) { return x(d.date) })
-              .y(function (d) {
-                return y(d[yTopic])
-              })
-          );
+        dataRegions = {};
 
-        focus.selectAll("#empty--path")
-          .transition()
-          .duration(100)
-          .ease(d3.easeBackOut)
-          .remove();
+        selectedRegions.forEach((region, index) => {
+
+          let regionData = data.filter(d => { return d.region == region });
+          dataRegions[region] = regionData;
+          let line = d3.line()
+            .defined((d, i) => {
+              if (i != 0) {
+                if (d.date.getDate() - regionData[i - 1].date.getDate() > 1) {
+                  return false;
+                }
+                else return true;
+              }
+              else return false;
+            })
+          focus.append("path")
+            .datum(regionData)
+            .attr("id", "data--path--"+index)
+            .attr("stroke", function (d) { return regionColor(region) })
+            .attr("stroke-width", "2")
+            .attr("clip-path", "url(#clip2)")
+            .attr("d",
+              line
+                .x(function (d) { return x(d.date) })
+                .y(function (d) {
+                  return y(d[yTopic])
+                })
+            );
+
+          focus.selectAll("#empty--path")
+            .transition()
+            .duration(100)
+            .ease(d3.easeBackOut)
+            .remove();
+        });
 
         /** AXIS */
         xAxis = d3.axisBottom(x)
@@ -191,20 +198,33 @@ export default function () {
             svg.select("#axis--x").transition(transition).call(xAxis);
             svg.select("#axis2--x").transition(transition).call(xAxis2);
             svg.select("#axis--y").transition(transition).call(yAxis);
-            focus.select("#data--path").transition(transition)
-              .attr("d", line
-                .x(function (d) {
-                  let xValue = x(d.date);
-                  onBrush(
-                    brushMode, // brush mode
-                    d, // value to update
-                    xValue >= x.range()[0] && xValue <= x.range()[1], // brushed 
-                    views // views to update
-                  );
-                  return xValue;
-                })
-                .y(function (d) { return y(d[yTopic]) })
-              );
+
+            focus.selectAll("path").each(function(pathData, index){
+              let line = d3.line()
+                .defined((d, i) => {
+                  if (i != 0) {
+                    if (d.date.getDate() - pathData[i - 1].date.getDate() > 1) {
+                      return false;
+                    }
+                    else return true;
+                  }
+                  else return false;
+                });
+              focus.select("#data--path--"+index).transition(transition)
+                .attr("d", line
+                  .x(function (d) {
+                    let xValue = x(d.date);
+                    onBrush(
+                      brushMode, // brush mode
+                      d, // value to update
+                      xValue >= x.range()[0] && xValue <= x.range()[1], // brushed 
+                      views // views to update
+                    );
+                    return xValue;
+                  })
+                  .y(function (d) { return y(d[yTopic]) })
+                )
+            });
 
             focus.selectAll("#boxes").transition(transition)
               .attr("transform", function (d, i) { return "translate(" + x(bins[i].x0) + "," + y(d[yTopic]) + ")"; })

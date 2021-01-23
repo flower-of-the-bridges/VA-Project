@@ -55,7 +55,7 @@ export default function () {
         console.log("updateData", data.length);
         // Compute quartiles, median, inter quantile range min and max --> these info are then used to draw the box.
         const sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
-          .key(function () { return yTopic; })
+          .key(function (d) { return d.region; })
           .rollup(function (d) {
             let q1 = d3.quantile(d.map(function (g) { return +g[yTopic]; }).sort(d3.ascending), .25)
             let median = d3.quantile(d.map(function (g) { return +g[yTopic]; }).sort(d3.ascending), .5)
@@ -67,7 +67,7 @@ export default function () {
           })
           .entries(data)
 
-        x.domain([yTopic])
+        x.domain(selectedRegions)
           .paddingInner(1)
           .paddingOuter(.5);
         y.domain(d3.extent(data, function (d) { return +d[yTopic]; }));
@@ -75,7 +75,7 @@ export default function () {
 
 
         // Show the main vertical line
-        focus.select("#vert-lines").remove();
+        focus.selectAll("#vert-lines").remove();
         const lines = focus
           .selectAll("vertLines")
           .data(sumstat);
@@ -91,10 +91,10 @@ export default function () {
           .attr("stroke", "black")
           .style("width", 40)
 
-        focus.select("#vert--lines").lower();
+        focus.select("#vert-lines").lower();
 
         // show the main boxes
-        focus.select("#boxes").remove();
+        focus.selectAll("#boxes").remove();
 
         focus
           .selectAll("boxes")
@@ -112,7 +112,7 @@ export default function () {
         focus.select("#boxes").lower();
 
         // Show the median
-        focus.select("#median-lines").remove();
+        focus.selectAll("#median-lines").remove();
         focus
           .selectAll("medianLines")
           .data(sumstat)
@@ -127,7 +127,7 @@ export default function () {
           .style("width", 80);
 
         // Add individual points with jitter
-        var jitterWidth = 250;
+        var jitterWidth = 50;
 
         focus.selectAll("#data-points").remove();
         let points = focus
@@ -139,10 +139,10 @@ export default function () {
           .merge(points)
           .attr("id", "data-points")
           .attr("class", "dot")
-          .attr("cx", function (d) { return (x(yTopic) - jitterWidth / 2 + d.jitter * jitterWidth) })
+          .attr("cx", function (d) { return (x(d.region) - jitterWidth / 2 + d.jitter * jitterWidth) })
           .attr("cy", function (d) { return (y(d[yTopic])) })
           .attr("r", 4)
-          .style("fill", "steelblue")
+          .style("fill", (d) => regionColor(d.region))
           .attr("opacity", d => d.brushed ? '1' : '.5')
           .attr("stroke", "black")
 
@@ -155,7 +155,7 @@ export default function () {
         focus.append("g")
           .attr("class", "axis axis--x")
           .attr('id', "axis--x")
-          .attr("transform", "translate(0," + height + ")")
+          .attr("transform", "translate(0," + y(0) + ")")
           .call(xAxis);
 
         focus.select("g.axis--y").remove();
@@ -195,11 +195,12 @@ export default function () {
             let newY = null;
             if (!s) {
               if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
+              newY = y;
               brushMode = false;
             } else {
               newY = y.copy();
               newY.domain(s.map(newY.invert, newY));
-              focus.select(".brush").call(brush.move, null);
+              //focus.select(".brush").call(brush.move, null);
               brushMode = true;
             }
 

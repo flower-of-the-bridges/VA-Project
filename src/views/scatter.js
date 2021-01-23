@@ -14,7 +14,6 @@ export default function () {
   let x = d3.scaleLinear().range([0, width]),
     y = d3.scaleLinear().range([height, 0]);
 
-  let color = d3.scaleOrdinal(d3.schemeCategory10);
 
   let idleTimeout, idleDelay = 350;
 
@@ -54,7 +53,7 @@ export default function () {
           focus.append("g")
             .attr("class", "axis axis--x")
             .attr('id', "axis--x")
-            .attr("transform", "translate(0," + height + ")")
+            .attr("transform", "translate(0," + y(0) + ")")
             .call(xAxis);
 
           focus.append("g")
@@ -103,7 +102,10 @@ export default function () {
           zoom = function () {
             console.log("zoom");
             let transition = svg.transition().duration(750);
-            svg.select("#axis--x").transition(transition).call(xAxis);
+            svg.select("#axis--x")
+              .transition(transition)
+              .attr("transform", "translate(0," + y(0) + ")")
+              .call(xAxis);
             svg.select("#axis--y").transition(transition).call(yAxis);
             svg.selectAll("circle").transition(transition)
               .attr("cx", function (d) {
@@ -140,7 +142,7 @@ export default function () {
           .attr('class', 'dot')
           .attr("clip-path", "url(#clip)")
           .attr("r", 5)
-          .style("fill", d => d.selected ? color(d.region) : "transparent")
+          .style("fill", d => d.selected ? regionColor(d.region) : "transparent")
           .attr("stroke", "black")
           .attr("stroke-width", "1")
           .attr("opacity", d => d.brushed ? "1" : ".2")

@@ -19,6 +19,7 @@ class Controller {
     this.boxplot.bindBrushComplete((views) => this.onBrushCompleted(views)).bind(this);
     this.time.bindBrush((brushMode, d, brush, views) => this.onBrushChanged(brushMode, d, brush, views)).bind(this);
     this.time.bindBrushComplete((views) => this.onBrushCompleted(views)).bind(this);
+    this.mapView.bindCallback(() => this.onMapUpdated()).bind(this);
   }
   //
   handleAddEntry(entry) {
@@ -109,6 +110,36 @@ class Controller {
 
   }
 
+  onMapUpdated(){
+    console.log("update dates", start, finish, selectedRegions);
+    start.max = finish.value;
+    finish.min = start.value;
+    let daysPerRegion = Object.keys(this.model.entriesById);
+    let idsToChange = daysPerRegion.filter(id => {
+      let region = id.split("_")[1];
+      return selectedRegions.includes(region);
+    });
+
+    this.model.entries = this.model.entries.map(e => {
+      e.selected = false;
+      e.brushed = false;
+      return e;
+    });
+
+    idsToChange.forEach(id => {
+      let entry = this.model.entries[this.model.entriesById[id]];
+      if (entry) {
+        entry.selected = true;
+        if (selectedRegions.includes(entry.region)) {
+          let date = id.split("_")[0];
+          entry.brushed = new Date(start.value) <= new Date(date) && new Date(finish.value) >= new Date(date);
+        }
+      }
+    });
+
+    this.model.onEntriesListChanged();
+  }
+
   updateTimeSeries() {
     this.time.updateY(selectedTimeType);
   }
@@ -122,17 +153,18 @@ class Controller {
    * @param {any} s 
    */
   onBrushChanged(brushMode, d, brush, views) {
-    if (brushMode) {
+    if (true) {
       d.brushed = brush;
       this.handleUpdateEntry(d, true);
     }
-    else {
-      this.model.entries = this.model.entries.map(e => {
-        e.brushed = false;
-        return e;
-      });
+    //else {
+    //  this.model.entries = this.model.entries.map(e => {
+    //    let date = e.id.split("_")[0];
+    //   e.brushed = new Date(start.value) <= new Date(date) && new Date(finish.value) >= new Date(date) && selectedRegions.includes(e.region);
+    //    return e;
+    //  });
       // reset brush
-    }
+    //}
 
     Array.isArray(views) && views.forEach(view => {
       this[view].setBrushMode(brushMode);

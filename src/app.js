@@ -7,9 +7,11 @@ import dataset from './res/pca.csv'
 
 const app = async function () {
   window.app = controller;
+  window.selectedRegions = ["0"];
 
   initUI();
   //await preProcessData();
+  window.regionColor = d3.scaleOrdinal(d3.schemeCategory10);
 
   
   const mapContainer = d3.select('#map');
@@ -96,8 +98,8 @@ const loadData = function () {
           controller.handleAddEntry({
             ...e,
             jitter: Math.random(),
-            brushed: formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date && e.region == selectedRegion,
-            selected: /**formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date && */e.region == selectedRegion
+            brushed: formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date && selectedRegions.includes(e.region),
+            selected: /**formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date && */selectedRegions.includes(e.region)
           })
         })
         resolve(true)
@@ -137,23 +139,23 @@ const initUI = function () {
   // init dates
   start.max = finish.value;
   finish.min = start.value;
-  // init region radio buttons with callback
-  window.regionRadios = document.querySelectorAll('input[type=radio][name="region"]');
-  window.regionRadios.forEach(radio => {
-    if (radio.checked) {
-      window.selectedRegion = radio.value
-    }
-  });
-  console.log("selectedRegion is ", selectedRegion);
-  function changeHandler(event) {
-    selectedRegion = this.value;
-    console.log("selectedRegion is ", selectedRegion);
-    window.app.updateEntries();
-  }
+  // // init region radio buttons with callback
+  // window.regionRadios = document.querySelectorAll('input[type=radio][name="region"]');
+  // window.regionRadios.forEach(radio => {
+  //   if (radio.checked) {
+  //     window.selectedRegion = radio.value
+  //   }
+  // });
+  // console.log("selectedRegion is ", selectedRegion);
+  // function changeHandler(event) {
+  //   selectedRegion = this.value;
+  //   console.log("selectedRegion is ", selectedRegion);
+  //   window.app.updateEntries();
+  // }
 
-  regionRadios.forEach(radio => {
-    radio.addEventListener('change', changeHandler);
-  });
+  // regionRadios.forEach(radio => {
+  //   radio.addEventListener('change', changeHandler);
+  // });
 
   // init time series buttons with callback
   window.timeRadios = document.querySelectorAll('input[type=radio][name="covid"]');
