@@ -1,4 +1,5 @@
 import * as d3 from 'd3'
+import { create } from 'd3';
 
 export default function () {
   let data = [];
@@ -51,7 +52,21 @@ export default function () {
         idleTimeout = null;
       }
 
+      let createLegend = function (legend) {
+        selectedRegions.forEach((region, index) => {
+          legend.append("circle").attr("cx", width).attr("cy", (index + 1) * margin.top).attr("r", 6).style("fill", regionColor(region.id))
+          legend.append("text").attr("x", width + margin.right / 4).attr("y", (index + 1) * margin.top + 4).text(region.name).style("font-size", "15px").attr("alignment-baseline", "middle")
+        })
+      }
+
       updateData = function () {
+        // Handmade legend
+        svg.select("#legend").remove();
+        let legend = svg.append("g")
+          .attr("class", "focus")
+          .attr("id", "legend");
+        createLegend(legend);
+
         x.domain(d3.extent(data, function (d) { return +d["date"]; }));
         y.domain(d3.extent(data, function (d) { return +d[yTopic]; }));
         console.log("time has %d elements. (brush mode: %s)\ndomain: %o", data.length, brushMode ? "on" : "off", x.domain());
@@ -67,9 +82,10 @@ export default function () {
         dataRegions = {};
 
         selectedRegions.forEach((region, index) => {
-
-          let regionData = data.filter(d => { return d.region == region });
-          dataRegions[region] = regionData;
+          let regionId = region.id
+          console.log(regionId);
+          let regionData = data.filter(d => { return d.region == regionId });
+          dataRegions[regionId] = regionData;
           let line = d3.line()
             .defined((d, i) => {
               if (i != 0) {
@@ -83,7 +99,7 @@ export default function () {
           focus.append("path")
             .datum(regionData)
             .attr("id", "data--path--" + index)
-            .attr("stroke", function (d) { return regionColor(region) })
+            .attr("stroke", function (d) { return regionColor(region.id) })
             .attr("stroke-width", "2")
             .attr("clip-path", "url(#clip2)")
             .attr("d",

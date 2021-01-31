@@ -39,7 +39,7 @@ export default function () {
     selection.each(function () {
       const dom = d3.select(this)
       const svg = dom.append("svg")
-        .attr("width", width + margin.left + margin.right)
+        .attr("width", width + 3* (margin.left + margin.right))
         .attr("height", height + margin.top + margin.bottom);
 
       svg.append("defs").append("clipPath")
@@ -52,7 +52,28 @@ export default function () {
         .attr("class", "focus")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+      let createLegend = function (legend) {
+        legend.append("rect")
+          .attr("x", width + margin.right)
+          .attr("y", 0)
+          .style("fill", "lightsteelblue")
+          .attr("height", (margin.top)*(selectedRegions.length+1))
+          .attr("width", margin.right*4.8)
+        selectedRegions.forEach((region, index) => {
+          legend.append("circle").attr("cx",  width + 1.5*margin.right).attr("cy", (index + 1) * margin.top).attr("r", 6).style("fill", regionColor(region.id))
+          legend.append("text").attr("x", width + 2*margin.right).attr("y", (index + 1) * margin.top + 4.5).text(region.name).style("font-size", "13px").attr("alignment-baseline", "middle")
+        })
+        
+      }
+
       updateData = function () {
+        // Handmade legend
+        svg.select("#legend").remove();
+        let legend = svg.append("g")
+          .attr("id", "legend")
+          .attr("class", "focus")
+          .attr("background", "lightsteelblue");
+        createLegend(legend);
         console.log("boxplot has %d elements. (brush mode: %s)", data.length, brushMode ? "on" : "off");
         if (!brushMode && brush) {
           // remove brush if any
@@ -72,12 +93,11 @@ export default function () {
           })
           .entries(data)
 
-        x.domain(selectedRegions)
+        x.domain(selectedRegions.map(region => {return region.id}))
           .paddingInner(1)
           .paddingOuter(.5);
         y.domain(d3.extent(data, function (d) { return +d[yTopic]; }));
         /** boxplot */
-
 
         // Show the main vertical line
         focus.selectAll("#vert-lines").remove();
@@ -149,10 +169,10 @@ export default function () {
           .attr("r", 4)
           .style("fill", (d) => regionColor(d.region))
           .attr("opacity", d => {
-            if(!brushMode){
+            if (!brushMode) {
               return '1';
             }
-            else{
+            else {
               d.selectedMobility ? '1' : '.5';
             }
           })
@@ -189,7 +209,7 @@ export default function () {
           highlight = function (newY) {
             console.log("zoom");
             let transition = svg.transition().duration(750);
-            svg.selectAll("circle").transition(transition)
+            svg.selectAll("#data-points").transition(transition)
               .attr("opacity", function (d) {
                 let yValue = newY && newY(d[yTopic]);
                 onBrush(
@@ -222,8 +242,8 @@ export default function () {
           }
         }
 
-        if(brush && !brushMode){
-          focus.select("boxbrush"+lastBrush).remove();
+        if (brush && !brushMode) {
+          focus.select("boxbrush" + lastBrush).remove();
         }
 
         if (!brush) {
@@ -243,7 +263,7 @@ export default function () {
       return data
     }
     data = _;
-    if(boxBrush!=null){
+    if (boxBrush != null) {
       brushMode = boxBrush;
     }
     if (typeof updateData === 'function') {

@@ -92,8 +92,8 @@ class Controller {
     finish.min = start.value;
     let daysPerRegion = Object.keys(this.model.entriesById);
     let idsToChange = daysPerRegion.filter(id => {
-      let region = id.split("_")[1];
-      return selectedRegions.includes(region);
+      let regionId = id.split("_")[1];
+      return selectedRegions.filter(region => {return regionId == region.id}).length > 0;
     });
 
     this.model.entries = this.model.entries.map(e => {
@@ -238,7 +238,7 @@ class Controller {
     console.log("sending data %o to backend", request);
     /** create xmlhttp req */
     const xmlhttp = new XMLHttpRequest();   // new HttpRequest instance 
-    let url = "https://cors-anywhere.herokuapp.com/https://ai18.pythonanywhere.com/dim-reduction";
+    let url = "https://ai18.pythonanywhere.com/dim-reduction";
     xmlhttp.open("POST", url);
     xmlhttp.setRequestHeader("Content-Type", "application/json");
     xmlhttp.setRequestHeader('Access-Control-Allow-Origin', '*');

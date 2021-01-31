@@ -20,11 +20,12 @@ export default function () {
       d.properties.clicked = !d.properties.clicked;
       if(d.properties.clicked){
         // if clicked, add in array
-        if(selectedRegions.includes("0")){
+        let italyIndex = selectedRegions.findIndex((reg) => reg.id == "0")
+        if(italyIndex!=-1){
           // if whole italy is selected, remove it
-          selectedRegions.splice(selectedRegions.indexOf("0"), 1)
+          selectedRegions.splice(italyIndex, 1)
         }
-        selectedRegions.push(d.properties.reg_istat_code);
+        selectedRegions.push({id: d.properties.reg_istat_code, name: d.properties.reg_name.split("/")[0]});
         // add to recap
         let node  = document.createElement("p");
         node.setAttribute("style", "color: "+regionColor(d.properties.reg_istat_code)+"; display: inline;");
@@ -34,13 +35,13 @@ export default function () {
       }
       else{
         //otherwise, remove from array
-        selectedRegions.splice(selectedRegions.indexOf(d.properties.reg_istat_code), 1);
+        selectedRegions.splice(selectedRegions.findIndex((reg) => {return reg.id == d.properties.reg_istat_code}), 1);
         document.getElementById("regionsRecap"+d.properties.reg_istat_code).remove();
       }
       d.properties.clicked ? data.clickCount++ : data.clickCount--;
       data.wholeMap = data.clickCount == 0;
       if(data.wholeMap){
-        selectedRegions.push("0");
+        selectedRegions.push({id: "0", name: "Italy"});
       }
       mapCallback();     
       updateData();

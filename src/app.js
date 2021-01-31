@@ -7,10 +7,10 @@ import dataset from './res/dataset.csv'
 
 const app = async function () {
   window.app = controller;
-  window.selectedRegions = ["0"];
+  window.selectedRegions = [{id: "0", name: "Italy"}];
   initUI();
   //await preProcessData();
-  window.regionColor = d3.scaleOrdinal(d3.schemeCategory10);
+  window.regionColor = d3.scaleOrdinal(d3.schemeTableau10);
 
   
   const mapContainer = d3.select('#map');
@@ -100,7 +100,7 @@ const loadData = function () {
             jitter: Math.random(),
             selectedMobility: false,//formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date && selectedRegions.includes(e.region),
             selectedTime: formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date,
-            selectedRegion: selectedRegions.includes(e.region)
+            selectedRegion: selectedRegions.filter(region => {return e.region == region.id}).length>0
           })
         })
         resolve(true)
