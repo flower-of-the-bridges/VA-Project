@@ -15,11 +15,20 @@ class Controller {
     // Model functions binding
     this.model.bindEntriesListChanged(this.onEntriesListChanged.bind(this))
     // Views functions binding
-    this.boxplot.bindBrush((brushMode, d, brush, views) => this.onBrushChanged(brushMode, d, brush, views)).bind(this);
+    this.boxplot.bindBrush((brushMode, d, brush, views, field) => this.onBrushChanged(brushMode, d, brush, views, field)).bind(this);
     this.boxplot.bindBrushComplete((views) => this.onBrushCompleted(views)).bind(this);
-    this.time.bindBrush((brushMode, d, brush, views) => this.onBrushChanged(brushMode, d, brush, views)).bind(this);
-    this.time.bindBrushComplete((views) => this.onBrushCompleted(views)).bind(this);
-    this.mapView.bindCallback(() => this.onMapUpdated()).bind(this);
+    this.time.bindBrush((brushMode, d, brush, views, field) => this.onBrushChanged(brushMode, d, brush, views, field)).bind(this);
+    this.time.bindBrushComplete((views, restCall) => this.onBrushCompleted(views, restCall)).bind(this);
+    this.mapView.bindCallback(() => {
+      this.timeBrush = false;
+      this.boxBrush = false;
+      brushMobilityButton.disabled = true;
+      this.onMapUpdated();
+      this.computeAggregate();
+    }).bind(this);
+    // brush
+    this.timeBrush = false;
+    this.boxBrush = false;
   }
   //
   handleAddEntry(entry) {
@@ -62,56 +71,23 @@ class Controller {
   }
   //
   onEntriesListChanged(views) {
-    prova.textContent = this.model.entries.filter(d => { return d.selected && d.brushed }).length + "/" + this.model.entries.length
-    //data = ;
     if (views && Array.isArray(views)) {
       views.forEach(view => {
-        this[view].data(this.model.entries)
+        this[view].data(this.model.entries, this.boxBrush, this.timeBrush);
       });
     }
     else {
       // scatter 
-      this.scatter.data(this.model.entries);
+      //this.scatter.data(this.model.entries);
       // time series
-      this.time.data(this.model.entries);
+      this.time.data(this.model.entries, this.boxBrush, this.timeBrush);
       // boxplot
-      this.boxplot.data(this.model.entries);
+      this.boxplot.data(this.model.entries, this.boxBrush, this.timeBrush);
     }
   }
 
-  updateEntries() {
-    console.log("update dates", start, finish, selectedRegion);
-    start.max = finish.value;
-    finish.min = start.value;
-    let daysPerRegion = Object.keys(this.model.entriesById);
-    let idsToChange = daysPerRegion.filter(id => {
-      let region = id.split("_")[1];
-      return region == selectedRegion
-    });
-
-    this.model.entries = this.model.entries.map(e => {
-      e.selected = false;
-      e.brushed = false;
-      return e;
-    });
-
-    idsToChange.forEach(id => {
-      let entry = this.model.entries[this.model.entriesById[id]];
-      if (entry) {
-        entry.selected = true;
-        if (entry.region == selectedRegion) {
-          let date = id.split("_")[0];
-          entry.brushed = new Date(start.value) <= new Date(date) && new Date(finish.value) >= new Date(date);
-        }
-      }
-    });
-
-    this.model.onEntriesListChanged();
-
-  }
-
-  onMapUpdated(){
-    console.log("update dates", start, finish, selectedRegions);
+  onMapUpdated() {
+    console.log("update dates", new Date(start.value), new Date(finish.value), selectedRegions);
     start.max = finish.value;
     finish.min = start.value;
     let daysPerRegion = Object.keys(this.model.entriesById);
@@ -121,49 +97,55 @@ class Controller {
     });
 
     this.model.entries = this.model.entries.map(e => {
-      e.selected = false;
-      e.brushed = false;
+      e.selectedTime = false;
+      e.selectedRegion = false;
+      e.selectedMobility = false;
       return e;
     });
 
     idsToChange.forEach(id => {
       let entry = this.model.entries[this.model.entriesById[id]];
       if (entry) {
-        entry.selected = true;
-        if (selectedRegions.includes(entry.region)) {
-          let date = id.split("_")[0];
-          entry.brushed = new Date(start.value) <= new Date(date) && new Date(finish.value) >= new Date(date);
-        }
+        entry.selectedRegion = true;
+        let date = id.split("_")[0];
+        entry.selectedTime = new Date(start.value) <= new Date(date) && new Date(finish.value) >= new Date(date);
       }
     });
-
     this.model.onEntriesListChanged();
   }
 
   updateTimeSeries() {
-    this.time.updateY(selectedTimeType);
+    this.time.updateY(selectedTimeType, this.model.entries);
   }
 
   updateBoxPlot() {
-    this.boxplot.updateY(selectedMobility);
+    this.boxplot.updateY(selectedMobility, this.model.entries);
   }
 
   /**
    * callback raised whenever a new portion of a vis is brushed by the user
    * @param {any} s 
    */
-  onBrushChanged(brushMode, d, brush, views) {
+  onBrushChanged(brushMode, d, brush, views, field) {
     if (true) {
-      d.brushed = brush;
+      d[field] = brush;
+      if (field == "selectedMobility") {
+        this.boxBrush = true;
+      }
+      else {
+        this.timeBrush = true;
+        this.boxBrush = false;
+        brushMobilityButton.disabled = true;
+      }
       this.handleUpdateEntry(d, true);
     }
     //else {
     //  this.model.entries = this.model.entries.map(e => {
     //    let date = e.id.split("_")[0];
-    //   e.brushed = new Date(start.value) <= new Date(date) && new Date(finish.value) >= new Date(date) && selectedRegions.includes(e.region);
+    //   e.selectedMobility = new Date(start.value) <= new Date(date) && new Date(finish.value) >= new Date(date) && selectedRegions.includes(e.region);
     //    return e;
     //  });
-      // reset brush
+    // reset brush
     //}
 
     Array.isArray(views) && views.forEach(view => {
@@ -171,8 +153,112 @@ class Controller {
     })
   }
 
-  onBrushCompleted(views) {
+  onBrushCompleted(views, restCall) {
+    if(restCall){
+      this.computeAggregate();
+    }
     this.model.onEntriesListChanged(views);
+  }
+
+  changeTimeHandler(event) {
+    selectedTimeType = covidChoice.value;
+    console.log("selectedTimeType is ", selectedTimeType);
+    window.app.updateTimeSeries();
+    window.app.updateBoxPlot();
+  }
+
+  changeMobilityHandler(event) {
+    let confirmChange = !this.boxBrush ? true : confirm("if you change mobility, all current filters will be lost. Proceed?")
+    if (confirmChange) {
+      // update view
+      this.boxBrush = false;
+      brushMobilityButton.disabled = true;
+      selectedMobility = mobilityChoice.value;
+      console.log("selectedMobility is ", selectedMobility);
+      this.model.entries = this.model.entries.map(e => {
+        let date = e.id.split("_")[0];
+        e.selectedMobility = false;
+        e.selectedTime = new Date(start.value) <= new Date(date) && new Date(finish.value) >= new Date(date);
+        return e;
+      });
+      this.updateTimeSeries();
+      this.updateBoxPlot();
+      this.scatter.data(this.model.entries, this.boxBrush);
+    }
+    else {
+      // restore select
+      mobilityChoice.value = selectedMobility;
+    }
+  }
+
+  clearMobility() {
+    this.boxBrush = false;
+    this.boxplot.setBrushMode(false);
+    this.scatter.setBrushMode(false);
+    this.boxplot.data(this.model.entries, this.boxBrush);
+    this.scatter.data(this.model.entries, this.boxBrush);
+    brushMobilityButton.disabled = true;
+  }
+
+  clearTime() {
+    this.timeBrush = false;
+    this.boxBrush = false;
+    this.boxplot.setBrushMode(false);
+    this.scatter.setBrushMode(false);
+    this.time.setBrushMode(false);
+    start.value = "2020-02-24";
+    finish.value = "2020-12-31";
+    this.onMapUpdated();
+    this.computeAggregate();
+    brushTimeButton.disabled = true;
+  }
+
+  computeAggregate() {
+    restLoading.hidden = false; // show loading scree
+    /** find index of the element to compute */
+    let indexToCompute = this.model.entries.map((data, index) => {
+      if(data.selectedRegion){
+        if(this.timeBrush){
+          return data.selectedTime ? (index+1) : -1
+        }
+        else{
+          return (index+1);
+        }
+      }
+      else{
+        return -1;
+      }
+    }).filter((index) =>{
+      return index!=-1;
+    });
+    // create json obj
+    let request = { 
+      "selRowNums": indexToCompute
+    }
+    console.log("sending data %o to backend", request);
+    /** create xmlhttp req */
+    const xmlhttp = new XMLHttpRequest();   // new HttpRequest instance 
+    let url = "http://ai18.pythonanywhere.com/dim-reduction";
+    xmlhttp.open("POST", url);
+    xmlhttp.setRequestHeader("Content-Type", "application/json");
+    xmlhttp.send(JSON.stringify(request));
+    xmlhttp.onreadystatechange = (function (resp) { // Call a function when the state changes.
+      if (resp.target.readyState === XMLHttpRequest.DONE && resp.target.status === 200) {
+        // Request finished. Do processing here.
+        let response = JSON.parse(resp.target.responseText).clusters;
+        console.log("received response: %o", response);
+        indexToCompute.forEach((recordIndex, index) =>{
+          let entry = this.model.entries[recordIndex-1];
+          let responseData = response[index];
+          entry["Y1"] = responseData[0];
+          entry["Y2"] = responseData[1];
+          entry["cluster"] = responseData[2];
+        });
+        restLoading.hidden = true;
+        this.scatter.data(this.model.entries);
+        this.boxplot.data(this.model.entries, this.boxBrush, this.timeBrush);
+      }
+    }).bind(this)
   }
 }
 

@@ -3,12 +3,11 @@ import * as d3 from 'd3'
 import controller from './controller'
 import covidData from './res/covid.csv'
 import mobilityData from './res/mobility.csv'
-import dataset from './res/pca.csv'
+import dataset from './res/dataset.csv'
 
 const app = async function () {
   window.app = controller;
   window.selectedRegions = ["0"];
-
   initUI();
   //await preProcessData();
   window.regionColor = d3.scaleOrdinal(d3.schemeCategory10);
@@ -40,6 +39,7 @@ const app = async function () {
     timeContainer.call(window.app.time);
     boxContainer.call(window.app.boxplot);
     window.app.onEntriesListChanged();
+    window.app.computeAggregate();
   }
 
 }
@@ -98,8 +98,9 @@ const loadData = function () {
           controller.handleAddEntry({
             ...e,
             jitter: Math.random(),
-            brushed: formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date && selectedRegions.includes(e.region),
-            selected: /**formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date && */selectedRegions.includes(e.region)
+            selectedMobility: false,//formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date && selectedRegions.includes(e.region),
+            selectedTime: formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date,
+            selectedRegion: selectedRegions.includes(e.region)
           })
         })
         resolve(true)
@@ -136,66 +137,21 @@ const loadMobilityData = function () {
 
 const initUI = function () {
 
+  start.value = "2020-02-24";
+  finish.value = "2020-12-31";
+  brushMobilityButton.disabled = true;
+  brushTimeButton.disabled = true;
   // init dates
   start.max = finish.value;
   finish.min = start.value;
-  // // init region radio buttons with callback
-  // window.regionRadios = document.querySelectorAll('input[type=radio][name="region"]');
-  // window.regionRadios.forEach(radio => {
-  //   if (radio.checked) {
-  //     window.selectedRegion = radio.value
-  //   }
-  // });
-  // console.log("selectedRegion is ", selectedRegion);
-  // function changeHandler(event) {
-  //   selectedRegion = this.value;
-  //   console.log("selectedRegion is ", selectedRegion);
-  //   window.app.updateEntries();
-  // }
-
-  // regionRadios.forEach(radio => {
-  //   radio.addEventListener('change', changeHandler);
-  // });
-
   // init time series buttons with callback
-  window.timeRadios = document.querySelectorAll('input[type=radio][name="covid"]');
-  window.timeRadios.forEach(radio => {
-    if (radio.checked) {
-      window.selectedTimeType = radio.value
-      window.app.updateTimeSeries();
-    }
-  });
+  window.selectedTimeType = covidChoice.value
+  window.app.updateTimeSeries();
   console.log("selectedTimeType is ", selectedTimeType);
-  function changeTimeHandler(event) {
-    selectedTimeType = this.value;
-    console.log("selectedTimeType is ", selectedTimeType);
-    window.app.updateTimeSeries();
-  }
-
-  timeRadios.forEach(radio => {
-    radio.addEventListener('change', changeTimeHandler);
-  });
-
   // init boxplot buttons with callback
-  window.mobRadios = document.querySelectorAll('input[type=radio][name="mobil"]');
-  window.mobRadios.forEach(radio => {
-    if (radio.checked) {
-      window.selectedMobility = radio.value
-      window.app.updateBoxPlot();
-    }
-  });
-  console.log("selectedMobility is ", selectedMobility);
-  function changeMobilityHandler(event) {
-    selectedMobility = this.value;
-    console.log("selectedMobility is ", selectedMobility);
-    window.app.updateBoxPlot();
-  }
-
-  mobRadios.forEach(radio => {
-    radio.addEventListener('change', changeMobilityHandler);
-  });
-
-
+  window.selectedMobility = mobilityChoice.value;
+  window.app.updateBoxPlot();
+  console.log("selectedMobility is ", window.selectedMobility);
 }
 
 export default app

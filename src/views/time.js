@@ -9,18 +9,21 @@ export default function () {
 
   let updateData, zoom, brushended;
 
+  let lastBrush = 0;
+  let brush = null;
+
   // brush callbacks
   let onBrush = (mode, d, brush) => { console.log("brush mode %o for object %o and brush %o ", mode, d, brush) } // default callback when data is brushed
   let onBrushCompleted = (views) => { console.log("brush completed ", views) }
   let brushMode = false;
-  let views = ["scatter", "boxplot"]; // other views
+  let views = ["boxplot"]; // other views
 
   let idleTimeout, idleDelay = 350;
 
-  let margin = { top: 20, right: 30, bottom: 100, left: 100 };
+  let margin = { top: 20, right: 30, bottom: 20, left: 50 };
 
-  let width = 1000 - margin.left - margin.right;
-  let height = 470 - margin.top - margin.bottom;
+  let width = 600 - margin.left - margin.right;
+  let height = 270 - margin.top - margin.bottom;
 
   let x = d3.scaleTime().range([0, width]),
     y = d3.scaleLinear().range([height, 0]);
@@ -49,38 +52,11 @@ export default function () {
       }
 
       updateData = function () {
-
-        x.domain(d3.extent(data, function (d) { return d["date"]; }));
+        x.domain(d3.extent(data, function (d) { return +d["date"]; }));
         y.domain(d3.extent(data, function (d) { return +d[yTopic]; }));
+        console.log("time has %d elements. (brush mode: %s)\ndomain: %o", data.length, brushMode ? "on" : "off", x.domain());
         /** path */
-        // set the parameters for the histogram
-        var histogram = d3.histogram()
-          .domain(x.domain())  // then the domain of the graphic
-          .thresholds(x.ticks(d3.timeDay.every(1))); // then the numbers of bins
-
-        // And apply this function to data to get the bins
-        bins = histogram(data);
-
         focus.selectAll("#boxes").remove();
-        let boxes = focus
-          .selectAll("boxes")
-          .attr("clip-path", "url(#clip2)")
-          .data(data)
-        // boxes
-        //   .enter()
-        //   .append("rect")
-        //   .attr("id", "boxes")
-        //   .merge(boxes)
-        //   .transition()
-        //   .duration(1000)
-        //   .ease(d3.easeBackIn)
-        //   .attr("x", 1)
-        //   .attr("transform", function (d, i) { return "translate(" + x(bins[i].x0) + "," + y(d[yTopic]) + ")"; })
-        //   .attr("width", function (d, i) { return x(bins[i].x1) - x(bins[i].x0) - 1; })
-        //   .attr("height", function (d) { return height - y(d[yTopic]) })
-        //   .attr("stroke", "black")
-        //   .attr("stroke-width", ".5")
-        //   .style("fill", "#69b3a2");
 
         focus.selectAll("path")
           .transition()
@@ -106,7 +82,7 @@ export default function () {
             })
           focus.append("path")
             .datum(regionData)
-            .attr("id", "data--path--"+index)
+            .attr("id", "data--path--" + index)
             .attr("stroke", function (d) { return regionColor(region) })
             .attr("stroke-width", "2")
             .attr("clip-path", "url(#clip2)")
@@ -178,18 +154,22 @@ export default function () {
           brushended = function () {
             let s = d3.event.selection;
             if (!s) {
-              if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
-              x.domain(d3.extent(data, function (d) { return d["date"]; }));
-              brushMode = false;
+              //if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
+              //x.domain(d3.extent(data, function (d) { return d["date"]; }));
+              //brushMode = false;
               //y.domain(d3.extent(data, function (d) { return +d[yTopic]; }));
             } else {
               x.domain(s.map(x.invert, x));
               brushMode = true;
+              brushTimeButton.disabled = false;
               //y.domain([s[0][1], s[1][1]].map(y.invert, y));
               focus.select(".brush").call(brush.move, null);
+              // update date inputs
+              start.value = x.domain()[0].toLocaleDateString("en-CA")
+              finish.value = x.domain()[1].toLocaleDateString("en-CA")
+              zoom();
+              onBrushCompleted(brushMode ? views : null, true);
             }
-            zoom();
-            onBrushCompleted(brushMode ? views : null);
           }
 
           zoom = function () {
@@ -199,7 +179,7 @@ export default function () {
             svg.select("#axis2--x").transition(transition).call(xAxis2);
             svg.select("#axis--y").transition(transition).call(yAxis);
 
-            focus.selectAll("path").each(function(pathData, index){
+            focus.selectAll("path").each(function (pathData, index) {
               let line = d3.line()
                 .defined((d, i) => {
                   if (i != 0) {
@@ -210,7 +190,7 @@ export default function () {
                   }
                   else return false;
                 });
-              focus.select("#data--path--"+index).transition(transition)
+              focus.select("#data--path--" + index).transition(transition)
                 .attr("d", line
                   .x(function (d) {
                     let xValue = x(d.date);
@@ -218,7 +198,8 @@ export default function () {
                       brushMode, // brush mode
                       d, // value to update
                       xValue >= x.range()[0] && xValue <= x.range()[1], // brushed 
-                      views // views to update
+                      views, // views to update
+                      "selectedTime"
                     );
                     return xValue;
                   })
@@ -247,39 +228,54 @@ export default function () {
           svg.append("text")
             .attr("transform",
               "translate(" + ((width + margin.right + margin.left) / 2) + " ," +
-              (height + margin.bottom - 3 * margin.top) + ")")
+              (height + 1.5 * margin.bottom) + ")")
             .style("text-anchor", "middle")
             .text("time");
-
-          const brush = d3.brushX().extent([[0, 0], [width, height]]).on("end", brushended)
-
+        }
+        if (!brush) {
+          brush = d3.brushX().extent([[0, 0], [width, height]]).on("end", brushended)
+          lastBrush++;
           focus.append("g")
             .attr("class", "brush")
+            .attr("id", "timebrush" + lastBrush)
             .call(brush);
         }
       }
     })
   }
 
-  time.data = function (_) {
+  time.data = function (newData, boxBrush, timeBrush) {
     if (!arguments.length) {
       return data
     }
-    data = _
     if (typeof updateData === 'function') {
-      data = data.filter(d => { return brushMode ? d.selected && d.brushed : d.selected });
+      brushMode = timeBrush;
+      data = newData.filter(d => {
+        if (d.selectedRegion) {
+          if (boxBrush) {
+            return d.selectedTime && d.selectedMobility;
+          }
+          else {
+            return d.selectedTime;
+          }
+        }
+        else {
+          return false;
+        }
+      });
       updateData()
     }
     return time
   }
 
-  time.updateY = function (_) {
+  time.updateY = function (newY, newData) {
     if (!arguments.length) {
       return data
     }
-    yTopic = _
+    yTopic = newY
     if (typeof updateData === 'function') {
-      data = data.filter(d => { return brushMode ? d.selected && d.brushed : d.selected });
+      brushMode = false;
+      data = newData.filter(d => { return brushMode ? d.selectedRegion && d.selectedTime && d.selectedMobility : d.selectedRegion && d.selectedTime });
       updateData()
     }
     return time
