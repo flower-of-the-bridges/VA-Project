@@ -238,9 +238,11 @@ class Controller {
     console.log("sending data %o to backend", request);
     /** create xmlhttp req */
     const xmlhttp = new XMLHttpRequest();   // new HttpRequest instance 
-    let url = "https://ai18.pythonanywhere.com/dim-reduction";
+    let url = "https://cors-anywhere.herokuapp.com/https://ai18.pythonanywhere.com/dim-reduction";
     xmlhttp.open("POST", url);
     xmlhttp.setRequestHeader("Content-Type", "application/json");
+    xmlhttp.setRequestHeader('Access-Control-Allow-Origin', '*');
+    xmlhttp.setRequestHeader('Accept', '/*/'); 
     xmlhttp.send(JSON.stringify(request));
     xmlhttp.onreadystatechange = (function (resp) { // Call a function when the state changes.
       if (resp.target.readyState === XMLHttpRequest.DONE && resp.target.status === 200) {
