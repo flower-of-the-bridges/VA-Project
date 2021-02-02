@@ -1,12 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>va-project</title>
+  <title>
+    va-project
+  </title>
 </head>
+
 <body>
-  <div id="root"></div>
-<script type="text/javascript" src="main.js?085e5f636e79489ef6ca"></script></body>
+  <div style="display: inline-flex;">
+    <div id="scatter" class="box">
+    </div>
+    <div class="box" style="width: 80%;">
+      <h4 align="center" style="border-style: solid; background-color: steelblue;">Dashboard: Correlation between
+        Covid-19
+        and Mobility through Italy</h4>
+      <p style="text-align: center;">Select a region to see its data: <br /><small>(otherwise whole Italy will be
+          considered)</small></p>
+      <p style="text-align: center;" id="regionsRecap"></p>
+      <p style="text-align: center;">Select a particular period of the year: <br /><small>(with respect to CoVid
+          statistics)</small></p>
+      <p id="dateRecap" style="text-align: center;"></p>
+      <p style="text-align: center;">Select a particular mobility: <br /><small></small></p>
+      <div align="center">
+        <b id="selectedRecords" style="display: inline;">0</b>
+        <strong>records selected</strong>
+      </div>
+      <div align="center">
+        <progress id="restLoading" value="50" max="100" hidden></progress>
+      </div>
+    </div>
+    <div id="map" class="box" style="margin-left: 10px;">
+    </div>
+  </div>
+  <div style="display: inline-flex; margin-top: 10px;">
+    <div id="time" class="box" style="margin-left: 20px;">
+      <div style="display: inline-flex; margin-bottom: 10px; margin-left: 10px;">
+        <select id="covidChoice" onchange="app.changeTimeHandler()" style="max-width: 100%;">
+          <option value="new" checked>New Cases</option>
+          <option value="healed">Healed</option>
+          <option value="positives">Positives</option>
+          <option value="hospitalized">Hospitalized</option>
+          <option value="isolated">Isolated</option>
+          <option value="intensiveCare">Intensive Care</option>
+          <option value="death">Death</option>
+        </select>
+        <div style="margin-left: 20px;">
+          <div align="center">
+            <p style="display: inline;">Start:</p>
+            <input type="date" id="start" value="2020-02-24" min="2020-02-24" max="2020-12-31"
+              onchange="app.onMapUpdated()" disabled>
+            <span></span>
+            <p style="display: inline;">Finish:</p>
+            <input type="date" id="finish" value="2020-12-31" min="2020-02-24" max="2020-12-31"
+              onchange="app.onMapUpdated()" disabled>
+            <button id="brushTimeButton" onclick="app.clearTime()">Clear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="mobility" class="box" style="margin-left: 20px;">
+      <!-- groceriesPharmacy,parks,residential,retailRecreation,transit,workplaces -->
+      <div align="center">
+        <select id="mobilityChoice" onchange="app.changeMobilityHandler()">
+          <option value="groceriesPharmacy" checked>Groceries/Pharmacy</option>
+
+          <option value="parks">Parks</option>
+
+          <option value="residential">Residential</option>
+
+          <option value="retailRecreation">Retail/Recreation</option>
+
+          <option value="transit">Transit</option>
+
+          <!-- <input type="radio" id="workplaces" name="mobil" value="workplaces">
+        <label for="workplaces">Workplaces</label> -->
+        </select>
+        <button id="brushMobilityButton" onclick="app.clearMobility()">Clear</button>
+      </div>
+    </div>
+  </div>
+
+
+<script type="text/javascript" src="main.js?ca98dd5a328750aa6c9c"></script></body>
+
 </html>

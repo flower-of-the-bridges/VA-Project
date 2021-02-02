@@ -6,17 +6,18 @@ export default function () {
   let yTopic = "";
 
   let brushMode = false;
-  let brushes = []; // array of brushes
+  let brush = null;
+  let lastBrush = 0;
 
   let updateData, highlight, brushended;
 
   // rectangle for the main box
   let boxWidth = 100
 
-  let margin = { top: 20, right: 30, bottom: 100, left: 100 };
+  let margin = { top: 20, right: 30, bottom: 30, left: 30 };
 
-  let width = 600 - margin.left - margin.right;
-  let height = 370 - margin.top - margin.bottom;
+  let width = 450 - margin.left - margin.right;
+  let height = 250 - margin.top - margin.bottom;
 
   let x = d3.scaleBand().range([0, width]),
     y = d3.scaleLinear().range([height, 0]);
@@ -32,13 +33,13 @@ export default function () {
   let onBrush = (mode, d, brush) => { console.log("brush mode %o for object %o and brush %o ", mode, d, brush) } // default callback when data is brushed
   let onBrushCompleted = (mode) => { console.log("brush completed ", mode) }
 
-  let views = ["scatter", "time"]
+  let views = ["scatter"]
 
   const boxplot = function (selection) {
     selection.each(function () {
       const dom = d3.select(this)
       const svg = dom.append("svg")
-        .attr("width", width + margin.left + margin.right)
+        .attr("width", width + 3* (margin.left + margin.right))
         .attr("height", height + margin.top + margin.bottom);
 
       svg.append("defs").append("clipPath")
@@ -51,8 +52,33 @@ export default function () {
         .attr("class", "focus")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+      let createLegend = function (legend) {
+        legend.append("rect")
+          .attr("x", width + margin.right)
+          .attr("y", 0)
+          .style("fill", "lightsteelblue")
+          .attr("height", (margin.top)*(selectedRegions.length+1))
+          .attr("width", margin.right*4.8)
+        selectedRegions.forEach((region, index) => {
+          legend.append("circle").attr("cx",  width + 1.5*margin.right).attr("cy", (index + 1) * margin.top).attr("r", 6).style("fill", regionColor(region.id))
+          legend.append("text").attr("x", width + 2*margin.right).attr("y", (index + 1) * margin.top + 4.5).text(region.name).style("font-size", "13px").attr("alignment-baseline", "middle")
+        })
+        
+      }
+
       updateData = function () {
-        console.log("updateData", data.length);
+        // Handmade legend
+        svg.select("#legend").remove();
+        let legend = svg.append("g")
+          .attr("id", "legend")
+          .attr("class", "focus")
+          .attr("background", "lightsteelblue");
+        createLegend(legend);
+        console.log("boxplot has %d elements. (brush mode: %s)", data.length, brushMode ? "on" : "off");
+        if (!brushMode && brush) {
+          // remove brush if any
+          focus.select(".brush").call(brush.move, null);
+        }
         // Compute quartiles, median, inter quantile range min and max --> these info are then used to draw the box.
         const sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
           .key(function (d) { return d.region; })
@@ -67,12 +93,11 @@ export default function () {
           })
           .entries(data)
 
-        x.domain(selectedRegions)
+        x.domain(selectedRegions.map(region => {return region.id}))
           .paddingInner(1)
           .paddingOuter(.5);
         y.domain(d3.extent(data, function (d) { return +d[yTopic]; }));
         /** boxplot */
-
 
         // Show the main vertical line
         focus.selectAll("#vert-lines").remove();
@@ -143,7 +168,14 @@ export default function () {
           .attr("cy", function (d) { return (y(d[yTopic])) })
           .attr("r", 4)
           .style("fill", (d) => regionColor(d.region))
-          .attr("opacity", d => d.brushed ? '1' : '.5')
+          .attr("opacity", d => {
+            if (!brushMode) {
+              return '1';
+            }
+            else {
+              d.selectedMobility ? '1' : '.5';
+            }
+          })
           .attr("stroke", "black")
 
 
@@ -177,14 +209,15 @@ export default function () {
           highlight = function (newY) {
             console.log("zoom");
             let transition = svg.transition().duration(750);
-            svg.selectAll("circle").transition(transition)
+            svg.selectAll("#data-points").transition(transition)
               .attr("opacity", function (d) {
                 let yValue = newY && newY(d[yTopic]);
                 onBrush(
                   brushMode, // brush mode
                   d, // value to update
                   newY && yValue >= newY.range()[1] && yValue <= newY.range()[0],
-                  views // views to update
+                  views, // views to update
+                  "selectedMobility" // field to update
                 );
                 return newY && yValue >= newY.range()[1] && yValue <= newY.range()[0] ? '1' : '.5';
               })
@@ -194,51 +227,60 @@ export default function () {
             console.log("brushnede", s)
             let newY = null;
             if (!s) {
-              if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
-              newY = y;
-              brushMode = false;
+              //if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
+              //newY = y;
+              //brushMode = false;
             } else {
+              brushMobilityButton.disabled = false;
               newY = y.copy();
               newY.domain(s.map(newY.invert, newY));
               //focus.select(".brush").call(brush.move, null);
               brushMode = true;
+              highlight(newY);
+              onBrushCompleted(brushMode ? views : null);
             }
-
-            highlight(newY);
-
-            onBrushCompleted(brushMode ? views : null);
           }
+        }
 
-          const brush = d3.brushY().extent([[0, 0], [width, height]]).on("end", brushended)
+        if (brush && !brushMode) {
+          focus.select("boxbrush" + lastBrush).remove();
+        }
 
+        if (!brush) {
+          brush = d3.brushY().extent([[0, 0], [width, height]]).on("end", brushended)
+          lastBrush++;
           focus.append("g")
-            .attr("id", "boxbrush")
             .attr("class", "brush")
+            .attr("id", "boxbrush" + lastBrush)
             .call(brush);
         }
       }
     })
   }
 
-  boxplot.data = function (_) {
+  boxplot.data = function (_, boxBrush) {
     if (!arguments.length) {
       return data
     }
-    data = _
+    data = _;
+    if (boxBrush != null) {
+      brushMode = boxBrush;
+    }
     if (typeof updateData === 'function') {
-      data = data.filter(d => { return d.selected });
+      data = data.filter(d => { return d.selectedRegion && d.selectedTime });
       updateData()
     }
     return boxplot
   }
 
-  boxplot.updateY = function (_) {
+  boxplot.updateY = function (newY, newData) {
     if (!arguments.length) {
       return data
     }
-    yTopic = _
+    yTopic = newY
     if (typeof updateData === 'function') {
-      data = data.filter(d => { return d.selected });
+      data = newData.filter(d => { return d.selectedRegion && d.selectedTime });
+      brushMode = false;
       updateData()
     }
     return boxplot

@@ -8,8 +8,8 @@ export default function () {
 
   let margin = { top: 20, right: 20, bottom: 30, left: 30 };
 
-  let width = 500 - margin.left - margin.right;
-  let height = 280 - margin.top - margin.bottom;
+  let width = 400 - margin.left - margin.right;
+  let height = 200 - margin.top - margin.bottom;
 
   let x = d3.scaleLinear().range([0, width]),
     y = d3.scaleLinear().range([height, 0]);
@@ -22,6 +22,8 @@ export default function () {
   let onBrushCompleted = (mode) => { console.log("brush completed ", mode) }
   let brushMode = false;
   let views = ["time", "boxplot"]; // other views
+
+  let clusterColors = d3.scaleOrdinal(d3.schemeCategory10);
 
   const scatter = function (selection) {
     selection.each(function () {
@@ -46,6 +48,7 @@ export default function () {
         x.domain(d3.extent(data, function (d) { return +d["Y1"]; })).nice();
         y.domain(d3.extent(data, function (d) { return +d["Y2"]; })).nice();
 
+        selectedRecords.textContent = data.filter(d => { return brushMode ? d.selectedMobility : true }).length;
 
         let xAxis = d3.axisBottom(x), yAxis = d3.axisLeft(y);
         // append scatter plot to main chart area
@@ -85,8 +88,8 @@ export default function () {
             console.log("brushnede", s)
             if (!s) {
               if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
-              x.domain(d3.extent(data, function (d) { return +d["Y1"]; })).nice();
-              y.domain(d3.extent(data, function (d) { return +d["Y2"]; })).nice();
+              x.domain(d3.extent(data, function (d) { return +d["Y1"]; }));
+              y.domain(d3.extent(data, function (d) { return +d["Y2"]; }));
               brushMode = false;
             } else {
               x.domain([s[0][0], s[1][0]].map(x.invert, x));
@@ -119,7 +122,7 @@ export default function () {
                 //);
                 return xValue;
               })
-              .attr("cy", function (d) { if (d.selected) return y(d["Y2"]); });
+              .attr("cy", function (d) { if (d.selectedRegion) return y(d["Y2"]); });
           }
 
           const brush = d3.brush().extent([[0, 0], [width, height]]).on("end", brushended)
@@ -127,12 +130,7 @@ export default function () {
           focus.append("g")
             .attr("class", "brush")
             .call(brush);
-
-          // Define the div for the tooltip
-
         }
-
-
         focus.selectAll("#dots").remove();
         let dots = focus.selectAll("circle")
           .data(data)
@@ -142,10 +140,10 @@ export default function () {
           .attr('class', 'dot')
           .attr("clip-path", "url(#clip)")
           .attr("r", 5)
-          .style("fill", d => d.selected ? regionColor(d.region) : "transparent")
+          .style("fill", d => clusterColors(d.cluster))
           .attr("stroke", "black")
           .attr("stroke-width", "1")
-          .attr("opacity", d => d.brushed ? "1" : ".2")
+          .attr("opacity", d => brushMode ? (d.selectedMobility ? "1" : ".2") : "1")
           .attr("cx", function (d) { return x(d["Y1"]) })
           .attr("cy", function (d) { return y(d["Y2"]) });
 
@@ -159,11 +157,10 @@ export default function () {
           .style("opacity", 0);
 
         dots.on("mouseover", function (d) {
-          console.log("over");
           div.transition()
             .duration(200)
-            .style("opacity", .9);
-          div.html(JSON.stringify(d) + "<br/>" + d.close)
+            .style("opacity", 1);
+          div.html(d.id)
             .style("left", (d3.event.pageX) + "px")
             .style("top", (d3.event.pageY - 28) + "px");
         })
@@ -176,13 +173,14 @@ export default function () {
     })
   }
 
-  scatter.data = function (_) {
+  scatter.data = function (newData, boxBrush) {
     if (!arguments.length) {
       return data;
     }
-    data = _
+    data = newData
     if (typeof updateData === 'function') {
-      data = data.filter(d => { return brushMode ? d.selected && d.brushed : d.selected });
+      brushMode = boxBrush;
+      data = data.filter(d => { return d.selectedRegion && d.selectedTime });
       console.log("scatter receives %d elements", data.length);
       updateData()
     }
@@ -190,7 +188,7 @@ export default function () {
   }
 
   scatter.setBrushMode = function (mode) {
-    //brushMode = mode;
+    brushMode = mode;
     return scatter
   }
 

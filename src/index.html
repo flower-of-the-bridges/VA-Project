@@ -11,126 +11,77 @@
 </head>
 
 <body>
-  <div align="center">
-    <!-- <div style="margin-bottom: 30px;">
-      <input type="radio" id="it" name="region" value="0" checked>
-      <label for="it">Italia</label>
-
-      <input type="radio" id="la" name="region" value="12">
-      <label for="la">Lazio</label>
-
-      <input type="radio" id="abr" name="region" value="13">
-      <label for="abr">Abruzzo</label>
-
-      <input type="radio" id="um" name="region" value="10">
-      <label for="um">Umbria</label>
-
-      <input type="radio" id="ve" name="region" value="05" checked>
-      <label for="ve">Veneto</label>
-
-      <input type="radio" id="ma" name="region" value="11">
-      <label for="ma">Marche</label>
-
-      <input type="radio" id="mo" name="region" value="14">
-      <label for="mo">Molise</label>
-
-      <input type="radio" id="ca" name="region" value="15">
-      <label for="ca">Campania</label>
-
-      <input type="radio" id="si" name="region" value="19" checked>
-      <label for="si">Sicilia</label>
-
-      <input type="radio" id="sa" name="region" value="20">
-      <label for="sa">Sardegna</label>
-
-      <input type="radio" id="ba" name="region" value="17">
-      <label for="ba">Basilicata</label>
-
-      <input type="radio" id="ca" name="region" value="18">
-      <label for="ca">Calabria</label>
-
-      <input type="radio" id="to" name="region" value="09" checked>
-      <label for="to">Toscana</label>
-
-      <input type="radio" id="pu" name="region" value="16">
-      <label for="pu">Puglia</label>
-
-      <input type="radio" id="em" name="region" value="08">
-      <label for="em">Emila-Romagna</label>
-
-      <input type="radio" id="li" name="region" value="07" checked>
-      <label for="to">Liguria</label>
-
-      <input type="radio" id="ao" name="region" value="02">
-      <label for="ao">Valle D'Aosta</label>
-
-      <input type="radio" id="lom" name="region" value="03">
-      <label for="lom">Lombardia</label>
-
-      <input type="radio" id="pie" name="region" value="01">
-      <label for="pie">Piemonte</label>
-
-      <input type="radio" id="fri" name="region" value="06">
-      <label for="fri">Friuli</label>
-    </div> -->
-    <div id="map" align="center"></div>
-    <p style="display: inline;">Start:</p>
-    <input type="date" id="start" value="2020-02-24" min="2020-02-24" max="2020-12-31" onchange="app.onMapUpdated()">
-    <span></span>
-    <p style="display: inline;">Finish:</p>
-    <input type="date" id="finish" value="2020-12-31" min="2020-02-24" max="2020-12-31" onchange="app.onMapUpdated()">
-  </div>
-  <div style="display: inline-flex; margin-top: 50px;">
-    <div id="scatter">
+  <div style="display: inline-flex;">
+    <div id="scatter" class="box">
     </div>
-    <div id="mobility">
-      <!-- groceriesPharmacy,parks,residential,retailRecreation,transit,workplaces -->
-      <div id="mobility-choice" style="margin-left: 20px;">
-        <input type="radio" id="groceriesPharmacy" name="mobil" value="groceriesPharmacy" checked>
-        <label for="groceriesPharmacy">Groceries/Pharmacy</label>
-
-        <input type="radio" id="parks" name="mobil" value="parks">
-        <label for="parks">Parks</label>
-
-        <input type="radio" id="residential" name="mobil" value="residential">
-        <label for="residential">Residential</label>
-
-        <input type="radio" id="retailRecreation" name="mobil" value="retailRecreation">
-        <label for="retailRecreation">Retail/Recreation</label>
-
-        <input type="radio" id="transit" name="mobil" value="transit">
-        <label for="transit">Transit</label>
-
-        <!-- <input type="radio" id="workplaces" name="mobil" value="workplaces">
-        <label for="workplaces">Workplaces</label> -->
+    <div class="box" style="width: 80%;">
+      <h4 align="center" style="border-style: solid; background-color: steelblue;">Dashboard: Correlation between
+        Covid-19
+        and Mobility through Italy</h4>
+      <p style="text-align: center;">Select a region to see its data: <br /><small>(otherwise whole Italy will be
+          considered)</small></p>
+      <p style="text-align: center;" id="regionsRecap"></p>
+      <p style="text-align: center;">Select a particular period of the year: <br /><small>(with respect to CoVid
+          statistics)</small></p>
+      <p id="dateRecap" style="text-align: center;"></p>
+      <p style="text-align: center;">Select a particular mobility: <br /><small></small></p>
+      <div align="center">
+        <b id="selectedRecords" style="display: inline;">0</b>
+        <strong>records selected</strong>
+      </div>
+      <div align="center">
+        <progress id="restLoading" value="50" max="100" hidden></progress>
       </div>
     </div>
-  </div>
-  <div align="center"><strong>Selected</strong> <p id="prova" style="display: inline;"></p></div>
-  <div id="time" align="center">
-    <div id="covid-choice" style="margin-left: 20px;">
-      <input type="radio" id="new" name="covid" value="new" checked>
-      <label for="new">New Cases</label>
-
-      <input type="radio" id="healed" name="covid" value="healed">
-      <label for="healed">Healed</label>
-
-      <input type="radio" id="positives" name="covid" value="positives">
-      <label for="positives">Positives</label>
-
-      <input type="radio" id="hospitalized" name="covid" value="hospitalized">
-      <label for="hospitalized">Hospitalized</label>
-
-      <input type="radio" id="isolated" name="covid" value="isolated">
-      <label for="isolated">Isolated</label>
-
-      <input type="radio" id="ic" name="covid" value="intensiveCare">
-      <label for="ic">Intensive Care</label>
-
-      <input type="radio" id="death" name="covid" value="death">
-      <label for="death">Death</label>
+    <div id="map" class="box" style="margin-left: 10px;">
     </div>
+  </div>
+  <div style="display: inline-flex; margin-top: 10px;">
+    <div id="time" class="box" style="margin-left: 20px;">
+      <div style="display: inline-flex; margin-bottom: 10px; margin-left: 10px;">
+        <select id="covidChoice" onchange="app.changeTimeHandler()" style="max-width: 100%;">
+          <option value="new" checked>New Cases</option>
+          <option value="healed">Healed</option>
+          <option value="positives">Positives</option>
+          <option value="hospitalized">Hospitalized</option>
+          <option value="isolated">Isolated</option>
+          <option value="intensiveCare">Intensive Care</option>
+          <option value="death">Death</option>
+        </select>
+        <div style="margin-left: 20px;">
+          <div align="center">
+            <p style="display: inline;">Start:</p>
+            <input type="date" id="start" value="2020-02-24" min="2020-02-24" max="2020-12-31"
+              onchange="app.onMapUpdated()" disabled>
+            <span></span>
+            <p style="display: inline;">Finish:</p>
+            <input type="date" id="finish" value="2020-12-31" min="2020-02-24" max="2020-12-31"
+              onchange="app.onMapUpdated()" disabled>
+            <button id="brushTimeButton" onclick="app.clearTime()">Clear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="mobility" class="box" style="margin-left: 20px;">
+      <!-- groceriesPharmacy,parks,residential,retailRecreation,transit,workplaces -->
+      <div align="center">
+        <select id="mobilityChoice" onchange="app.changeMobilityHandler()">
+          <option value="groceriesPharmacy" checked>Groceries/Pharmacy</option>
 
+          <option value="parks">Parks</option>
+
+          <option value="residential">Residential</option>
+
+          <option value="retailRecreation">Retail/Recreation</option>
+
+          <option value="transit">Transit</option>
+
+          <!-- <input type="radio" id="workplaces" name="mobil" value="workplaces">
+        <label for="workplaces">Workplaces</label> -->
+        </select>
+        <button id="brushMobilityButton" onclick="app.clearMobility()">Clear</button>
+      </div>
+    </div>
   </div>
 
 
