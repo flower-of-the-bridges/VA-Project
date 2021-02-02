@@ -1,0 +1,2 @@
+DATASET_PATH = '/home/antonio/Scrivania/Spazio_Lavoro/VA/prova.csv'
+DATASET_ATTRIBUTES = ['id','date','region','new', 'deathTotal', 'death','healed','positives','hospitalized','isolated','intensiveCare','index','groceriesPharmacy','parks','residential','retailRecreation','transit','workplaces']
