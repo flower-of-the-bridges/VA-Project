@@ -35,7 +35,7 @@ export default function () {
     selection.each(function () {
       const dom = d3.select(this)
       const svg = dom.append("svg")
-        .attr("width", width + margin.left + margin.right)
+        .attr("width", width + 2* (margin.left + margin.right))
         .attr("height", height + margin.top + margin.bottom);
 
       svg.append("defs").append("clipPath")
