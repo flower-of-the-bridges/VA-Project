@@ -6,13 +6,13 @@ export default function () {
 
   let updateData, zoom, brushended;
 
-  let margin = { top: 20, right: 20, bottom: 30, left: 30 };
+  let margin = { top: 20, right: 30, bottom: 30, left: 50 };
 
-  let width = 400 - margin.left - margin.right;
-  let height = 200 - margin.top - margin.bottom;
+  let width = 600;
+  let height = 250;
 
   let x = d3.scaleLinear().range([0, width]),
-    y = d3.scaleLinear().range([height, 0]);
+    y = d3.scaleLinear().range([height - margin.top - margin.bottom, 0]);
 
 
   let idleTimeout, idleDelay = 350;
@@ -35,8 +35,8 @@ export default function () {
       svg.append("defs").append("clipPath")
         .attr("id", "clip")
         .append("rect")
-        .attr("width", width)
-        .attr("height", height);
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom);
 
       const focus = svg.append("g")
         .attr("class", "focus")
@@ -45,8 +45,8 @@ export default function () {
 
 
       updateData = function () {
-        x.domain(d3.extent(data, function (d) { return +d["Y1"]; })).nice();
-        y.domain(d3.extent(data, function (d) { return +d["Y2"]; })).nice();
+        x.domain(d3.extent(data, function (d) { return d["Y1"]; })).nice();
+        y.domain(d3.extent(data, function (d) { return d["Y2"]; })).nice();
 
         selectedRecords.textContent = data.filter(d => { return brushMode ? d.selectedMobility : true }).length;
 
@@ -88,8 +88,8 @@ export default function () {
             console.log("brushnede", s)
             if (!s) {
               if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
-              x.domain(d3.extent(data, function (d) { return +d["Y1"]; }));
-              y.domain(d3.extent(data, function (d) { return +d["Y2"]; }));
+              x.domain(d3.extent(data, function (d) { return d["Y1"]; }));
+              y.domain(d3.extent(data, function (d) { return d["Y2"]; }));
               brushMode = false;
             } else {
               x.domain([s[0][0], s[1][0]].map(x.invert, x));

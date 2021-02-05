@@ -9,6 +9,7 @@ export default function () {
   let brush = null;
   let lastBrush = 0;
 
+  let brushes = [];
   let updateData, highlight, brushended;
 
   // rectangle for the main box
@@ -26,6 +27,9 @@ export default function () {
 
   let idleTimeout, idleDelay = 350;
 
+  /** variables used to found brush x size */
+  let minElement, maxElement = null;
+
   let idled = function () {
     idleTimeout = null;
   }
@@ -39,7 +43,7 @@ export default function () {
     selection.each(function () {
       const dom = d3.select(this)
       const svg = dom.append("svg")
-        .attr("width", width + 3* (margin.left + margin.right))
+        .attr("width", width + 3 * (margin.left + margin.right))
         .attr("height", height + margin.top + margin.bottom);
 
       svg.append("defs").append("clipPath")
@@ -53,20 +57,18 @@ export default function () {
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
       let createLegend = function (legend) {
-        legend.append("rect")
-          .attr("x", width + margin.right)
-          .attr("y", 0)
-          .style("fill", "lightsteelblue")
-          .attr("height", (margin.top)*(selectedRegions.length+1))
-          .attr("width", margin.right*4.8)
         selectedRegions.forEach((region, index) => {
-          legend.append("circle").attr("cx",  width + 1.5*margin.right).attr("cy", (index + 1) * margin.top).attr("r", 6).style("fill", regionColor(region.id))
-          legend.append("text").attr("x", width + 2*margin.right).attr("y", (index + 1) * margin.top + 4.5).text(region.name).style("font-size", "13px").attr("alignment-baseline", "middle")
+          legend.append("circle").attr("cx", width + 1.5 * margin.right).attr("cy", (index + 1) * margin.top).attr("r", 6).style("fill", regionColor(region.id))
+          legend.append("text").attr("x", width + 2 * margin.right).attr("y", (index + 1) * margin.top + 4.5).text(region.name).style("font-size", "13px").attr("alignment-baseline", "middle")
         })
-        
+
       }
 
       updateData = function () {
+        // set brush range
+        let regionRange = d3.extent(data, function (d) { return d.region; });
+        minElement = regionRange[0];
+        maxElement = regionRange[1];
         // Handmade legend
         svg.select("#legend").remove();
         let legend = svg.append("g")
@@ -93,7 +95,7 @@ export default function () {
           })
           .entries(data)
 
-        x.domain(selectedRegions.map(region => {return region.id}))
+        x.domain(selectedRegions.map(region => { return region.id }))
           .paddingInner(1)
           .paddingOuter(.5);
         y.domain(d3.extent(data, function (d) { return +d[yTopic]; }));
@@ -132,7 +134,8 @@ export default function () {
           .attr("height", function (d) { return (y(d.value.q1) - y(d.value.q3)) })
           .attr("width", boxWidth)
           .attr("stroke", "black")
-          .style("fill", "#69b3a2");
+          .attr("opacity", ".8")
+          .style("fill", (d) => regionColor(d.key));
 
         focus.select("#boxes").lower();
 
@@ -169,12 +172,13 @@ export default function () {
           .attr("r", 4)
           .style("fill", (d) => regionColor(d.region))
           .attr("opacity", d => {
-            if (!brushMode) {
-              return '1';
-            }
-            else {
-              d.selectedMobility ? '1' : '.5';
-            }
+            //if (!brushMode) {
+            //  return '1';
+            //}
+            //else {
+            //  d.selectedMobility ? '1' : '.5';
+            //}
+            return '0'
           })
           .attr("stroke", "black")
 
@@ -206,25 +210,34 @@ export default function () {
 
         if (focus.select("#boxbrush").empty()) {
 
-          highlight = function (newY) {
+          highlight = function (newY, region) {
             console.log("zoom");
             let transition = svg.transition().duration(750);
             svg.selectAll("#data-points").transition(transition)
               .attr("opacity", function (d) {
-                let yValue = newY && newY(d[yTopic]);
-                onBrush(
-                  brushMode, // brush mode
-                  d, // value to update
-                  newY && yValue >= newY.range()[1] && yValue <= newY.range()[0],
-                  views, // views to update
-                  "selectedMobility" // field to update
-                );
-                return newY && yValue >= newY.range()[1] && yValue <= newY.range()[0] ? '1' : '.5';
+                if (region == d.region) {
+                  // if point brushed is from same region where brush 
+                  // has been called, updated it 
+                  let yValue = newY && newY(d[yTopic]);
+                  onBrush(
+                    brushMode, // brush mode
+                    d, // value to update
+                    newY && yValue >= newY.range()[1] && yValue <= newY.range()[0],
+                    views, // views to update
+                    "selectedMobility" // field to update
+                  );
+                  return newY && yValue >= newY.range()[1] && yValue <= newY.range()[0] ? '1' : '0';
+                }
+                else{
+                  // if point brushed is from different region where brush 
+                  // has been called, leave it as before
+                  return this.getAttribute("opacity");
+                }
               })
           }
-          brushended = function () {
+          brushended = function (region) {
             let s = d3.event.selection;
-            console.log("brushnede", s)
+            console.log("brushnede", s, region)
             let newY = null;
             if (!s) {
               //if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
@@ -236,24 +249,36 @@ export default function () {
               newY.domain(s.map(newY.invert, newY));
               //focus.select(".brush").call(brush.move, null);
               brushMode = true;
-              highlight(newY);
+              highlight(newY, region);
               onBrushCompleted(brushMode ? views : null);
             }
           }
         }
 
-        if (brush && !brushMode) {
-          focus.select("boxbrush" + lastBrush).remove();
+        /** brush section:
+         *  here we create a brush for each region, maybe we want to explore same behaviour 
+         *  on mobility wrt different pandemic situations
+         */
+        console.log("removing %d brushes", lastBrush)
+        for (let i = 0; i < lastBrush; i++) {
+          // remove previous iteration of brush for region
+          focus.select("#boxbrush" + lastBrush).remove();
         }
-
-        if (!brush) {
-          brush = d3.brushY().extent([[0, 0], [width, height]]).on("end", brushended)
+        lastBrush = 0;
+        selectedRegions.forEach(region => {
+          // create new brush for region
+          let mybrush = d3.brushY()
+            .extent([[x(region.id) - boxWidth / 2, 0], [x(region.id) + boxWidth / 2, height]])
+            .on("end", () => {console.log(region.id); brushended(region.id) })
+          brushes.push(mybrush)
           lastBrush++;
           focus.append("g")
             .attr("class", "brush")
             .attr("id", "boxbrush" + lastBrush)
-            .call(brush);
-        }
+            .call(mybrush);
+
+        })
+
       }
     })
   }

@@ -26,17 +26,18 @@ export default function () {
           selectedRegions.splice(italyIndex, 1)
         }
         selectedRegions.push({id: d.properties.reg_istat_code, name: d.properties.reg_name.split("/")[0]});
+        selectedRegions.sort((a, b) => a.id - b.id)
         // add to recap
-        let node  = document.createElement("p");
-        node.setAttribute("style", "color: "+regionColor(d.properties.reg_istat_code)+"; display: inline;");
-        node.textContent = d.properties.reg_name+"\t";
-        node.id = "regionsRecap"+d.properties.reg_istat_code;
-        regionsRecap.appendChild(node);
+        //let node  = document.createElement("p");
+        //node.setAttribute("style", "color: "+regionColor(d.properties.reg_istat_code)+"; display: inline;");
+        //node.textContent = d.properties.reg_name+"\t";
+        //node.id = "regionsRecap"+d.properties.reg_istat_code;
+        //regionsRecap.appendChild(node);
       }
       else{
         //otherwise, remove from array
         selectedRegions.splice(selectedRegions.findIndex((reg) => {return reg.id == d.properties.reg_istat_code}), 1);
-        document.getElementById("regionsRecap"+d.properties.reg_istat_code).remove();
+      //  document.getElementById("regionsRecap"+d.properties.reg_istat_code).remove();
       }
       d.properties.clicked ? data.clickCount++ : data.clickCount--;
       data.wholeMap = data.clickCount == 0;

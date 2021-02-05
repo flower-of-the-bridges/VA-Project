@@ -12,29 +12,26 @@
 
 <body>
   <div style="display: inline-flex;">
+    <div>
+    <strong style="background-color: steelblue;">Correlation between
+      Covid-19
+      and Mobility through Italy</strong>
+    </div>
+    <div>
+      <b id="selectedRecords" style="display: inline;">0</b>
+      <strong>records selected</strong>
+    </div>
+    <div align="center">
+      <progress id="restLoading" value="50" max="100" hidden></progress>
+    </div>
+  </div>
+  <div style="display: inline-flex; margin-left: 10px;" >
     <div id="scatter" class="box">
     </div>
-    <div class="box" style="width: 80%;">
-      <h4 align="center" style="border-style: solid; background-color: steelblue;">Dashboard: Correlation between
-        Covid-19
-        and Mobility through Italy</h4>
-      <p style="text-align: center;">Select a region to see its data: <br /><small>(otherwise whole Italy will be
-          considered)</small></p>
-      <p style="text-align: center;" id="regionsRecap"></p>
-      <p style="text-align: center;">Select a particular period of the year: <br /><small>(with respect to CoVid
-          statistics)</small></p>
-      <p id="dateRecap" style="text-align: center;"></p>
-      <p style="text-align: center;">Select a particular mobility: <br /><small></small></p>
-      <div align="center">
-        <b id="selectedRecords" style="display: inline;">0</b>
-        <strong>records selected</strong>
-      </div>
-      <div align="center">
-        <progress id="restLoading" value="50" max="100" hidden></progress>
-      </div>
-    </div>
+
     <div id="map" class="box" style="margin-left: 10px;">
     </div>
+    
   </div>
   <div style="display: inline-flex; margin-top: 10px;">
     <div id="time" class="box" style="margin-left: 10px;">
