@@ -99,7 +99,7 @@ class Controller {
     this.model.entries = this.model.entries.map(e => {
       e.selectedTime = false;
       e.selectedRegion = false;
-      e.selectedMobility = false;
+      e.selectedMobility = true;
       return e;
     });
 

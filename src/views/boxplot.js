@@ -215,24 +215,19 @@ export default function () {
             let transition = svg.transition().duration(750);
             svg.selectAll("#data-points").transition(transition)
               .attr("opacity", function (d) {
-                if (region == d.region) {
-                  // if point brushed is from same region where brush 
-                  // has been called, updated it 
-                  let yValue = newY && newY(d[yTopic]);
-                  onBrush(
-                    brushMode, // brush mode
-                    d, // value to update
-                    newY && yValue >= newY.range()[1] && yValue <= newY.range()[0],
-                    views, // views to update
-                    "selectedMobility" // field to update
-                  );
-                  return newY && yValue >= newY.range()[1] && yValue <= newY.range()[0] ? '1' : '0';
-                }
-                else{
-                  // if point brushed is from different region where brush 
-                  // has been called, leave it as before
-                  return this.getAttribute("opacity");
-                }
+                // if point brushed is from same region where brush 
+                // has been called, updated it 
+                let yValue = newY && newY(d[yTopic]);
+                onBrush(
+                  brushMode, // brush mode
+                  d, // value to update
+                  region == d.region ? newY && yValue >= newY.range()[1] && yValue <= newY.range()[0] : d.selectedMobility,
+                  views, // views to update
+                  "selectedMobility" // field to update
+                );
+                return region == d.region ?
+                  (newY && yValue >= newY.range()[1] && yValue <= newY.range()[0] ? '1' : '0')
+                  : this.getAttribute("opacity");
               })
           }
           brushended = function (region) {
@@ -270,7 +265,7 @@ export default function () {
           // create new brush for region
           let mybrush = d3.brushY()
             .extent([[x(region.id) - boxWidth / 2, 0], [x(region.id) + boxWidth / 2, height]])
-            .on("end", () => {console.log(region.id); brushended(region.id) })
+            .on("end", () => { console.log(region.id); brushended(region.id) })
           brushes.push(mybrush)
           lastBrush++;
           focus.append("g")

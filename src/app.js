@@ -98,7 +98,7 @@ const loadData = function () {
           controller.handleAddEntry({
             ...e,
             jitter: Math.random(),
-            selectedMobility: false,//formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date && selectedRegions.includes(e.region),
+            selectedMobility: true,//formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date && selectedRegions.includes(e.region),
             selectedTime: formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date,
             selectedRegion: selectedRegions.filter(region => {return e.region == region.id}).length>0
           })

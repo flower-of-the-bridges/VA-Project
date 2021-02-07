@@ -1,8 +1,11 @@
 import * as d3 from 'd3'
 import { color } from 'd3';
+import * as regions from './../region'
 
 export default function () {
   let data = {},
+    covidData = {},
+    regionData = regions.default,
     width = 250,
     height = 250;
 
@@ -12,20 +15,20 @@ export default function () {
   let projection = d3.geoMercator()
     .center([2, 47])                // GPS of location to zoom on
     .scale(1000)                       // This is like the zoom
-    .translate([-width / 4, -height/10000])
+    .translate([-width / 4, -height / 10000])
 
-  let mapCallback = () => {console.log("map callback")}
+  let mapCallback = () => { console.log("map callback") }
   let onClick = (d) => {
     if (data.clickCount < 3 || d.properties.clicked) {
       d.properties.clicked = !d.properties.clicked;
-      if(d.properties.clicked){
+      if (d.properties.clicked) {
         // if clicked, add in array
         let italyIndex = selectedRegions.findIndex((reg) => reg.id == "0")
-        if(italyIndex!=-1){
+        if (italyIndex != -1) {
           // if whole italy is selected, remove it
           selectedRegions.splice(italyIndex, 1)
         }
-        selectedRegions.push({id: d.properties.reg_istat_code, name: d.properties.reg_name.split("/")[0]});
+        selectedRegions.push({ id: d.properties.reg_istat_code, name: d.properties.reg_name.split("/")[0] });
         selectedRegions.sort((a, b) => a.id - b.id)
         // add to recap
         //let node  = document.createElement("p");
@@ -34,17 +37,17 @@ export default function () {
         //node.id = "regionsRecap"+d.properties.reg_istat_code;
         //regionsRecap.appendChild(node);
       }
-      else{
+      else {
         //otherwise, remove from array
-        selectedRegions.splice(selectedRegions.findIndex((reg) => {return reg.id == d.properties.reg_istat_code}), 1);
-      //  document.getElementById("regionsRecap"+d.properties.reg_istat_code).remove();
+        selectedRegions.splice(selectedRegions.findIndex((reg) => { return reg.id == d.properties.reg_istat_code }), 1);
+        //  document.getElementById("regionsRecap"+d.properties.reg_istat_code).remove();
       }
       d.properties.clicked ? data.clickCount++ : data.clickCount--;
       data.wholeMap = data.clickCount == 0;
-      if(data.wholeMap){
-        selectedRegions.push({id: "0", name: "Italy"});
+      if (data.wholeMap) {
+        selectedRegions.push({ id: "0", name: "Italy" });
       }
-      mapCallback();     
+      mapCallback();
       updateData();
       console.log("clicked %o . selected regions: %d", d, data.clickCount);
     }
@@ -58,13 +61,13 @@ export default function () {
         .attr('width', width);
 
       updateData = function () {
-        
+
         if (svg.select("#map").empty()) {
           // if map group doesn't exist, create it
           svg.append("g")
             .attr("id", "map");
         }
-        
+
         // Draw the map
         svg.select("#map")
           .selectAll("path")
@@ -81,11 +84,11 @@ export default function () {
                 onClick(d);
               }),
             update => update
-            // change fill property based on the selection
+              // change fill property based on the selection
               .call(update => update
                 .transition()
                 .duration(1000)
-                .attr("opacity", d => data.wholeMap ? '1' : (d.properties.clicked ? '1': '.5'))
+                .attr("opacity", d => data.wholeMap ? '1' : (d.properties.clicked ? '1' : '.5'))
                 .style('fill', d => d.properties.clicked ? regionColor(d.properties.reg_istat_code) : regionColor(0))
               ),
             exit => exit
@@ -99,9 +102,10 @@ export default function () {
     })
   }
   //
-  map.data = function (_) {
+  map.data = function (mapData, dataset) {
     if (!arguments.length) return data
-    data = _
+    data = mapData
+    covidData = dataset
     if (typeof updateData === 'function') updateData()
     return map
   }
