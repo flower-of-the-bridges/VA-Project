@@ -259,11 +259,12 @@ export default function () {
          *  here we create a brush for each region, maybe we want to explore same behaviour 
          *  on mobility wrt different pandemic situations
          */
-        console.log("removing %d brushes", lastBrush)
-        for (let i = 0; i < lastBrush; i++) {
-          // remove previous iteration of brush for region
-          focus.select("#boxbrush" + lastBrush).remove();
-        }
+        //console.log("removing %d brushes", lastBrush)
+        //for (let i = 0; i < lastBrush; i++) {
+        //  // remove previous iteration of brush for region
+        //  focus.select("#boxbrush" + lastBrush).remove();
+        //}
+        d3.selectAll(".boxbrush").remove();
         lastBrush = 0;
         selectedRegions.forEach(region => {
           // create new brush for region
@@ -273,7 +274,7 @@ export default function () {
           brushes.push(mybrush)
           lastBrush++;
           focus.append("g")
-            .attr("class", "brush")
+            .attr("class", "boxbrush")
             .attr("id", "boxbrush" + lastBrush)
             .call(mybrush);
 
