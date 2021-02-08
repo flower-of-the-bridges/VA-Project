@@ -154,9 +154,6 @@ class Controller {
   }
 
   onBrushCompleted(views, restCall) {
-    if(restCall){
-      this.computeAggregate();
-    }
     this.model.onEntriesListChanged(views);
   }
 
@@ -183,7 +180,7 @@ class Controller {
       });
       this.updateTimeSeries();
       this.updateBoxPlot();
-      this.scatter.data(this.model.entries, this.boxBrush);
+      this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush);
     }
     else {
       // restore select
@@ -196,7 +193,7 @@ class Controller {
     this.boxplot.setBrushMode(false);
     this.scatter.setBrushMode(false);
     this.boxplot.data(this.model.entries, this.boxBrush);
-    this.scatter.data(this.model.entries, this.boxBrush);
+    this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush);
     brushMobilityButton.disabled = true;
   }
 
@@ -209,12 +206,17 @@ class Controller {
     start.value = "2020-02-24";
     finish.value = "2020-12-31";
     this.onMapUpdated();
-    this.computeAggregate();
+    this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush);
     brushTimeButton.disabled = true;
   }
 
   computeAggregate() {
+    /** ui check */
     restLoading.hidden = false; // show loading scree
+    computeButton.disabled = true; // disable button
+    let clusters = clusterNumber.value;
+    clusterNumber.disabled = true;
+    textCluster.textContent = clusters
     /** find index of the element to compute */
     let indexToCompute = this.model.entries.map((data, index) => {
       if(data.selectedRegion){
@@ -233,7 +235,8 @@ class Controller {
     });
     // create json obj
     let request = { 
-      "selRowNums": indexToCompute
+      "selRowNums": indexToCompute,
+      "clusters": clusters
     }
     console.log("sending data %o to backend", request);
     /** create xmlhttp req */
@@ -257,7 +260,9 @@ class Controller {
           entry["cluster"] = responseData[2];
         });
         restLoading.hidden = true;
-        this.scatter.data(this.model.entries);
+        computeButton.disabled = false; // disable button
+        clusterNumber.disabled = false;
+        this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush);
         this.boxplot.data(this.model.entries, this.boxBrush, this.timeBrush);
       }
     }).bind(this)

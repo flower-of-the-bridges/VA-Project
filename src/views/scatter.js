@@ -21,6 +21,7 @@ export default function () {
   let onBrush = (mode, d, brush) => { console.log("brush mode %o for object %o and brush %o ", mode, d, brush) } // default callback when data is brushed
   let onBrushCompleted = (mode) => { console.log("brush completed ", mode) }
   let brushMode = false;
+  let timeBrush = false;
   let views = ["time", "boxplot"]; // other views
 
   let clusterColors = d3.scaleOrdinal(d3.schemeCategory10);
@@ -143,7 +144,21 @@ export default function () {
           .style("fill", d => clusterColors(d.cluster))
           .attr("stroke", "black")
           .attr("stroke-width", "1")
-          .attr("opacity", d => brushMode ? (d.selectedMobility ? "1" : ".2") : "1")
+          .attr("opacity", d => {
+            let opacity = "1"
+            if (timeBrush || brushMode) {
+              if (timeBrush && brushMode) {
+                opacity = d.selectedTime && d.selectedMobility ? "1" : ".2"
+              }
+              else if (brushMode) {
+                opacity = d.selectedMobility ? "1" : ".2"
+              }
+              else if (timeBrush) {
+                opacity = d.selectedTime ? "1" : ".2"
+              }
+            }
+            return opacity
+          })
           .attr("cx", function (d) { return x(d["Y1"]) })
           .attr("cy", function (d) { return y(d["Y2"]) });
 
@@ -173,14 +188,15 @@ export default function () {
     })
   }
 
-  scatter.data = function (newData, boxBrush) {
+  scatter.data = function (newData, boxBrush, timeBrushed) {
     if (!arguments.length) {
       return data;
     }
     data = newData
     if (typeof updateData === 'function') {
       brushMode = boxBrush;
-      data = data.filter(d => { return d.selectedRegion && d.selectedTime });
+      timeBrush = timeBrushed
+      data = data.filter(d => { return d.selectedRegion });
       console.log("scatter receives %d elements", data.length);
       updateData()
     }

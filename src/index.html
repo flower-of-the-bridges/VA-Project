@@ -20,9 +20,13 @@
     <div>
       <b id="selectedRecords" style="display: inline;">0</b>
       <strong>records selected</strong>
+      
     </div>
-    <div align="center">
+    <div>
       <progress id="restLoading" value="50" max="100" hidden></progress>
+      <button id="computeButton" onclick="app.computeAggregate()">Compute aggregate</button>
+      <label for="clusterNumber">Number of clusters: <strong id="textCluster">3</strong></label>
+      <input type="range" min="1" max="10" value="3"  id="clusterNumber" onchange="app.computeAggregate()">
     </div>
   </div>
   <div style="display: inline-flex; margin-left: 10px;" >

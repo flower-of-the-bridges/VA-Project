@@ -279,7 +279,7 @@ export default function () {
     })
   }
 
-  boxplot.data = function (_, boxBrush) {
+  boxplot.data = function (_, boxBrush, timeBrush) {
     if (!arguments.length) {
       return data
     }
