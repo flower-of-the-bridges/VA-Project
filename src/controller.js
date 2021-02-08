@@ -1,3 +1,4 @@
+import { thresholdFreedmanDiaconis } from 'd3';
 import model from './model'
 import views from './views'
 
@@ -20,15 +21,22 @@ class Controller {
     this.time.bindBrush((brushMode, d, brush, views, field) => this.onBrushChanged(brushMode, d, brush, views, field)).bind(this);
     this.time.bindBrushComplete((views, restCall) => this.onBrushCompleted(views, restCall)).bind(this);
     this.mapView.bindCallback(() => {
+      start.value = "2020-02-24";
+      finish.value = "2020-12-31";
       this.timeBrush = false;
       this.boxBrush = false;
       brushMobilityButton.disabled = true;
       this.onMapUpdated();
-      this.computeAggregate();
+      this.computeAggregate(true);
     }).bind(this);
     // brush
     this.timeBrush = false;
     this.boxBrush = false;
+    this.aggregate = true;
+  }
+
+  handleMapData(mapData) {
+    this.model.addMapData(mapData)
   }
   //
   handleAddEntry(entry) {
@@ -71,18 +79,23 @@ class Controller {
   }
   //
   onEntriesListChanged(views) {
+    // first: update counter
+    selectedRecords.textContent = this.model.entries.filter(d => {
+      return this.canSelectData(d)
+    }).length;
+    // if views are specified, update only them
     if (views && Array.isArray(views)) {
       views.forEach(view => {
         this[view].data(this.model.entries, this.boxBrush, this.timeBrush);
       });
     }
     else {
-      // scatter 
-      //this.scatter.data(this.model.entries);
       // time series
       this.time.data(this.model.entries, this.boxBrush, this.timeBrush);
       // boxplot
       this.boxplot.data(this.model.entries, this.boxBrush, this.timeBrush);
+      // map data
+      this.mapView.data(this.model.mapData, this.model.entries);
     }
   }
 
@@ -93,7 +106,7 @@ class Controller {
     let daysPerRegion = Object.keys(this.model.entriesById);
     let idsToChange = daysPerRegion.filter(id => {
       let regionId = id.split("_")[1];
-      return selectedRegions.filter(region => {return regionId == region.id}).length > 0;
+      return selectedRegions.filter(region => { return regionId == region.id }).length > 0;
     });
 
     this.model.entries = this.model.entries.map(e => {
@@ -178,9 +191,9 @@ class Controller {
         e.selectedTime = new Date(start.value) <= new Date(date) && new Date(finish.value) >= new Date(date);
         return e;
       });
-      this.updateTimeSeries();
+      //this.updateTimeSeries();
       this.updateBoxPlot();
-      this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush);
+      this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.aggregate);
     }
     else {
       // restore select
@@ -193,7 +206,7 @@ class Controller {
     this.boxplot.setBrushMode(false);
     this.scatter.setBrushMode(false);
     this.boxplot.data(this.model.entries, this.boxBrush);
-    this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush);
+    this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.aggregate);
     brushMobilityButton.disabled = true;
   }
 
@@ -206,11 +219,31 @@ class Controller {
     start.value = "2020-02-24";
     finish.value = "2020-12-31";
     this.onMapUpdated();
-    this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush);
+    this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.aggregate);
     brushTimeButton.disabled = true;
   }
 
-  computeAggregate() {
+  canSelectData(data) {
+    if (data.selectedRegion) {
+      if (this.boxBrush && this.timeBrush) {
+        return data.selectedTime && data.selectedMobility
+      }
+      if (this.boxBrush) {
+        return data.selectedMobility
+      }
+      else if (this.timeBrush) {
+        return data.selectedTime
+      }
+      else {
+        return true;
+      }
+    }
+    else {
+      return false;
+    }
+  }
+
+  computeAggregate(updateAggregateField) {
     /** ui check */
     restLoading.hidden = false; // show loading scree
     computeButton.disabled = true; // disable button
@@ -219,22 +252,18 @@ class Controller {
     textCluster.textContent = clusters
     /** find index of the element to compute */
     let indexToCompute = this.model.entries.map((data, index) => {
-      if(data.selectedRegion){
-        if(this.timeBrush){
-          return data.selectedTime ? (index+1) : -1
-        }
-        else{
-          return (index+1);
-        }
+
+      if (this.canSelectData(data)) {
+        return (index + 1)
       }
-      else{
-        return -1;
+      else {
+        return -1
       }
-    }).filter((index) =>{
-      return index!=-1;
+    }).filter((index) => {
+      return index != -1;
     });
     // create json obj
-    let request = { 
+    let request = {
       "selRowNums": indexToCompute,
       "clusters": clusters
     }
@@ -245,15 +274,15 @@ class Controller {
     xmlhttp.open("POST", url);
     xmlhttp.setRequestHeader("Content-Type", "application/json");
     xmlhttp.setRequestHeader('Access-Control-Allow-Origin', '*');
-    xmlhttp.setRequestHeader('Accept', '/*/'); 
+    xmlhttp.setRequestHeader('Accept', '/*/');
     xmlhttp.send(JSON.stringify(request));
     xmlhttp.onreadystatechange = (function (resp) { // Call a function when the state changes.
       if (resp.target.readyState === XMLHttpRequest.DONE && resp.target.status === 200) {
         // Request finished. Do processing here.
         let response = JSON.parse(resp.target.responseText).clusters;
         console.log("received response: %o", response);
-        indexToCompute.forEach((recordIndex, index) =>{
-          let entry = this.model.entries[recordIndex-1];
+        indexToCompute.forEach((recordIndex, index) => {
+          let entry = this.model.entries[recordIndex - 1];
           let responseData = response[index];
           entry["Y1"] = responseData[0];
           entry["Y2"] = responseData[1];
@@ -262,8 +291,11 @@ class Controller {
         restLoading.hidden = true;
         computeButton.disabled = false; // disable button
         clusterNumber.disabled = false;
-        this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush);
-        this.boxplot.data(this.model.entries, this.boxBrush, this.timeBrush);
+
+        this.aggregate = updateAggregateField || !this.aggregate;
+
+        this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.aggregate);
+        //this.boxplot.data(this.model.entries, this.boxBrush, this.timeBrush);
       }
     }).bind(this)
   }

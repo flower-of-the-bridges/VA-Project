@@ -13,29 +13,29 @@
 <body>
   <div style="display: inline-flex;">
     <div>
-    <strong style="background-color: steelblue;">Correlation between
-      Covid-19
-      and Mobility through Italy</strong>
+      <strong style="background-color: steelblue;">Correlation between
+        Covid-19
+        and Mobility through Italy</strong>
     </div>
     <div>
       <b id="selectedRecords" style="display: inline;">0</b>
       <strong>records selected</strong>
-      
-    </div>
-    <div>
-      <progress id="restLoading" value="50" max="100" hidden></progress>
-      <button id="computeButton" onclick="app.computeAggregate()">Compute aggregate</button>
-      <label for="clusterNumber">Number of clusters: <strong id="textCluster">3</strong></label>
-      <input type="range" min="1" max="10" value="3"  id="clusterNumber" onchange="app.computeAggregate()">
+
     </div>
   </div>
-  <div style="display: inline-flex; margin-left: 10px;" >
+  <div style="display: inline-flex; margin-left: 10px;">
     <div id="scatter" class="box">
+      <div style="display: inline-flex; margin-top: 10px; margin-left: 10px; padding-left: 10px;">
+        <button id="computeButton" onclick="app.computeAggregate(true)">Compute aggregate</button>
+        <label style="margin-left: 10px" id="textClusterNumber">Number of clusters: <strong id="textCluster">3</strong></label>
+        <input style="margin-left: 10px" type="range" min="1" max="10" value="3" id="clusterNumber" onchange="app.computeAggregate(true)">
+        <progress style="margin-left: 10px" id="restLoading" value="50" max="100" hidden></progress>
+      </div>
     </div>
 
     <div id="map" class="box" style="margin-left: 10px;">
     </div>
-    
+
   </div>
   <div style="display: inline-flex; margin-top: 10px;">
     <div id="time" class="box" style="margin-left: 10px;">

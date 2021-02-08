@@ -2,12 +2,17 @@ class Model {
   constructor() {
     this.entries = []
     this.dataset = {}
+    this.mapData = {}
     this.entriesById = {}
     this.onEntriesListChanged = () => { }
   }
   // 
   bindEntriesListChanged(callback) {
     this.onEntriesListChanged = callback
+  }
+
+  addMapData(mapData){
+    this.mapData = mapData;
   }
   // 
   addEntry(entry) {

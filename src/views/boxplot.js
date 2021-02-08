@@ -61,7 +61,6 @@ export default function () {
           legend.append("circle").attr("cx", width + 1.5 * margin.right).attr("cy", (index + 1) * margin.top).attr("r", 6).style("fill", regionColor(region.id))
           legend.append("text").attr("x", width + 2 * margin.right).attr("y", (index + 1) * margin.top + 4.5).text(region.name).style("font-size", "13px").attr("alignment-baseline", "middle")
         })
-
       }
 
       updateData = function () {

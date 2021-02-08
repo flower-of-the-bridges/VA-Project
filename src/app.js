@@ -11,10 +11,7 @@ const app = async function () {
   initUI();
   //await preProcessData();
   window.regionColor = d3.scaleOrdinal(d3.schemeTableau10);
-
-  
-  const mapContainer = d3.select('#map');
-  mapContainer.call(window.app.mapView);
+  window.clusterColor = d3.scaleOrdinal(d3.schemeSet3);
 
   let mapLoaded = await loadMap()
     .catch(err => {
@@ -34,10 +31,12 @@ const app = async function () {
       .append("div")
       .attr("id", "#timeView");
     const boxContainer = d3.select('#mobility');
+    const mapContainer = d3.select('#map'); 
     // Invoke view function
     scatterContainer.call(window.app.scatter);
     timeContainer.call(window.app.time);
     boxContainer.call(window.app.boxplot);
+    mapContainer.call(window.app.mapView);
     window.app.onEntriesListChanged();
     window.app.computeAggregate();
   }
@@ -76,8 +75,7 @@ const loadMap = function () {
         });
         geoJson.clickCount = 0;
         geoJson.wholeMap = true;
-        window.app.mapView.data(geoJson);
-        console.log("map loaded");
+        controller.handleMapData(geoJson);
         resolve(true)
       })
       .catch(err => {
