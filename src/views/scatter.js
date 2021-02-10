@@ -7,10 +7,10 @@ export default function () {
 
   let updateData, zoom, brushended;
 
-  let margin = { top: 20, right: 30, bottom: 30, left: 50 };
+  let margin = { top: 50, right: 30, bottom: 30, left: 50 };
 
-  let width = 600;
-  let height = 250;
+  let width = 420;
+  let height = 260;
 
   let x = d3.scaleLinear().range([0, width]),
     y = d3.scaleLinear().range([height - margin.top - margin.bottom, 0]);

@@ -15,9 +15,9 @@ export default function () {
   // rectangle for the main box
   let boxWidth = 100
 
-  let margin = { top: 20, right: 30, bottom: 30, left: 30 };
+  let margin = { top: 20, right: 10, bottom: 30, left: 30 };
 
-  let width = 450 - margin.left - margin.right;
+  let width = 400 - margin.left - margin.right;
   let height = 250 - margin.top - margin.bottom;
 
   let x = d3.scaleBand().range([0, width]),
@@ -59,7 +59,7 @@ export default function () {
       let createLegend = function (legend) {
         selectedRegions.forEach((region, index) => {
           legend.append("circle").attr("cx", width + 1.5 * margin.right).attr("cy", (index + 1) * margin.top).attr("r", 6).style("fill", regionColor(region.id))
-          legend.append("text").attr("x", width + 2 * margin.right).attr("y", (index + 1) * margin.top + 4.5).text(region.name).style("font-size", "13px").attr("alignment-baseline", "middle")
+          legend.append("text").attr("x", width + 3 * margin.right).attr("y", (index + 1) * margin.top + 4.5).text(region.name).style("font-size", "13px").attr("alignment-baseline", "middle")
         })
       }
 

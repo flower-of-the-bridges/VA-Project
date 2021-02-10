@@ -6,16 +6,16 @@ export default function () {
   let data = {},
     covidData = {},
     regionData = regions.default,
-    width = 250,
-    height = 250;
+    width = 460,
+    height = 500;
 
   let updateData;
 
   // Map and projection
   let projection = d3.geoMercator()
     .center([2, 47])                // GPS of location to zoom on
-    .scale(1000)                       // This is like the zoom
-    .translate([-width / 4, -height / 10000])
+    .scale(2000)                       // This is like the zoom
+    .translate([-width / 3.5, -height / 10000])
 
   let mapCallback = () => { console.log("map callback") }
   let onClick = (d) => {
