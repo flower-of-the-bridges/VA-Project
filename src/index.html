@@ -12,12 +12,12 @@
 </head>
 
 <body>
-  <div style="display: inline-flex;height:4vw; background-color: steelblue; width:100%; ">
-    <div style="margin-top: 1vh;">
-      <strong style="margin-left:37vw;">Correlation between
+  <div style="display: inline-flex;height:50px; background-color: steelblue; width:100%;">
+    <div style="margin-top: 5px;">
+      <strong style="margin-left:650px;position:absolute">Correlation between
         Covid-19
         and Mobility through Italy</strong><br />
-        <b id="selectedRecords" style="display: inline;margin-left:47vw;margin-bottom:2vh;">0</b>
+        <b id="selectedRecords" style="display: inline;margin-left:700px;margin-bottom:5px;margin-top:5px">0</b>
         <strong>records selected</strong>
   
     </div>
@@ -25,7 +25,7 @@
   </div>
   <div>
   <div style=" margin-left: 10px;">
-    <div id="scatter" class="box" style="float: left;margin-top:2vw">
+    <div id="scatter" class="box" style="float: left;margin-top:10px; position:absolute">
       <div style="display: inline-flex; margin-top: 10px; margin-left: 10px; padding-left: 10px;">
         <button id="computeButton" onclick="app.computeAggregate(true)">Compute aggregate</button>
         <label style="margin-left: 10px" id="textClusterNumber">Number of clusters: <strong id="textCluster">3</strong></label>
@@ -35,7 +35,7 @@
     </div>
 
     
-    <div id="mobility" class="box" style="margin-left: 5px;float: right; margin-top:11%">
+    <div id="mobility" class="box" style="margin-left:1075px ;float: right; margin-top:200px;position:fixed">
       <!-- groceriesPharmacy,parks,residential,retailRecreation,transit,workplaces -->
       <div align="center">
         <select id="mobilityChoice" onchange="app.changeMobilityHandler()">
@@ -55,13 +55,13 @@
         <button id="brushMobilityButton" onclick="app.clearMobility()">Clear</button>
       </div>
     </div>
-    <div id="map" class="box" style="margin-left: 1.5vw; float: left; position:relative;top:10vh">
+    <div id="map" class="box" style="margin-left: 600px; float: left; margin-top:10px;position:absolute">
     </div>
  </div>
   
  </div>
 
-  <div style="float: left; margin-top: 1vh;position:relative;top:-15vh">
+  <div style="float: left; margin-top:380px;position:absolute">
     <div id="time" class="box" style="margin-left: 10px; ">
       <div style="display: inline-flex; margin-bottom: 10px; margin-left: 10px;">
         <select id="covidChoice" onchange="app.changeTimeHandler()" style="max-width: 100%;">
