@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>
     va-project
@@ -11,33 +12,57 @@
 </head>
 
 <body>
-  <div style="display: inline-flex;">
-    <div id="scatter" class="box">
-    </div>
-    <div class="box" style="width: 80%;">
-      <h4 align="center" style="border-style: solid; background-color: steelblue;">Dashboard: Correlation between
+  <div style="display: inline-flex;height:4vw; background-color: steelblue; width:100%; ">
+    <div style="margin-top: 1vh;">
+      <strong style="margin-left:37vw;">Correlation between
         Covid-19
-        and Mobility through Italy</h4>
-      <p style="text-align: center;">Select a region to see its data: <br /><small>(otherwise whole Italy will be
-          considered)</small></p>
-      <p style="text-align: center;" id="regionsRecap"></p>
-      <p style="text-align: center;">Select a particular period of the year: <br /><small>(with respect to CoVid
-          statistics)</small></p>
-      <p id="dateRecap" style="text-align: center;"></p>
-      <p style="text-align: center;">Select a particular mobility: <br /><small></small></p>
-      <div align="center">
-        <b id="selectedRecords" style="display: inline;">0</b>
+        and Mobility through Italy</strong><br />
+        <b id="selectedRecords" style="display: inline;margin-left:47vw;margin-bottom:2vh;">0</b>
         <strong>records selected</strong>
-      </div>
-      <div align="center">
-        <progress id="restLoading" value="50" max="100" hidden></progress>
-      </div>
+  
     </div>
-    <div id="map" class="box" style="margin-left: 10px;">
-    </div>
+    
   </div>
-  <div style="display: inline-flex; margin-top: 10px;">
-    <div id="time" class="box" style="margin-left: 10px;">
+  <div>
+  <div style=" margin-left: 10px;">
+    <div id="scatter" class="box" style="float: left;margin-top:2vw">
+      <div style="display: inline-flex; margin-top: 10px; margin-left: 10px; padding-left: 10px;">
+        <button id="computeButton" onclick="app.computeAggregate(true)">Compute aggregate</button>
+        <label style="margin-left: 10px" id="textClusterNumber">Number of clusters: <strong id="textCluster">3</strong></label>
+        <input style="margin-left: 10px" type="range" min="1" max="10" value="3" id="clusterNumber" onchange="app.computeAggregate(true)">
+        <progress style="margin-left: 10px" id="restLoading" value="50" max="100" hidden></progress>
+      </div>
+    </div>
+
+    
+    <div id="mobility" class="box" style="margin-left: 5px;float: right; margin-top:11%">
+      <!-- groceriesPharmacy,parks,residential,retailRecreation,transit,workplaces -->
+      <div align="center">
+        <select id="mobilityChoice" onchange="app.changeMobilityHandler()">
+          <option value="groceriesPharmacy" checked>Groceries/Pharmacy</option>
+    
+          <option value="parks">Parks</option>
+    
+          <option value="residential">Residential</option>
+    
+          <option value="retailRecreation">Retail/Recreation</option>
+    
+          <option value="transit">Transit</option>
+    
+          <!-- <input type="radio" id="workplaces" name="mobil" value="workplaces">
+        <label for="workplaces">Workplaces</label> -->
+        </select>
+        <button id="brushMobilityButton" onclick="app.clearMobility()">Clear</button>
+      </div>
+    </div>
+    <div id="map" class="box" style="margin-left: 1.5vw; float: left; position:relative;top:10vh">
+    </div>
+ </div>
+  
+ </div>
+
+  <div style="float: left; margin-top: 1vh;position:relative;top:-15vh">
+    <div id="time" class="box" style="margin-left: 10px; ">
       <div style="display: inline-flex; margin-bottom: 10px; margin-left: 10px;">
         <select id="covidChoice" onchange="app.changeTimeHandler()" style="max-width: 100%;">
           <option value="new" checked>New Cases</option>
@@ -62,29 +87,10 @@
         </div>
       </div>
     </div>
-    <div id="mobility" class="box" style="margin-left: 5px;">
-      <!-- groceriesPharmacy,parks,residential,retailRecreation,transit,workplaces -->
-      <div align="center">
-        <select id="mobilityChoice" onchange="app.changeMobilityHandler()">
-          <option value="groceriesPharmacy" checked>Groceries/Pharmacy</option>
-
-          <option value="parks">Parks</option>
-
-          <option value="residential">Residential</option>
-
-          <option value="retailRecreation">Retail/Recreation</option>
-
-          <option value="transit">Transit</option>
-
-          <!-- <input type="radio" id="workplaces" name="mobil" value="workplaces">
-        <label for="workplaces">Workplaces</label> -->
-        </select>
-        <button id="brushMobilityButton" onclick="app.clearMobility()">Clear</button>
-      </div>
-    </div>
+ 
   </div>
 
 
-<script type="text/javascript" src="main.js?9f669934a583183155ba"></script></body>
+<script type="text/javascript" src="main.js?39d4bae4c2231a4cb6f5"></script></body>
 
 </html>
