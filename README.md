@@ -1,5 +1,5 @@
-# va-project
-The project deals with presenting a data visualization regarding the effects of the *CoVid-19 Pandemic* in Italy, during the year 2020. This work focuses the attention towards an hypothetical governmental decision maker, who needs to evaluate the effectiveness of the current anti-contagion measures to plan out the future actions. For accomplishing this task, through a visual environment, a comparison in certain temporal intervals between the variation of people’s movement and some indicators of the pandemic situation is performed, with respect to the different Italian Regions.
+# Correlation between Covid19 and Mobility
+The project deals with presenting a data visualization regarding the effects of the *CoVid-19 Pandemic* in Italy, during the year 2020. This work focuses the attention towards an hypothetical governmental decision maker, who needs to evaluate the effectiveness of the current anti-contagion measures to plan out the future actions. For accomplishing this task, through a visual environment, a comparison in certain temporal intervals between the variation of people’s movement and some indicators of the pandemic situation is performed, with respect to the different Italian Regions. More details on the [Report](https://github.com/GiovFiordeponti/VA-Project/blob/main/docs/Report.pdf)
 ## Datasets
 The following datasets have been used to create the visual environment:
 * [Dati COVID-19 Italia](https://github.com/pcm-dpc/COVID-19)
