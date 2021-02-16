@@ -27,7 +27,7 @@ class Controller {
       this.boxBrush = false;
       brushMobilityButton.disabled = true;
       this.onMapUpdated();
-      this.computeAggregate(true);
+      //this.computeAggregate(true);
     }).bind(this);
     // brush
     this.timeBrush = false;
@@ -275,12 +275,19 @@ class Controller {
     xmlhttp.setRequestHeader("Content-Type", "application/json");
     xmlhttp.setRequestHeader('Access-Control-Allow-Origin', '*');
     xmlhttp.setRequestHeader('Accept', '/*/');
+    // reset values
+    this.model.entries = this.model.entries.map(entry =>{
+      if(entry["Y1"]) delete entry["Y1"]
+      if(entry["Y2"]) delete entry["Y2"]
+      return entry
+    })
     xmlhttp.send(JSON.stringify(request));
     xmlhttp.onreadystatechange = (function (resp) { // Call a function when the state changes.
       if (resp.target.readyState === XMLHttpRequest.DONE && resp.target.status === 200) {
         // Request finished. Do processing here.
         let response = JSON.parse(resp.target.responseText).clusters;
         console.log("received response: %o", response);
+        
         indexToCompute.forEach((recordIndex, index) => {
           let entry = this.model.entries[recordIndex - 1];
           let responseData = response[index];
@@ -299,6 +306,12 @@ class Controller {
       }
     }).bind(this)
   }
+
+  updateClusterNumber(){
+    textCluster.textContent = clusterNumber.value
+  }
+
+  
 }
 
 export default new Controller()

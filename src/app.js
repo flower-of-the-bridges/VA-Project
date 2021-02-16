@@ -7,7 +7,7 @@ import dataset from './res/dataset.csv'
 
 const app = async function () {
   window.app = controller;
-  window.selectedRegions = [{id: "0", name: "Italy"}];
+  window.selectedRegions = [{ id: "0", name: "Italy" }];
   initUI();
   //await preProcessData();
   window.regionColor = d3.scaleOrdinal(d3.schemeTableau10);
@@ -31,7 +31,7 @@ const app = async function () {
       .append("div")
       .attr("id", "#timeView");
     const boxContainer = d3.select('#mobility');
-    const mapContainer = d3.select('#map'); 
+    const mapContainer = d3.select('#map');
     // Invoke view function
     scatterContainer.call(window.app.scatter);
     timeContainer.call(window.app.time);
@@ -70,7 +70,7 @@ const loadMap = function () {
     //The format in the json, which d3 will read
     d3.json("https://raw.githubusercontent.com/openpolis/geojson-italy/master/geojson/limits_IT_regions.geojson")
       .then(geoJson => {
-        geoJson.features.forEach(feature =>{
+        geoJson.features.forEach(feature => {
           feature.properties.clicked = false;
         });
         geoJson.clickCount = 0;
@@ -98,7 +98,7 @@ const loadData = function () {
             jitter: Math.random(),
             selectedMobility: true,//formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date && selectedRegions.includes(e.region),
             selectedTime: formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date,
-            selectedRegion: selectedRegions.filter(region => {return e.region == region.id}).length>0
+            selectedRegion: selectedRegions.filter(region => { return e.region == region.id }).length > 0
           })
         })
         resolve(true)
@@ -150,6 +150,18 @@ const initUI = function () {
   window.selectedMobility = mobilityChoice.value;
   window.app.updateBoxPlot();
   console.log("selectedMobility is ", window.selectedMobility);
+  brushTime.checked = true;
+  //zoomTime.checked = false;
+  let timeModeRadios = document.querySelectorAll('input[type=radio][name="timeMode"]');
+  function setTimeMode(event) {
+    let mode = this.id == zoomTime.id && this.checked
+    console.log("setting time mode: ", mode);
+    window.app.time.setZoomMode(mode);
+  }
+  timeModeRadios.forEach(radio => {
+    console.log(radio);
+    radio.addEventListener("change", setTimeMode)
+  })  
 }
 
 export default app

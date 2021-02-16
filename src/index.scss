@@ -56,6 +56,13 @@ div.tooltip {
 div.box {
   border-style: solid;
   width: min-content;
+  height: fit-content;
+}
+
+div.header {
+  text-align: center; 
+  background-color: steelblue; 
+  width:100%;
 }
 
 brush.boxbrush{

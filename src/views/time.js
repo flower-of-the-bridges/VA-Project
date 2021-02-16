@@ -27,6 +27,7 @@ export default function () {
   let onBrush = (mode, d, brush) => { console.log("brush mode %o for object %o and brush %o ", mode, d, brush) } // default callback when data is brushed
   let onBrushCompleted = (views) => { console.log("brush completed ", views) }
   let brushMode = false;
+  let zoomMode = false;
   let views = ["boxplot", "scatter"]; // other views
 
   let idleTimeout, idleDelay = 350;
@@ -53,7 +54,7 @@ export default function () {
         .append("rect")
         .attr("width", width)
         .attr("height", height);
-        
+
 
       const focus = svg.append("g")
         .attr("class", "focus")
@@ -79,8 +80,10 @@ export default function () {
           .attr("id", "legend");
         createLegend(legend);
 
-        x.domain(d3.extent(data, function (d) { return +d["date"]; }));
-        y.domain(d3.extent(data, function (d) { return +d[yTopic]; }));
+        if (!zoomMode) {
+          x.domain(d3.extent(data, function (d) { return +d["date"]; }));
+          y.domain(d3.extent(data, function (d) { return +d[yTopic]; }));
+        }
         console.log("time has %d elements. (brush mode: %s)\ndomain: %o", data.length, brushMode ? "on" : "off", x.domain());
         /** path */
 
@@ -124,7 +127,7 @@ export default function () {
             .attr("d",
               unselectedLine
                 .x(function (d) { return x(d.date) })
-                .y(function (d) {return y(d[yTopic])})
+                .y(function (d) { return y(d[yTopic]) })
             );
         });
 
@@ -186,18 +189,25 @@ export default function () {
               //brushMode = false;
               //y.domain(d3.extent(data, function (d) { return +d[yTopic]; }));
             } else {
-              let newX = x.copy()
-              //x.domain(s.map(x.invert, x));
-              newX.domain(s.map(x.invert, x));
               brushMode = true;
               brushTimeButton.disabled = false;
-              //y.domain([s[0][1], s[1][1]].map(y.invert, y));
-              //focus.select(".brush").call(brush.move, null);
-              // update date inputs
-              start.value = newX.domain()[0].toLocaleDateString("en-CA")
-              finish.value = newX.domain()[1].toLocaleDateString("en-CA")
-              //zoom();
-              highlight(newX)
+              if (!zoomMode) {
+                let newX = x.copy()
+                newX.domain(s.map(x.invert, x));
+                start.value = newX.domain()[0].toLocaleDateString("en-CA")
+                finish.value = newX.domain()[1].toLocaleDateString("en-CA")
+                highlight(newX);
+              }
+              else {
+                x.domain(s.map(x.invert, x));
+                y.domain([s[0][1], s[1][1]].map(y.invert, y));
+                start.value = x.domain()[0].toLocaleDateString("en-CA")
+                finish.value = x.domain()[1].toLocaleDateString("en-CA")
+                focus.select(".timebrush").call(brush.move, null);
+                // update date inputs
+                zoom();
+              }
+
               onBrushCompleted(brushMode ? views : null, true);
             }
           }
@@ -222,7 +232,7 @@ export default function () {
 
                 focus.select("#data--path--" + index)
                   .attr("d", selectedLine
-                    .x(function (d) {return x(d.date);})
+                    .x(function (d) { return x(d.date); })
                     .y(function (d) { return y(d[yTopic]) })
                   )
               }
@@ -251,30 +261,22 @@ export default function () {
             svg.select("#axis2--x").transition(transition).call(xAxis2);
             svg.select("#axis--y").transition(transition).call(yAxis);
 
-            focus.selectAll("path").each(function (pathData, index) {
-              let line = d3.line()
-                .defined((d, i) => {
-                  if (i != 0) {
-                    if (d.date.getDate() - pathData[i - 1].date.getDate() > 1) {
-                      return false;
-                    }
-                    else return true;
-                  }
-                  else return false;
-                });
+            focus.selectAll(".timepath").each(function (pathData, index) {
+
+              pathData.forEach(d => {
+                let xValue = x(d.date);
+                d.selectedTime = xValue >= x.range()[0] && xValue <= x.range()[1] // brushed
+                onBrush(
+                  brushMode, // brush mode
+                  d, // value to update
+                  d.selectedTime,//xValue >= newX.range()[0] && xValue <= newX.range()[1], // brushed 
+                  views, // views to update
+                  "selectedTime"
+                );
+              })
               focus.select("#data--path--" + index).transition(transition)
-                .attr("d", selectedLine
-                  .x(function (d) {
-                    let xValue = x(d.date);
-                    onBrush(
-                      brushMode, // brush mode
-                      d, // value to update
-                      xValue >= x.range()[0] && xValue <= x.range()[1], // brushed 
-                      views, // views to update
-                      "selectedTime"
-                    );
-                    return xValue;
-                  })
+                .attr("d", d3.line()
+                  .x(function (d) { return x(d.date); })
                   .y(function (d) { return y(d[yTopic]) })
                 )
             });
@@ -331,6 +333,9 @@ export default function () {
           return false;
         }
       });
+
+      zoomMode = zoomTime.checked;
+
       updateData()
     }
     return time
@@ -351,6 +356,11 @@ export default function () {
 
   time.setBrushMode = function (mode) {
     brushMode = mode;
+    return time
+  }
+
+  time.setZoomMode = function (mode) {
+    zoomMode = mode;
     return time
   }
 

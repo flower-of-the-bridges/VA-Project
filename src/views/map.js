@@ -75,11 +75,12 @@ export default function () {
           .join(
             enter => enter
               .append("path")
-              .attr("fill", regionColor(0)) // first time, no region is selected: all white 
+              //.attr("fill", regionColor(0)) // first time, no region is selected: all white 
               .attr("d", d3.geoPath()
                 .projection(projection)
               )
-              .style("stroke", "black")
+              .style("stroke", d => d.properties.clicked ? regionColor(d.properties.reg_istat_code) : (data.clickCount == 0 ? regionColor(0) : "black"))
+              .attr("stroke-width", "2")
               .on("click", d => {
                 onClick(d);
               }),
@@ -88,8 +89,10 @@ export default function () {
               .call(update => update
                 .transition()
                 .duration(1000)
+                .style("stroke", d => d.properties.clicked ? regionColor(d.properties.reg_istat_code) : (data.clickCount == 0 ? regionColor(0) : "black"))
+                .attr("stroke-width", "1.5")
                 .attr("opacity", d => data.wholeMap ? '1' : (d.properties.clicked ? '1' : '.5'))
-                .style('fill', d => d.properties.clicked ? regionColor(d.properties.reg_istat_code) : regionColor(0))
+                //.style('fill', d => d.properties.clicked ? regionColor(d.properties.reg_istat_code) : regionColor(0))
               ),
             exit => exit
               .call(exit => exit
