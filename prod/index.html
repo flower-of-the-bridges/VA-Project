@@ -7,62 +7,53 @@
   <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>
-    va-project
+    Correlation between Covid19 and Mobility
   </title>
 </head>
 
 <body>
-  <div style="display: inline-flex;height:50px; background-color: steelblue; width:100%;">
-    <div style="margin-top: 5px;">
-      <strong style="margin-left:650px;position:absolute">Correlation between
-        Covid-19
-        and Mobility through Italy</strong><br />
-        <b id="selectedRecords" style="display: inline;margin-left:700px;margin-bottom:5px;margin-top:5px">0</b>
-        <strong>records selected</strong>
-  
-    </div>
-    
+  <div class="header">
+    <strong>Correlation between
+      Covid-19
+      and Mobility</strong><br />
+    <b id="selectedRecords" align="center">0</b>
+    <strong>records selected</strong>
   </div>
-  <div>
-  <div style=" margin-left: 10px;">
-    <div id="scatter" class="box" style="float: left;margin-top:10px; position:absolute">
+  <div style=" margin-left: 10px; display: inline-flex;">
+    <div id="scatter" class="box">
+      <div class="header">
+        <strong>Correlation Scatter</strong>
+      </div>
       <div style="display: inline-flex; margin-top: 10px; margin-left: 10px; padding-left: 10px;">
         <button id="computeButton" onclick="app.computeAggregate(true)">Compute aggregate</button>
-        <label style="margin-left: 10px" id="textClusterNumber">Number of clusters: <strong id="textCluster">3</strong></label>
-        <input style="margin-left: 10px" type="range" min="1" max="10" value="3" id="clusterNumber" onchange="app.computeAggregate(true)">
+        <label style="margin-left: 10px" id="textClusterNumber">Number of clusters: <strong
+            id="textCluster">3</strong></label>
+        <input style="margin-left: 10px" type="range" min="1" max="5" value="3" onchange="app.updateClusterNumber()"
+          id="clusterNumber">
+        <button id="brushScatterButton" onclick="app.clearScatter()">Clear</button>
+      </div>
+      <div style="display: inline-flex; margin-left: 33%;">
+        <div align="center">
+          <input type="radio" id="brushScatter" name="scatterMode" value="false" checked>
+          <label for="brushScatter">Brush</label>
+          <input type="radio" id="zoomScatter" name="scatterMode" value="true">
+          <label for="zoomScatter">Zoom</label>
+        </div>
         <progress style="margin-left: 10px" id="restLoading" value="50" max="100" hidden></progress>
       </div>
     </div>
-
-    
-    <div id="mobility" class="box" style="margin-left:1075px ;float: right; margin-top:200px;position:fixed">
-      <!-- groceriesPharmacy,parks,residential,retailRecreation,transit,workplaces -->
-      <div align="center">
-        <select id="mobilityChoice" onchange="app.changeMobilityHandler()">
-          <option value="groceriesPharmacy" checked>Groceries/Pharmacy</option>
-    
-          <option value="parks">Parks</option>
-    
-          <option value="residential">Residential</option>
-    
-          <option value="retailRecreation">Retail/Recreation</option>
-    
-          <option value="transit">Transit</option>
-    
-          <!-- <input type="radio" id="workplaces" name="mobil" value="workplaces">
-        <label for="workplaces">Workplaces</label> -->
-        </select>
-        <button id="brushMobilityButton" onclick="app.clearMobility()">Clear</button>
-      </div>
+    <div id="map" class="box">
     </div>
-    <div id="map" class="box" style="margin-left: 600px; float: left; margin-top:10px;position:absolute">
-    </div>
- </div>
-  
- </div>
+  </div>
 
-  <div style="float: left; margin-top:380px;position:absolute">
+
+
+  <div style="display: inline-flex;">
+
     <div id="time" class="box" style="margin-left: 10px; ">
+      <div class="header">
+        <strong>Covid Time Series</strong>
+      </div>
       <div style="display: inline-flex; margin-bottom: 10px; margin-left: 10px;">
         <select id="covidChoice" onchange="app.changeTimeHandler()" style="max-width: 100%;">
           <option value="new" checked>New Cases</option>
@@ -84,13 +75,42 @@
               onchange="app.onMapUpdated()" disabled>
             <button id="brushTimeButton" onclick="app.clearTime()">Clear</button>
           </div>
+          <div>
+            <input type="radio" id="brushTime" name="timeMode" value="false" checked>
+            <label for="brushTime">Brush</label>
+            <input type="radio" id="zoomTime" name="timeMode" value="true">
+            <label for="zoomTime">Zoom</label>
+          </div>
         </div>
       </div>
     </div>
- 
+    <div id="mobility" class="box">
+      <div class="header">
+        <strong>Mobility Boxplot</strong>
+      </div>
+      <!-- groceriesPharmacy,parks,residential,retailRecreation,transit,workplaces -->
+      <div align="center">
+        <select id="mobilityChoice" onchange="app.changeMobilityHandler()">
+          <option value="groceriesPharmacy" checked>Groceries/Pharmacy</option>
+
+          <option value="parks">Parks</option>
+
+          <option value="residential">Residential</option>
+
+          <option value="retailRecreation">Retail/Recreation</option>
+
+          <option value="transit">Transit</option>
+
+          <!-- <input type="radio" id="workplaces" name="mobil" value="workplaces">
+        <label for="workplaces">Workplaces</label> -->
+        </select>
+        <button id="brushMobilityButton" onclick="app.clearMobility()">Clear</button>
+      </div>
+    </div>
+
   </div>
 
 
-<script type="text/javascript" src="main.js?f74be247a4167cc1e5cd"></script></body>
+<script type="text/javascript" src="main.js?428c29db718f0a547cd9"></script></body>
 
 </html>
