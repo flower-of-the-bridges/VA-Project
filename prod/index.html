@@ -19,8 +19,9 @@
     <b id="selectedRecords" align="center">0</b>
     <strong>records selected</strong>
   </div>
-  <div style=" margin-left: 10px; display: inline-flex;">
-    <div id="scatter" class="box">
+  <div class="container">
+
+    <div id="scatter" class="boxmin" align="center">
       <div class="header">
         <strong>Correlation Scatter</strong>
       </div>
@@ -31,8 +32,6 @@
         <input style="margin-left: 10px" type="range" min="1" max="5" value="3" onchange="app.updateClusterNumber()"
           id="clusterNumber">
         <button id="brushScatterButton" onclick="app.clearScatter()">Clear</button>
-      </div>
-      <div style="display: inline-flex; margin-left: 33%;">
         <div align="center">
           <input type="radio" id="brushScatter" name="scatterMode" value="false" checked>
           <label for="brushScatter">Brush</label>
@@ -42,49 +41,8 @@
         <progress style="margin-left: 10px" id="restLoading" value="50" max="100" hidden></progress>
       </div>
     </div>
-    <div id="map" class="box">
-    </div>
-  </div>
 
-
-
-  <div style="display: inline-flex;">
-
-    <div id="time" class="box" style="margin-left: 10px; ">
-      <div class="header">
-        <strong>Covid Time Series</strong>
-      </div>
-      <div style="display: inline-flex; margin-bottom: 10px; margin-left: 10px;">
-        <select id="covidChoice" onchange="app.changeTimeHandler()" style="max-width: 100%;">
-          <option value="new" checked>New Cases</option>
-          <option value="healed">Healed</option>
-          <option value="positives">Positives</option>
-          <option value="hospitalized">Hospitalized</option>
-          <option value="isolated">Isolated</option>
-          <option value="intensiveCare">Intensive Care</option>
-          <option value="death">Death</option>
-        </select>
-        <div style="margin-left: 10px;">
-          <div align="center">
-            <p style="display: inline;">Start:</p>
-            <input type="date" id="start" value="2020-02-24" min="2020-02-24" max="2020-12-31"
-              onchange="app.onMapUpdated()" disabled>
-            <span></span>
-            <p style="display: inline;">Finish:</p>
-            <input type="date" id="finish" value="2020-12-31" min="2020-02-24" max="2020-12-31"
-              onchange="app.onMapUpdated()" disabled>
-            <button id="brushTimeButton" onclick="app.clearTime()">Clear</button>
-          </div>
-          <div>
-            <input type="radio" id="brushTime" name="timeMode" value="false" checked>
-            <label for="brushTime">Brush</label>
-            <input type="radio" id="zoomTime" name="timeMode" value="true">
-            <label for="zoomTime">Zoom</label>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div id="mobility" class="box">
+    <div id="mobility" class="box" align="center">
       <div class="header">
         <strong>Mobility Boxplot</strong>
       </div>
@@ -108,9 +66,48 @@
       </div>
     </div>
 
+    <div id="map" class="boxmin" align="center">
+      <div class="header">
+        <strong>Italy Choropleth Map</strong>
+      </div>
+    </div>
+
+    <div id="time" class="box" align="center">
+      <div class="header">
+        <strong>Covid Time Series</strong>
+      </div>
+      <div class="container" style="margin-bottom: 20px;">
+        <select id="covidChoice" onchange="app.changeTimeHandler()" style="max-width: 100%;">
+          <option value="new" checked>New Cases</option>
+          <option value="healed">Healed</option>
+          <option value="positives">Positives</option>
+          <option value="hospitalized">Hospitalized</option>
+          <option value="isolated">Isolated</option>
+          <option value="intensiveCare">Intensive Care</option>
+          <option value="death">Death</option>
+        </select>
+        <div style="margin-left: 10px;">
+          <div align="center">
+            <p style="display: inline;">Start:</p>
+            <input type="date" id="start" value="2020-02-24" min="2020-02-24" max="2020-12-31"
+              onchange="app.onMapUpdated()" disabled>
+            <span></span>
+            <p style="display: inline;">Finish:</p>
+            <input type="date" id="finish" value="2020-12-31" min="2020-02-24" max="2020-12-31"
+              onchange="app.onMapUpdated()" disabled>
+            <button id="brushTimeButton" onclick="app.clearTime()">Clear</button>
+
+            <input type="radio" id="brushTime" name="timeMode" value="false" checked>
+            <label for="brushTime">Brush</label>
+            <input type="radio" id="zoomTime" name="timeMode" value="true">
+            <label for="zoomTime">Zoom</label>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
 
-<script type="text/javascript" src="main.js?428c29db718f0a547cd9"></script></body>
+<script type="text/javascript" src="main.js?c8ad1f1f2af13129e8f1"></script></body>
 
 </html>
