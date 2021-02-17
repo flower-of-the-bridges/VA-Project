@@ -1,4 +1,5 @@
 import * as d3 from 'd3'
+import {functions} from '../util'
 
 export default function () {
   let data = [];
@@ -6,6 +7,9 @@ export default function () {
   let yTopic = "";
 
   let brushMode = false;
+  let boxBrush = false;
+  let timeBrush = false;
+  let scatterBrush = false;
   let brush = null;
   let lastBrush = 0;
 
@@ -64,6 +68,7 @@ export default function () {
       }
 
       updateData = function () {
+        functions.logViewStatus("boxplot", data.length, timeBrush, boxBrush, scatterBrush)
         // set brush range
         let regionRange = d3.extent(data, function (d) { return d.region; });
         minElement = regionRange[0];
@@ -75,7 +80,7 @@ export default function () {
           .attr("class", "focus")
           .attr("background", "lightsteelblue");
         createLegend(legend);
-        console.log("boxplot has %d elements. (brush mode: %s)", data.length, brushMode ? "on" : "off");
+        
         if (!brushMode && brush) {
           // remove brush if any
           focus.select(".brush").call(brush.move, null);
@@ -177,7 +182,11 @@ export default function () {
             //else {
             //  d.selectedMobility ? '1' : '.5';
             //}
-            return '0'
+            if(scatterBrush){
+              return functions.isDrawable(d, timeBrush, boxBrush, scatterBrush) ? "1" : "0"
+            }
+            else
+              return '0'
           })
           .attr("stroke", "black")
 
@@ -201,8 +210,8 @@ export default function () {
 
         focus.append("text")
           .attr("transform", "rotate(-90)")
-          .attr("y", 0 - margin.left / 2)
-          .attr("x", 0 - (height / 2))
+          .attr("y", 0 - margin.left)
+          .attr("x", 0 - (height / 3))
           .attr("dy", "1em")
           .style("text-anchor", "middle")
           .text("%");
@@ -278,14 +287,17 @@ export default function () {
     })
   }
 
-  boxplot.data = function (_, boxBrush, timeBrush, scatterBrush) {
+  boxplot.data = function (_, boxBrushed, timeBrushed, scatterBrushed) {
     if (!arguments.length) {
       return data
     }
     data = _;
     if (boxBrush != null) {
-      brushMode = boxBrush;
+      brushMode = boxBrushed;
     }
+    boxBrush = boxBrushed
+    timeBrush = timeBrushed
+    scatterBrush = scatterBrushed
     if (typeof updateData === 'function') {
       data = data.filter(d => { return d.selectedRegion && d.selectedTime });
       updateData()

@@ -37,8 +37,8 @@ export default function () {
 
   let margin = { top: 20, right: 30, bottom: 20, left: 50 };
 
-  let width = 500 - margin.left - margin.right;
-  let height = 250 - margin.top - margin.bottom;
+  let width = 800 - margin.left - margin.right;
+  let height = 300 - margin.top - margin.bottom;
 
   let x = d3.scaleTime().range([0, width]),
     y = d3.scaleLinear().range([height, 0]);
@@ -87,7 +87,7 @@ export default function () {
           x.domain(d3.extent(data, function (d) { return +d["date"]; }));
           y.domain(d3.extent(data, function (d) { return +d[yTopic]; }));
         }
-        console.log("time has %d elements. (time brush : %s, box brush : %s)\ndomain: %o\n yTopic:", data.length, timeBrush ? "on" : "off", boxBrush ? "on" : "off", x.domain(), yTopic);
+        functions.logViewStatus("time series", data.length, timeBrush, boxBrush, scatterBrush)
         /** path */
 
         focus.selectAll("path")
@@ -301,10 +301,10 @@ export default function () {
             });
           }
 
-          focus.append("text")
+          svg.append("text")
             .attr("transform", "rotate(-90)")
             .attr("id", "y-label")
-            .attr("y", 0 - margin.left / 2)
+            .attr("y", 0)
             .attr("x", 0 - (height / 2))
             .attr("dy", "1em")
             .style("text-anchor", "middle")

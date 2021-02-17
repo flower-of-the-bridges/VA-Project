@@ -7,8 +7,8 @@ export default function () {
   let data = {},
     covidData = {},
     regionData = regions.default,
-    width = 460,
-    height = 500;
+    width = 360,
+    height = 380;
 
   let updateData;
   let mapColor = null;
@@ -17,8 +17,8 @@ export default function () {
   // Map and projection
   let projection = d3.geoMercator()
     .center([2, 47])                // GPS of location to zoom on
-    .scale(2000)                       // This is like the zoom
-    .translate([-width / 3.5, -height / 10000])
+    .scale(1250)                       // This is like the zoom
+    .translate([-width / 7.5, -height / 1000000])
 
   let mapCallback = () => { console.log("map callback") }
   let onClick = (d) => {
@@ -62,7 +62,7 @@ export default function () {
       const svg = dom.append('svg')
         .attr('class', 'bar-chart')
         .attr('height', height)
-        .attr('width', width + 150);
+        .attr('width', width);
 
       updateData = function () {
         if (svg.select("#map").empty()) {
@@ -81,11 +81,11 @@ export default function () {
         svg.select("#mapLegend").remove();
         svg.append("g")
           .attr("id", "mapLegend")
-          .attr("transform", "translate(" + (width - width / 3) + ",10)")
+          .attr("transform", "translate(" + (width/6) + ","+(height - 50)+")")
           .append(() => legend({
             color: mapColor,
             title: "new cases for 100k inhabitants",
-            width: 260,
+            width: 200,
             thresholdLimit: thresholdLimit
           }));
 

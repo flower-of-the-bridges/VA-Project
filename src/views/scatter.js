@@ -75,8 +75,10 @@ export default function () {
           .attr("id", "legend");
         clusterNumber.value > 1 ? createLegend(legend) : createRegionsLegend(legend);
         // domains
-        x.domain(d3.extent(data, function (d) { return d["Y1"]; })).nice();
-        y.domain(d3.extent(data, function (d) { return d["Y2"]; })).nice();
+        if (!zoomMode) {
+          x.domain(d3.extent(data, function (d) { return d["Y1"]; })).nice();
+          y.domain(d3.extent(data, function (d) { return d["Y2"]; })).nice();
+        }
 
         let xAxis = d3.axisBottom(x), yAxis = d3.axisLeft(y);
         // append scatter plot to main chart area
@@ -95,7 +97,7 @@ export default function () {
           focus.append("text")
             .attr("transform", "rotate(-90)")
             .attr("y", 0 - margin.left)
-            .attr("x", 0 - (height / 2))
+            .attr("x", 0 - (height / 3))
             .attr("dy", "1em")
             .attr("id", "axis--x--text")
             .style("text-anchor", "middle")
@@ -126,7 +128,7 @@ export default function () {
               if (zoomMode) {
                 x.domain([s[0][0], s[1][0]].map(x.invert, x));
                 y.domain([s[1][1], s[0][1]].map(y.invert, y));
-                focus.select(".brush").call(brush.move, null);
+                focus.select(".scatterbrush").call(brush.move, null);
                 zoom();
 
               }
@@ -193,9 +195,19 @@ export default function () {
                 return xValue >= x.range()[0] && xValue <= x.range()[1] && yValue <= y.range()[0] && yValue >= y.range()[1] ? "1" : ".2"
               });
           }
-
-
         }
+
+        if (!scatterBrush) {
+          focus.select(".scatterbrush").remove();
+          brush = null;
+        }
+        if (!brush) {
+          brush = d3.brush().extent([[0, 0], [width, height]]).on("end", brushended)
+          focus.append("g")
+            .attr("class", "scatterbrush")
+            .call(brush);
+        }
+        
         focus.selectAll(".dot").remove();
         let dots = focus.selectAll("circle")
           .data(data)
@@ -214,12 +226,14 @@ export default function () {
           .attr("cx", function (d) { return x(d["Y1"]) })
           .attr("cy", function (d) { return y(d["Y2"]) });
 
+
         dots
           .transition()
           .duration(1000)
           .ease(d3.easeBackIn);
 
-        const div = d3.select("body").append("div")
+        const div = d3.select("body")
+          .append("div")
           .attr("class", "tooltip")
           .style("opacity", 0);
 
@@ -244,17 +258,6 @@ export default function () {
                 .style("opacity", 0);
             }
           });
-
-        if (!scatterBrush) {
-          focus.select(".scatterbrush").remove();
-          brush = null;
-        }
-        if (!brush) {
-          brush = d3.brush().extent([[0, 0], [width, height]]).on("end", brushended)
-          focus.append("g")
-            .attr("class", "scatterbrush")
-            .call(brush);
-        }
       }
     })
   }

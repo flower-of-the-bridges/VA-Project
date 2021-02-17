@@ -48,39 +48,52 @@ div.tooltip {
   border: 1px;
   border-radius: 8px;
   pointer-events: none;
-  p{
+  p {
     color: whitesmoke;
   }
 }
 
 div.box {
-  border-style: solid;
-  width: min-content;
+  width: fit-content;
   height: fit-content;
 }
 
+div.boxmin {
+  width: min-content;
+  height: fit-content;
+  flex-grow: 10;
+}
+
 div.header {
-  text-align: center; 
-  background-color: steelblue; 
-  width:100%;
+  text-align: center;
+  background-color: steelblue;
+  width: 100%;
 }
 
-brush.boxbrush{
+brush.boxbrush {
   border-style: dashed;
 }
 
-brush.timebrush{
+brush.timebrush {
   border-style: dashed;
 }
 
-brush.scatterbrush{
+brush.scatterbrush {
   border-style: dashed;
 }
 
-path.timepath{
+path.timepath {
   border-style: dashed;
 }
 
-path.unselectedtimepath{
+path.unselectedtimepath {
   border-style: dashed;
+}
+
+.container {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: baseline;
+  align-content: flex-start;
 }

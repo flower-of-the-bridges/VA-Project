@@ -243,7 +243,7 @@ class Controller {
   clearScatter() {
     // reset scatter zoom mode
     brushScatter.checked = true;
-    this.time.setZoomMode(false);
+    this.scatter.setZoomMode(false);
     this.scatterBrush = false;
     //this.onMapUpdated();
     this.boxplot.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush);
