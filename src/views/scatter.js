@@ -1,11 +1,11 @@
 import * as d3 from 'd3'
-import region from '../region';
+import { functions } from '../util'
 
 export default function () {
   let data = [];
 
 
-  let updateData, zoom, brushended;
+  let updateData, zoom, brushended, highlight;
 
   let margin = { top: 50, right: 30, bottom: 30, left: 50 };
 
@@ -18,12 +18,17 @@ export default function () {
 
   let idleTimeout, idleDelay = 350;
 
+  let zoomMode = false;
+
+  let brush = null;
+
   // brush callbacks
   let onBrush = (mode, d, brush) => { console.log("brush mode %o for object %o and brush %o ", mode, d, brush) } // default callback when data is brushed
   let onBrushCompleted = (mode) => { console.log("brush completed ", mode) }
   let brushMode = false;
   let boxBrush = false;
   let timeBrush = false;
+  let scatterBrush = false;
   let views = ["time", "boxplot"]; // other views
 
 
@@ -62,6 +67,7 @@ export default function () {
 
 
       updateData = function () {
+        functions.logViewStatus("scatter", data.length, timeBrush, boxBrush, scatterBrush)
         // Handmade legend
         svg.select("#legend").remove();
         let legend = svg.append("g")
@@ -110,19 +116,53 @@ export default function () {
             let s = d3.event.selection;
             console.log("brushnede", s)
             if (!s) {
-              if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
-              x.domain(d3.extent(data, function (d) { return d["Y1"]; }));
-              y.domain(d3.extent(data, function (d) { return d["Y2"]; }));
-              brushMode = false;
+              //if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
+              //x.domain(d3.extent(data, function (d) { return d["Y1"]; }));
+              //y.domain(d3.extent(data, function (d) { return d["Y2"]; }));
+              //brushMode = false;
             } else {
-              x.domain([s[0][0], s[1][0]].map(x.invert, x));
-              y.domain([s[1][1], s[0][1]].map(y.invert, y));
-              focus.select(".brush").call(brush.move, null);
-              brushMode = true;
-            }
+              scatterBrush = true;
+              brushScatterButton.disabled = false;
+              if (zoomMode) {
+                x.domain([s[0][0], s[1][0]].map(x.invert, x));
+                y.domain([s[1][1], s[0][1]].map(y.invert, y));
+                focus.select(".brush").call(brush.move, null);
+                zoom();
 
-            zoom();
-            //onBrushCompleted(brushMode ? views : null);
+              }
+              else {
+                let newX = x.copy();
+                let newY = y.copy();
+                newX.domain([s[0][0], s[1][0]].map(newX.invert, newX));
+                newY.domain([s[1][1], s[0][1]].map(newY.invert, newY));
+                highlight(newX, newY);
+              }
+              onBrushCompleted(views);
+            }
+          }
+
+          highlight = function (newX, newY) {
+            console.log("highlight");
+
+            svg.selectAll("#dots")
+              .attr("cx", function (d) {
+                let xValue = newX(d["Y1"]);
+                let yValue = newY(d["Y2"]);
+                onBrush(
+                  brushMode, // brush mode
+                  d, // value to update
+                  xValue >= x.range()[0] && xValue <= x.range()[1] && yValue <= y.range()[0] && yValue >= y.range()[1],
+                  views, // views to update
+                  "selectedScatter"
+                );
+                return x(d["Y1"]);
+              })
+              .attr("cy", function (d) { return y(d["Y2"]); })
+              .attr("opacity", d => {
+                let xValue = newX(d["Y1"]);
+                let yValue = newY(d["Y2"]);
+                return xValue >= x.range()[0] && xValue <= x.range()[1] && yValue <= y.range()[0] && yValue >= y.range()[1] ? "1" : ".2"
+              });
           }
 
           zoom = function () {
@@ -137,22 +177,24 @@ export default function () {
               .attr("cx", function (d) {
                 let xValue = x(d["Y1"]);
                 let yValue = y(d["Y2"]);
-                //onBrush(
-                //  brushMode, // brush mode
-                //  d, // value to update
-                //  xValue >= x.range()[0] && xValue <= x.range()[1] && yValue <= y.range()[0] && yValue >= y.range()[1],
-                //  views // views to update
-                //);
+                onBrush(
+                  brushMode, // brush mode
+                  d, // value to update
+                  xValue >= x.range()[0] && xValue <= x.range()[1] && yValue <= y.range()[0] && yValue >= y.range()[1],
+                  views, // views to update
+                  "selectedScatter"
+                );
                 return xValue;
               })
-              .attr("cy", function (d) { if (d.selectedRegion) return y(d["Y2"]); });
+              .attr("cy", function (d) { if (d.selectedRegion) return y(d["Y2"]); })
+              .attr("opacity", d => {
+                let xValue = x(d["Y1"]);
+                let yValue = y(d["Y2"]);
+                return xValue >= x.range()[0] && xValue <= x.range()[1] && yValue <= y.range()[0] && yValue >= y.range()[1] ? "1" : ".2"
+              });
           }
 
-          const brush = d3.brush().extent([[0, 0], [width, height]]).on("end", brushended)
 
-          focus.append("g")
-            .attr("class", "brush")
-            .call(brush);
         }
         focus.selectAll(".dot").remove();
         let dots = focus.selectAll("circle")
@@ -167,19 +209,7 @@ export default function () {
           .attr("stroke", "black")
           .attr("stroke-width", "1")
           .attr("opacity", d => {
-            let opacity = "1"
-            if (timeBrush || boxBrush) {
-              if (timeBrush && boxBrush) {
-                opacity = d.selectedTime && d.selectedMobility ? "1" : ".2"
-              }
-              else if (boxBrush) {
-                opacity = d.selectedMobility ? "1" : ".2"
-              }
-              else if (timeBrush) {
-                opacity = d.selectedTime ? "1" : ".2"
-              }
-            }
-            return opacity
+            return functions.isDrawable(d, timeBrush, boxBrush, scatterBrush) ? "1" : ".2"
           })
           .attr("cx", function (d) { return x(d["Y1"]) })
           .attr("cy", function (d) { return y(d["Y2"]) });
@@ -194,27 +224,42 @@ export default function () {
           .style("opacity", 0);
 
         dots.on("mouseover", function (d) {
-          div.transition()
-            .duration(200)
-            .style("opacity", 1);
-          div.html("<p><strong>Date:</strong> " + d.date.toLocaleDateString("en-CA")
-            + "</p><p><strong>Region:</strong> " + d.region + "</p>"
-            + "<p><strong>" + selectedTimeType + ":</strong> " + d[selectedTimeType] + " cases</p>"
-            +"<p><strong>" + selectedMobility + ":</strong> " + d[selectedMobility] + "%</p>")
-            .style("background", regionColor(d.region))
-            .style("left", (d3.event.pageX) + "px")
-            .style("top", (d3.event.pageY) + "px");
+          if (this.getAttribute("opacity") == "1") {
+            div.transition()
+              .duration(200)
+              .style("opacity", 1);
+            div.html("<p><strong>Date:</strong> " + d.date.toLocaleDateString("en-CA")
+              + "</p><p><strong>Region:</strong> " + d.region + "</p>"
+              + "<p><strong>" + selectedTimeType + ":</strong> " + d[selectedTimeType] + " cases</p>"
+              + "<p><strong>" + selectedMobility + ":</strong> " + d[selectedMobility] + "%</p>")
+              .style("background", regionColor(d.region))
+              .style("left", (d3.event.pageX) + "px")
+              .style("top", (d3.event.pageY) + "px");
+          }
         })
           .on("mouseout", function (d) {
-            div.transition()
-              .duration(500)
-              .style("opacity", 0);
+            if (this.getAttribute("opacity") == "1") {
+              div.transition()
+                .duration(500)
+                .style("opacity", 0);
+            }
           });
+
+        if (!scatterBrush) {
+          focus.select(".scatterbrush").remove();
+          brush = null;
+        }
+        if (!brush) {
+          brush = d3.brush().extent([[0, 0], [width, height]]).on("end", brushended)
+          focus.append("g")
+            .attr("class", "scatterbrush")
+            .call(brush);
+        }
       }
     })
   }
 
-  scatter.data = function (newData, boxBrushed, timeBrushed, filter) {
+  scatter.data = function (newData, boxBrushed, timeBrushed, scatterBrushed, filter) {
     if (!arguments.length) {
       return data;
     }
@@ -222,8 +267,8 @@ export default function () {
     if (typeof updateData === 'function') {
       boxBrush = boxBrushed;
       timeBrush = timeBrushed
+      scatterBrush = scatterBrushed
       data = data.filter(d => { return filter ? window.app.canSelectData(d) : d.selectedRegion });
-      console.log("scatter receives %d elements", data.length);
       updateData()
     }
     return scatter
@@ -231,6 +276,11 @@ export default function () {
 
   scatter.setBrushMode = function (mode) {
     brushMode = mode;
+    return scatter
+  }
+
+  scatter.setZoomMode = function (mode) {
+    zoomMode = mode;
     return scatter
   }
 

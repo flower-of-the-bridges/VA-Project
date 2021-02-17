@@ -19,7 +19,7 @@ export default {
     "18": 1894110, //Calabria
     "19": 4875290, //Sicilia
     "20": 1611621, //Sardegna
-    "21": 106951, //Bolzano
-    "22": 117417  //Trento
+    "21": 106951 + 117417, //Bolzano
+    "22": 117417 + 106951 //Trento
 
 }

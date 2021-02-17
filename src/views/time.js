@@ -1,5 +1,5 @@
 import * as d3 from 'd3'
-import { create } from 'd3';
+import {functions} from '../util'
 
 export default function () {
   let data = [];
@@ -15,20 +15,23 @@ export default function () {
 
   let selectedLine = d3.line()
     .defined(d => {
-      return d.selectedTime
+      return functions.isDrawable(d, timeBrush, boxBrush, scatterBrush)
     })
 
   let unselectedLine = d3.line()
     .defined(d => {
-      return !d.selectedTime
+      return !functions.isDrawable(d, timeBrush, boxBrush, scatterBrush)
     })
 
   // brush callbacks
   let onBrush = (mode, d, brush) => { console.log("brush mode %o for object %o and brush %o ", mode, d, brush) } // default callback when data is brushed
   let onBrushCompleted = (views) => { console.log("brush completed ", views) }
   let brushMode = false;
+  let boxBrush = false;
+  let timeBrush = false;
+  let scatterBrush = false;
   let zoomMode = false;
-  let views = ["boxplot", "scatter"]; // other views
+  let views = ["boxplot", "scatter", "map"]; // other views
 
   let idleTimeout, idleDelay = 350;
 
@@ -84,7 +87,7 @@ export default function () {
           x.domain(d3.extent(data, function (d) { return +d["date"]; }));
           y.domain(d3.extent(data, function (d) { return +d[yTopic]; }));
         }
-        console.log("time has %d elements. (brush mode: %s)\ndomain: %o", data.length, brushMode ? "on" : "off", x.domain());
+        console.log("time has %d elements. (time brush : %s, box brush : %s)\ndomain: %o\n yTopic:", data.length, timeBrush ? "on" : "off", boxBrush ? "on" : "off", x.domain(), yTopic);
         /** path */
 
         focus.selectAll("path")
@@ -105,7 +108,7 @@ export default function () {
             .datum(regionData)
             .attr("id", "data--path--" + index)
             .attr("stroke", function (d) { return regionColor(region.id) })
-            .attr("stroke-width", "2")
+            .attr("stroke-width", "2.5")
             .attr("class", "timepath")
             .attr("clip-path", "url(#clip2)")
             .attr("d",
@@ -189,7 +192,9 @@ export default function () {
               //brushMode = false;
               //y.domain(d3.extent(data, function (d) { return +d[yTopic]; }));
             } else {
-              brushMode = true;
+              //brushMode = true;
+              boxBrush = false;
+              timeBrush = true;
               brushTimeButton.disabled = false;
               if (!zoomMode) {
                 let newX = x.copy()
@@ -200,7 +205,7 @@ export default function () {
               }
               else {
                 x.domain(s.map(x.invert, x));
-                y.domain([s[0][1], s[1][1]].map(y.invert, y));
+                //y.domain([s[0][1], s[1][1]].map(y.invert, y));
                 start.value = x.domain()[0].toLocaleDateString("en-CA")
                 finish.value = x.domain()[1].toLocaleDateString("en-CA")
                 focus.select(".timebrush").call(brush.move, null);
@@ -208,7 +213,7 @@ export default function () {
                 zoom();
               }
 
-              onBrushCompleted(brushMode ? views : null, true);
+              onBrushCompleted(views, true);
             }
           }
 
@@ -262,7 +267,6 @@ export default function () {
             svg.select("#axis--y").transition(transition).call(yAxis);
 
             focus.selectAll(".timepath").each(function (pathData, index) {
-
               pathData.forEach(d => {
                 let xValue = x(d.date);
                 d.selectedTime = xValue >= x.range()[0] && xValue <= x.range()[1] // brushed
@@ -275,10 +279,25 @@ export default function () {
                 );
               })
               focus.select("#data--path--" + index).transition(transition)
-                .attr("d", d3.line()
+                .attr("d", selectedLine
                   .x(function (d) { return x(d.date); })
                   .y(function (d) { return y(d[yTopic]) })
                 )
+            });
+
+            focus.selectAll(".unselectedtimepath").each(function (pathData, index) {
+              if (pathData) {
+                pathData.forEach(d => {
+                  let xValue = x(d.date);
+                  d.selectedTime = xValue >= x.range()[0] && xValue <= x.range()[1] // brushed
+                })
+
+                focus.select("#unselected-path-" + index).transition(transition)
+                  .attr("d", unselectedLine
+                    .x(function (d) { return x(d.date); })
+                    .y(function (d) { return y(d[yTopic]) })
+                  )
+              }
             });
           }
 
@@ -298,7 +317,7 @@ export default function () {
             .style("text-anchor", "middle")
             .text("time");
         }
-        if (!brushMode) {
+        if (!timeBrush) {
           focus.select(".timebrush").remove();
           brush = null;
         }
@@ -314,28 +333,25 @@ export default function () {
     })
   }
 
-  time.data = function (newData, boxBrush, timeBrush) {
+  time.data = function (newData, newBoxBrush, newTimeBrush, newScatterBrush) {
     if (!arguments.length) {
       return data
     }
     if (typeof updateData === 'function') {
-      brushMode = timeBrush;
+      
+      //brushMode = timeBrush;
+      boxBrush = newBoxBrush;
+      timeBrush = newTimeBrush;
+      scatterBrush = newScatterBrush;
       data = newData.filter(d => {
         if (d.selectedRegion) {
-          if (boxBrush) {
-            return d.selectedTime && d.selectedMobility;
-          }
-          else {
-            return d.selectedTime;
-          }
+          return timeBrush ? x(d.date) >= x.range()[0] && x(d.date) <= x.range()[1] : d.selectedTime;
         }
         else {
           return false;
         }
       });
-
       zoomMode = zoomTime.checked;
-
       updateData()
     }
     return time
@@ -348,7 +364,7 @@ export default function () {
     yTopic = newY
     if (typeof updateData === 'function') {
       brushMode = false;
-      data = newData.filter(d => { return brushMode ? d.selectedRegion && d.selectedTime && d.selectedMobility : d.selectedRegion && d.selectedTime });
+      y.domain(d3.extent(data, function (d) { return +d[yTopic]; }));
       updateData()
     }
     return time

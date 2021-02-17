@@ -37,7 +37,7 @@ export default function () {
   let onBrush = (mode, d, brush) => { console.log("brush mode %o for object %o and brush %o ", mode, d, brush) } // default callback when data is brushed
   let onBrushCompleted = (mode) => { console.log("brush completed ", mode) }
 
-  let views = ["scatter"]
+  let views = ["scatter", "time"]
 
   const boxplot = function (selection) {
     selection.each(function () {
@@ -278,7 +278,7 @@ export default function () {
     })
   }
 
-  boxplot.data = function (_, boxBrush, timeBrush) {
+  boxplot.data = function (_, boxBrush, timeBrush, scatterBrush) {
     if (!arguments.length) {
       return data
     }

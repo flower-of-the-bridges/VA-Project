@@ -20,6 +20,8 @@ class Controller {
     this.boxplot.bindBrushComplete((views) => this.onBrushCompleted(views)).bind(this);
     this.time.bindBrush((brushMode, d, brush, views, field) => this.onBrushChanged(brushMode, d, brush, views, field)).bind(this);
     this.time.bindBrushComplete((views, restCall) => this.onBrushCompleted(views, restCall)).bind(this);
+    this.scatter.bindBrush((brushMode, d, brush, views, field) => this.onBrushChanged(brushMode, d, brush, views, field)).bind(this);
+    this.scatter.bindBrushComplete((views, restCall) => this.onBrushCompleted(views, restCall)).bind(this);
     this.mapView.bindCallback(() => {
       start.value = "2020-02-24";
       finish.value = "2020-12-31";
@@ -32,10 +34,12 @@ class Controller {
     // brush
     this.timeBrush = false;
     this.boxBrush = false;
+    this.scatterBrush = false;
     this.aggregate = true;
   }
 
   handleMapData(mapData) {
+    mapData.features[3].properties.reg_istat_code = 22// change trentino istat 
     this.model.addMapData(mapData)
   }
   //
@@ -86,14 +90,19 @@ class Controller {
     // if views are specified, update only them
     if (views && Array.isArray(views)) {
       views.forEach(view => {
-        this[view].data(this.model.entries, this.boxBrush, this.timeBrush);
+        if (view == "map") {
+          this.mapView.data(this.model.mapData, this.model.entries);
+        }
+        else {
+          this[view].data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush);
+        }
       });
     }
     else {
       // time series
-      this.time.data(this.model.entries, this.boxBrush, this.timeBrush);
+      this.time.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush);
       // boxplot
-      this.boxplot.data(this.model.entries, this.boxBrush, this.timeBrush);
+      this.boxplot.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush);
       // map data
       this.mapView.data(this.model.mapData, this.model.entries);
     }
@@ -113,6 +122,7 @@ class Controller {
       e.selectedTime = false;
       e.selectedRegion = false;
       e.selectedMobility = true;
+      //e.selectedScatter = true;
       return e;
     });
 
@@ -145,7 +155,10 @@ class Controller {
       if (field == "selectedMobility") {
         this.boxBrush = true;
       }
-      else {
+      else if(field=="selectedScatter"){
+        this.scatterBrush = true;
+      }
+      else if(field=="selectedTime"){
         this.timeBrush = true;
         this.boxBrush = false;
         brushMobilityButton.disabled = true;
@@ -161,9 +174,9 @@ class Controller {
     // reset brush
     //}
 
-    Array.isArray(views) && views.forEach(view => {
-      this[view].setBrushMode(brushMode);
-    })
+    //Array.isArray(views) && views.forEach(view => {
+    //  this[view].setBrushMode(brushMode);
+    //})
   }
 
   onBrushCompleted(views, restCall) {
@@ -193,7 +206,7 @@ class Controller {
       });
       //this.updateTimeSeries();
       this.updateBoxPlot();
-      this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.aggregate);
+      this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, this.aggregate);
     }
     else {
       // restore select
@@ -205,22 +218,38 @@ class Controller {
     this.boxBrush = false;
     this.boxplot.setBrushMode(false);
     this.scatter.setBrushMode(false);
-    this.boxplot.data(this.model.entries, this.boxBrush);
-    this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.aggregate);
+    this.boxplot.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush);
+    this.time.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush);
+    this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, this.aggregate);
     brushMobilityButton.disabled = true;
   }
 
   clearTime() {
+    // reset time zoom mode
+    brushTime.checked = true;
+    this.time.setZoomMode(false);
     this.timeBrush = false;
     this.boxBrush = false;
     this.boxplot.setBrushMode(false);
-    this.scatter.setBrushMode(false);
+    //this.scatter.setBrushMode(false);
     this.time.setBrushMode(false);
     start.value = "2020-02-24";
     finish.value = "2020-12-31";
     this.onMapUpdated();
-    this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.aggregate);
+    this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, this.aggregate);
     brushTimeButton.disabled = true;
+  }
+
+  clearScatter() {
+    // reset scatter zoom mode
+    brushScatter.checked = true;
+    this.time.setZoomMode(false);
+    this.scatterBrush = false;
+    //this.onMapUpdated();
+    this.boxplot.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush);
+    this.time.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush);
+    this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, this.aggregate);
+    brushScatterButton.disabled = true;
   }
 
   canSelectData(data) {
@@ -276,9 +305,9 @@ class Controller {
     xmlhttp.setRequestHeader('Access-Control-Allow-Origin', '*');
     xmlhttp.setRequestHeader('Accept', '/*/');
     // reset values
-    this.model.entries = this.model.entries.map(entry =>{
-      if(entry["Y1"]) delete entry["Y1"]
-      if(entry["Y2"]) delete entry["Y2"]
+    this.model.entries = this.model.entries.map(entry => {
+      if (entry["Y1"]) delete entry["Y1"]
+      if (entry["Y2"]) delete entry["Y2"]
       return entry
     })
     xmlhttp.send(JSON.stringify(request));
@@ -287,7 +316,7 @@ class Controller {
         // Request finished. Do processing here.
         let response = JSON.parse(resp.target.responseText).clusters;
         console.log("received response: %o", response);
-        
+
         indexToCompute.forEach((recordIndex, index) => {
           let entry = this.model.entries[recordIndex - 1];
           let responseData = response[index];
@@ -307,11 +336,11 @@ class Controller {
     }).bind(this)
   }
 
-  updateClusterNumber(){
+  updateClusterNumber() {
     textCluster.textContent = clusterNumber.value
   }
 
-  
+
 }
 
 export default new Controller()

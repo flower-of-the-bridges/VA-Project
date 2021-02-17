@@ -30,6 +30,15 @@
             id="textCluster">3</strong></label>
         <input style="margin-left: 10px" type="range" min="1" max="5" value="3" onchange="app.updateClusterNumber()"
           id="clusterNumber">
+        <button id="brushScatterButton" onclick="app.clearScatter()">Clear</button>
+      </div>
+      <div style="display: inline-flex; margin-left: 33%;">
+        <div align="center">
+          <input type="radio" id="brushScatter" name="scatterMode" value="false" checked>
+          <label for="brushScatter">Brush</label>
+          <input type="radio" id="zoomScatter" name="scatterMode" value="true">
+          <label for="zoomScatter">Zoom</label>
+        </div>
         <progress style="margin-left: 10px" id="restLoading" value="50" max="100" hidden></progress>
       </div>
     </div>

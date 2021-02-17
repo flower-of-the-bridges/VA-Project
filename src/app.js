@@ -96,6 +96,7 @@ const loadData = function () {
           controller.handleAddEntry({
             ...e,
             jitter: Math.random(),
+            selectedScatter: true,
             selectedMobility: true,//formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date && selectedRegions.includes(e.region),
             selectedTime: formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date,
             selectedRegion: selectedRegions.filter(region => { return e.region == region.id }).length > 0
@@ -139,6 +140,7 @@ const initUI = function () {
   finish.value = "2020-12-31";
   brushMobilityButton.disabled = true;
   brushTimeButton.disabled = true;
+  brushScatterButton.disabled = true;
   // init dates
   start.max = finish.value;
   finish.min = start.value;
@@ -159,9 +161,19 @@ const initUI = function () {
     window.app.time.setZoomMode(mode);
   }
   timeModeRadios.forEach(radio => {
-    console.log(radio);
     radio.addEventListener("change", setTimeMode)
-  })  
+  })
+
+  brushScatter.checked = true;
+  let scatterModeRadios = document.querySelectorAll('input[type=radio][name="scatterMode"]');
+  function setZoomMode(event) {
+    let mode = this.id == zoomScatter.id && this.checked
+    console.log("setting scatter mode: ", mode);
+    window.app.scatter.setZoomMode(mode);
+  }
+  scatterModeRadios.forEach(radio => {
+    radio.addEventListener("change", setZoomMode)
+  })
 }
 
 export default app
