@@ -1,5 +1,5 @@
 import * as d3 from 'd3'
-import {functions} from '../util'
+import { functions } from '../util'
 
 export default function () {
   let data = [];
@@ -44,6 +44,8 @@ export default function () {
     y = d3.scaleLinear().range([height, 0]);
 
   let xAxis, yAxis;
+
+  let daySelected = [];
 
   const time = function (selection) {
     selection.each(function () {
@@ -114,9 +116,7 @@ export default function () {
             .attr("d",
               selectedLine
                 .x(function (d) { return x(d.date) })
-                .y(function (d) {
-                  return y(d[yTopic])
-                })
+                .y(function (d) { return y(d[yTopic]) })
             );
 
           focus.append("path")
@@ -222,10 +222,9 @@ export default function () {
 
             focus.selectAll(".timepath").each(function (pathData, index) {
               if (pathData) {
-                console.log(pathData)
                 pathData.forEach(d => {
                   let xValue = newX(d.date);
-                  d.selectedTime = xValue >= newX.range()[0] && xValue <= newX.range()[1] // brushed
+                  d.selectedTime = xValue >= newX.range()[0] && xValue <= newX.range()[1] && daySelected.includes(d.date.getDay()) // brushed
                   onBrush(
                     brushMode, // brush mode
                     d, // value to update
@@ -247,7 +246,7 @@ export default function () {
               if (pathData) {
                 pathData.forEach(d => {
                   let xValue = newX(d.date);
-                  d.selectedTime = xValue >= newX.range()[0] && xValue <= newX.range()[1] // brushed
+                  d.selectedTime = xValue >= newX.range()[0] && xValue <= newX.range()[1] && daySelected.includes(d.date.getDay())// brushed
                 })
 
                 focus.select("#unselected-path-" + index)
@@ -269,7 +268,7 @@ export default function () {
             focus.selectAll(".timepath").each(function (pathData, index) {
               pathData.forEach(d => {
                 let xValue = x(d.date);
-                d.selectedTime = xValue >= x.range()[0] && xValue <= x.range()[1] // brushed
+                d.selectedTime = xValue >= x.range()[0] && xValue <= x.range()[1] && daySelected.includes(d.date.getDay()) // brushed
                 onBrush(
                   brushMode, // brush mode
                   d, // value to update
@@ -289,7 +288,7 @@ export default function () {
               if (pathData) {
                 pathData.forEach(d => {
                   let xValue = x(d.date);
-                  d.selectedTime = xValue >= x.range()[0] && xValue <= x.range()[1] // brushed
+                  d.selectedTime = xValue >= x.range()[0] && xValue <= x.range()[1] && daySelected.includes(d.date.getDay())// brushed
                 })
 
                 focus.select("#unselected-path-" + index).transition(transition)
@@ -333,19 +332,22 @@ export default function () {
     })
   }
 
-  time.data = function (newData, newBoxBrush, newTimeBrush, newScatterBrush) {
+  time.data = function (newData, newBoxBrush, newTimeBrush, newScatterBrush, newDaySelected) {
     if (!arguments.length) {
       return data
     }
     if (typeof updateData === 'function') {
-      
+
       //brushMode = timeBrush;
       boxBrush = newBoxBrush;
       timeBrush = newTimeBrush;
       scatterBrush = newScatterBrush;
+      if (newDaySelected) {
+        daySelected = newDaySelected;
+      }
       data = newData.filter(d => {
         if (d.selectedRegion) {
-          return timeBrush ? x(d.date) >= x.range()[0] && x(d.date) <= x.range()[1] : d.selectedTime;
+          return zoomMode ? x(d.date) >= x.range()[0] && x(d.date) <= x.range()[1] : true;
         }
         else {
           return false;

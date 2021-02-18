@@ -74,7 +74,7 @@ export default function () {
         }
         // change threshold limit according to month. before august, cases detected where
         // lower due to shortness of case detection 
-        let thresholdLimit = formatTime(finish.value).getMonth()<8 ? 1000 : 5000
+        let thresholdLimit = formatTime(finish.value).getMonth()<9 ? 1000 : 5000
       
         mapColor = d3.scaleQuantize([1, thresholdLimit], d3.schemeReds[9])
         console.log("threshold limit is", thresholdLimit, finish.value, formatTime(finish.value));

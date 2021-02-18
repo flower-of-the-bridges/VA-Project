@@ -88,7 +88,8 @@ const loadMap = function () {
 const loadData = function () {
   return new Promise((resolve, reject) => {
     //The format in the CSV, which d3 will read
-    var formatTime = d3.timeParse("%Y-%m-%d");
+    let formatTime = d3.timeParse("%Y-%m-%d");
+    controller.timeFormat = formatTime;
     d3.csv(dataset)
       .then(entries => {
         entries.forEach((e) => {
@@ -98,7 +99,7 @@ const loadData = function () {
             jitter: Math.random(),
             selectedScatter: true,
             selectedMobility: true,//formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date && selectedRegions.includes(e.region),
-            selectedTime: formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date,
+            selectedTime: formatTime(start.value) <= e.date && formatTime(finish.value) >= e.date && controller.daySelected.includes(e.date.getDay()),
             selectedRegion: selectedRegions.filter(region => { return e.region == region.id }).length > 0
           })
         })
@@ -173,6 +174,21 @@ const initUI = function () {
   }
   scatterModeRadios.forEach(radio => {
     radio.addEventListener("change", setZoomMode)
+  })
+
+  let weekRadios = document.querySelectorAll('input[type=checkbox][name="week"]');
+  function setWeeks(event) {
+    let daySelected = [];
+    weekRadios.forEach( radio =>{
+      radio.checked && daySelected.push(Number(radio.value))
+    })
+    window.app.daySelected = daySelected; 
+    console.log("updating days ", window.app.daySelected);
+    window.app.setDays();
+  }
+  weekRadios.forEach(radio => {
+    radio.addEventListener("change", setWeeks)
+    radio.checked = true;
   })
 }
 

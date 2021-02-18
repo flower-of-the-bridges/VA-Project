@@ -1,6 +1,7 @@
-import { thresholdFreedmanDiaconis } from 'd3';
 import model from './model'
 import views from './views'
+import * as d3 from 'd3'
+import { functions } from './util'
 
 class Controller {
   constructor() {
@@ -36,6 +37,10 @@ class Controller {
     this.boxBrush = false;
     this.scatterBrush = false;
     this.aggregate = true;
+
+    this.daySelected = [0, 1, 2, 3, 4, 5, 6];// days of week
+
+    this.timeFormat = null;
   }
 
   handleMapData(mapData) {
@@ -100,7 +105,7 @@ class Controller {
     }
     else {
       // time series
-      this.time.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush);
+      this.time.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, this.daySelected);
       // boxplot
       this.boxplot.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush);
       // map data
@@ -130,8 +135,8 @@ class Controller {
       let entry = this.model.entries[this.model.entriesById[id]];
       if (entry) {
         entry.selectedRegion = true;
-        let date = id.split("_")[0];
-        entry.selectedTime = new Date(start.value) <= new Date(date) && new Date(finish.value) >= new Date(date);
+        let date = new Date(id.split("_")[0]);
+        entry.selectedTime = new Date(start.value) <= date && new Date(finish.value) >= date && this.daySelected.includes(date.getDay());
       }
     });
     this.model.onEntriesListChanged();
@@ -155,10 +160,10 @@ class Controller {
       if (field == "selectedMobility") {
         this.boxBrush = true;
       }
-      else if(field=="selectedScatter"){
+      else if (field == "selectedScatter") {
         this.scatterBrush = true;
       }
-      else if(field=="selectedTime"){
+      else if (field == "selectedTime") {
         this.timeBrush = true;
         this.boxBrush = false;
         brushMobilityButton.disabled = true;
@@ -235,6 +240,9 @@ class Controller {
     this.time.setBrushMode(false);
     start.value = "2020-02-24";
     finish.value = "2020-12-31";
+    document.querySelectorAll('input[type=checkbox][name="week"]').forEach(radio =>{
+       radio.checked = true
+    })
     this.onMapUpdated();
     this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, this.aggregate);
     brushTimeButton.disabled = true;
@@ -330,7 +338,7 @@ class Controller {
 
         this.aggregate = updateAggregateField || !this.aggregate;
 
-        this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.aggregate);
+        this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, this.aggregate);
         //this.boxplot.data(this.model.entries, this.boxBrush, this.timeBrush);
       }
     }).bind(this)
@@ -340,6 +348,14 @@ class Controller {
     textCluster.textContent = clusterNumber.value
   }
 
+  setDays() {
+    this.timeBrush = this.daySelected.length < 7 ? true : (start.value != "2020-02-24" && finish.value != "2020-12-31");
+    brushTimeButton.disabled = !this.timeBrush;
+    this.model.entries.forEach(entry => {
+      entry.selectedTime = this.timeFormat(start.value) <= entry.date && this.timeFormat(finish.value) >= entry.date && this.daySelected.includes(entry.date.getDay());
+    });
+    this.model.onEntriesListChanged();
+  }
 
 }
 
