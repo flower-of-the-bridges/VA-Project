@@ -57,7 +57,7 @@ export default function () {
       svg.append("defs").append("clipPath")
         .attr("id", "clip")
         .append("rect")
-        .attr("width", width + margin.left + margin.right)
+        .attr("width", width + 2+(margin.left + margin.right))
         .attr("height", height + margin.top + margin.bottom);
 
       const focus = svg.append("g")

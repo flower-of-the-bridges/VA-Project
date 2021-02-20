@@ -28,9 +28,11 @@ class Controller {
       finish.value = "2020-12-31";
       this.timeBrush = false;
       this.boxBrush = false;
+      this.scatterBrush = false;
+      this.scatter.setZoomMode(false);
       brushMobilityButton.disabled = true;
       this.onMapUpdated();
-      //this.computeAggregate(true);
+      this.computeAggregate(true);
     }).bind(this);
     // brush
     this.timeBrush = false;
@@ -90,7 +92,7 @@ class Controller {
   onEntriesListChanged(views) {
     // first: update counter
     selectedRecords.textContent = this.model.entries.filter(d => {
-      return this.canSelectData(d)
+      return d.selectedRegion && functions.isDrawable(d, this.timeBrush, this.boxBrush, this.scatterBrush)
     }).length;
     // if views are specified, update only them
     if (views && Array.isArray(views)) {
@@ -144,6 +146,8 @@ class Controller {
 
   updateTimeSeries() {
     this.time.updateY(selectedTimeType, this.model.entries);
+    // map data
+    this.mapView.data(this.model.mapData, this.model.entries);
   }
 
   updateBoxPlot() {
@@ -243,6 +247,7 @@ class Controller {
     document.querySelectorAll('input[type=checkbox][name="week"]').forEach(radio =>{
        radio.checked = true
     })
+    this.daySelected = [0, 1, 2, 3, 4, 5, 6];// days of week
     this.onMapUpdated();
     this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, this.aggregate);
     brushTimeButton.disabled = true;
@@ -354,6 +359,7 @@ class Controller {
     this.model.entries.forEach(entry => {
       entry.selectedTime = this.timeFormat(start.value) <= entry.date && this.timeFormat(finish.value) >= entry.date && this.daySelected.includes(entry.date.getDay());
     });
+    this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, this.aggregate);
     this.model.onEntriesListChanged();
   }
 

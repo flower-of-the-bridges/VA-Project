@@ -4,7 +4,7 @@ export default function({
     color,
     title,
     tickSize = 6,
-    width = 320,
+    width = 420,
     height = 44 + tickSize,
     marginTop = 18,
     marginRight = 0,

@@ -13,6 +13,26 @@ export default function () {
   let updateData;
   let mapColor = null;
 
+  let thresholds = {
+    new: [1000, 5000],
+    healed: [50000, 100000],
+    isolated: [30000, 80000],
+    positives: [50000, 100000],
+    hospitalized: [10000, 10000],
+    intensiveCare: [1000, 1000],
+    death: [200, 200]
+  }
+
+  let colors = {
+    new: d3.schemeReds[9],
+    healed: d3.schemeGreens[9],
+    isolated: d3.schemeOranges[9],
+    positives: d3.schemeReds[9],
+    hospitalized: d3.schemeReds[9],
+    intensiveCare: d3.schemeReds[9],
+    death: d3.schemeReds[9]
+  }
+
   let formatTime = d3.timeParse("%Y-%m-%d");
   // Map and projection
   let projection = d3.geoMercator()
@@ -74,18 +94,18 @@ export default function () {
         }
         // change threshold limit according to month. before august, cases detected where
         // lower due to shortness of case detection 
-        let thresholdLimit = formatTime(finish.value).getMonth()<9 ? 1000 : 5000
-      
-        mapColor = d3.scaleQuantize([1, thresholdLimit], d3.schemeReds[9])
+        let thresholdLimit = formatTime(finish.value).getMonth() < 9 ? thresholds[selectedTimeType][0] : thresholds[selectedTimeType][1]
+
+        mapColor = d3.scaleQuantize([1, thresholdLimit], colors[selectedTimeType])
         console.log("threshold limit is", thresholdLimit, finish.value, formatTime(finish.value));
         svg.select("#mapLegend").remove();
         svg.append("g")
           .attr("id", "mapLegend")
-          .attr("transform", "translate(" + (width/6) + ","+(height - 50)+")")
+          .attr("transform", "translate(" + (width / 80) + "," + (height - 50) + ")")
           .append(() => legend({
             color: mapColor,
-            title: "new cases for 100k inhabitants",
-            width: 200,
+            title: selectedTimeType+" case for 100k inhabitants",
+            width: 320,
             thresholdLimit: thresholdLimit
           }));
 
@@ -146,10 +166,11 @@ export default function () {
             covidData[d.region] = {
               cases: [],
               avg: 0,
-              casesXpeople: 0 // cases x 100k people
+              casesXpeople: 0, // cases x 100k people
             }
           }
-          covidData[d.region].cases.push(d.new);
+
+          covidData[d.region].cases.push(d[selectedTimeType]);
         }
       });
       // then, compute avg and cases for every 100k 
