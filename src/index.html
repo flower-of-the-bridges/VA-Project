@@ -44,29 +44,7 @@
       </div>
     </div>
 
-    <div id="mobility" class="box" align="center">
-      <div class="header">
-        <strong>Mobility Boxplot</strong>
-      </div>
-      <!-- groceriesPharmacy,parks,residential,retailRecreation,transit,workplaces -->
-      <div align="center">
-        <select id="mobilityChoice" onchange="app.changeMobilityHandler()">
-          <option value="groceriesPharmacy" checked>Groceries/Pharmacy</option>
-
-          <option value="parks">Parks</option>
-
-          <option value="residential">Residential</option>
-
-          <option value="retailRecreation">Retail/Recreation</option>
-
-          <option value="transit">Transit</option>
-
-          <!-- <input type="radio" id="workplaces" name="mobil" value="workplaces">
-        <label for="workplaces">Workplaces</label> -->
-        </select>
-        <button id="brushMobilityButton" onclick="app.clearMobility()">Clear</button>
-      </div>
-    </div>
+  
     <div id="map" class="boxmin" align="center">
       <div class="header">
         <strong>Italy Choropleth Map</strong>
@@ -120,6 +98,29 @@
             <label for="sat">Sunday</label>
           </div>
         </div>
+      </div>
+    </div>
+    <div id="mobility" class="box" align="center">
+      <div class="header">
+        <strong>Mobility Boxplot</strong>
+      </div>
+      <!-- groceriesPharmacy,parks,residential,retailRecreation,transit,workplaces -->
+      <div align="center">
+        <select id="mobilityChoice" onchange="app.changeMobilityHandler()">
+          <option value="groceriesPharmacy" checked>Groceries/Pharmacy</option>
+
+          <option value="parks">Parks</option>
+
+          <option value="residential">Residential</option>
+
+          <option value="retailRecreation">Retail/Recreation</option>
+
+          <option value="transit">Transit</option>
+
+          <!-- <input type="radio" id="workplaces" name="mobil" value="workplaces">
+        <label for="workplaces">Workplaces</label> -->
+        </select>
+        <button id="brushMobilityButton" onclick="app.clearMobility()">Clear</button>
       </div>
     </div>
   </div>
