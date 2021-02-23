@@ -24,7 +24,7 @@ export default function () {
 
   let margin = { top: 20, right: 10, bottom: 30, left: 30 };
 
-  let width = 400 - margin.left - margin.right;
+  let width = 450 - margin.left - margin.right;
   let height = 260
 
   let x = d3.scaleBand().range([0, width]),
@@ -107,6 +107,22 @@ export default function () {
           .paddingOuter(.5);
         y.domain(d3.extent(data, function (d) { return +d[yTopic]; }));
         /** boxplot */
+
+        xAxis = d3.axisBottom(x);
+        yAxis = d3.axisLeft(y);
+
+        focus.select("g.axis--x").remove();
+        focus.append("g")
+          .attr("class", "axis axis--x")
+          .attr('id', "axis--x")
+          .attr("transform", "translate(0," + y(0) + ")")
+          .call(xAxis);
+
+        focus.select("g.axis--y").remove();
+        focus.append("g")
+          .attr('id', "axis--y")
+          .attr("class", "axis axis--y")
+          .call(yAxis);
 
         // Show the main vertical lines
         focus.selectAll("#vert-lines-up").remove();
@@ -214,6 +230,18 @@ export default function () {
           .attr("class", "boxtext")
           .text(function (d) { return d.value.q3 + "%" });
 
+        const medianText = focus
+          .selectAll("medianText")
+          .data(sumstat);
+        medianText
+          .enter()
+          .append("text")
+          .attr("x", function (d) { return (x(d.key) + boxWidth / 2) + 5 })
+          .attr("y", function (d) { return (y(d.value.median)) })
+          .attr("text-anchor", "right")
+          .attr("class", "boxtext")
+          .text(function (d) { return d.value.median + "%" });
+
         // show min lines
         focus.selectAll("#min-lines").remove();
         const minLines = focus
@@ -299,22 +327,7 @@ export default function () {
 
 
         /** AXIS */
-        xAxis = d3.axisBottom(x);
-        yAxis = d3.axisLeft(y);
-
-        focus.select("g.axis--x").remove();
-        focus.append("g")
-          .attr("class", "axis axis--x")
-          .attr('id', "axis--x")
-          .attr("transform", "translate(0," + y(0) + ")")
-          .call(xAxis);
-
-        focus.select("g.axis--y").remove();
-        focus.append("g")
-          .attr('id', "axis--y")
-          .attr("class", "axis axis--y")
-          .call(yAxis);
-
+    
         focus.append("text")
           .attr("transform", "rotate(-90)")
           .attr("y", 0 - margin.left)
