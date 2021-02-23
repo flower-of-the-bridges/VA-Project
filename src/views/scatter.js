@@ -260,8 +260,8 @@ export default function () {
           if (this.getAttribute("opacity") == "1") {
             div.transition()
               .duration(200)
-              .style("opacity", 1);
-            div.html("<p><strong>Date:</strong> " + d.date.toLocaleDateString("en-CA")
+              .style("opacity", "1");
+            div.html("<p><strong>Date:</strong> " + d.date.toLocaleDateString("en-CA")+" ("+d.date.toLocaleString('en-us', {weekday:'short'})+")"
               + "</p><p><strong>Region:</strong> " + regionData[d.region].name + "</p>"
               + "<p><strong>" + selectedTimeType + ":</strong> " + d[selectedTimeType] + " cases</p>"
               + "<p><strong>" + selectedMobility + ":</strong> " + d[selectedMobility] + "%</p>")

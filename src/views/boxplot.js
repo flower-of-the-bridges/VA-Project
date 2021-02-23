@@ -108,24 +108,44 @@ export default function () {
         y.domain(d3.extent(data, function (d) { return +d[yTopic]; }));
         /** boxplot */
 
-        // Show the main vertical line
-        focus.selectAll("#vert-lines").remove();
-        const lines = focus
+        // Show the main vertical lines
+        focus.selectAll("#vert-lines-up").remove();
+        const linesUp = focus
           .selectAll("vertLines")
           .data(sumstat);
 
-        lines
+        linesUp
           .enter()
           .append("line")
-          .attr("id", "vert-lines")
+          .attr("id", "vert-lines-up")
           .attr("x1", function (d) { return (x(d.key)) })
           .attr("x2", function (d) { return (x(d.key)) })
-          .attr("y1", function (d) { return (y(d.value.min)) })
+          .attr("y1", function (d) { return (y(d.value.q3)) })
           .attr("y2", function (d) { return (y(d.value.max)) })
           .attr("stroke", "black")
+          .attr("stroke-dasharray", "5,5")
           .style("width", 40)
 
-        focus.select("#vert-lines").lower();
+        focus.select("#vert-lines-up").lower();
+
+        focus.selectAll("#vert-lines-down").remove();
+        const linesDown = focus
+          .selectAll("vertLines")
+          .data(sumstat);
+
+        linesDown
+          .enter()
+          .append("line")
+          .attr("id", "vert-lines-down")
+          .attr("x1", function (d) { return (x(d.key)) })
+          .attr("x2", function (d) { return (x(d.key)) })
+          .attr("y1", function (d) { return (y(d.value.q1)) })
+          .attr("y2", function (d) { return (y(d.value.min)) })
+          .attr("stroke", "black")
+          .attr("stroke-dasharray", "5,5")
+          .style("width", 40)
+
+        focus.select("#vert-lines-down").lower();
 
         // show max lines
         focus.selectAll("#max-lines").remove();
@@ -143,6 +163,56 @@ export default function () {
           .attr("y2", function (d) { return (y(d.value.max)) })
           .attr("stroke", "black")
           .attr("stroke-width", 2)
+
+        /** TEXT */
+        focus.selectAll(".boxtext").remove();
+        const maxText = focus
+          .selectAll("maxText")
+          .data(sumstat);
+        maxText
+          .enter()
+          .append("text")
+          .attr("x", function (d) { return (x(d.key) + boxWidth / 4) + 5 })
+          .attr("y", function (d) { return (y(d.value.max) + 3) })
+          .attr("text-anchor", "right")
+          .attr("class", "boxtext")
+          .text(function (d) { return d.value.max + "%" });
+
+        const minText = focus
+          .selectAll("minText")
+          .data(sumstat);
+        minText
+          .enter()
+          .append("text")
+          .attr("x", function (d) { return (x(d.key) + boxWidth / 4) + 5 })
+          .attr("y", function (d) { return (y(d.value.min) + 3) })
+          .attr("text-anchor", "right")
+          .attr("class", "boxtext")
+          .text(function (d) { return d.value.min + "%" });
+
+        const q1Text = focus
+          .selectAll("q1Text")
+          .data(sumstat);
+        q1Text
+          .enter()
+          .append("text")
+          .attr("x", function (d) { return (x(d.key) + boxWidth / 4) + 5 })
+          .attr("y", function (d) { return (y(d.value.q1) + 10) })
+          .attr("text-anchor", "right")
+          .attr("class", "boxtext")
+          .text(function (d) { return d.value.q1 + "%" });
+
+        const q3Text = focus
+          .selectAll("q3Text")
+          .data(sumstat);
+        q3Text
+          .enter()
+          .append("text")
+          .attr("x", function (d) { return (x(d.key) + boxWidth / 4) + 5 })
+          .attr("y", function (d) { return (y(d.value.q3) - 4) })
+          .attr("text-anchor", "right")
+          .attr("class", "boxtext")
+          .text(function (d) { return d.value.q3 + "%" });
 
         // show min lines
         focus.selectAll("#min-lines").remove();
