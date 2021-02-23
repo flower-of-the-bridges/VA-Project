@@ -35,10 +35,18 @@ export default function () {
 
   let formatTime = d3.timeParse("%Y-%m-%d");
   // Map and projection
-  let projection = d3.geoMercator()
-    .center([2, 47])                // GPS of location to zoom on
-    .scale(1250)                       // This is like the zoom
-    .translate([-width / 7.5, -height / 1000000])
+  // let projection = d3.geoMercator()
+  //   .center([2, 47])                // GPS of location to zoom on
+  //   .scale(1250)                       // This is like the zoom
+  //   .translate([-width / 7.5, -height / 1000000])
+
+  // Geographic projection
+  let projection = d3.geoAzimuthalEqualArea()
+    .clipAngle(180 - 1e-3)
+    .scale(1800)
+    .rotate([-12.22, -42, 0])
+    .translate([width / 2, height / 2.2])
+    .precision(0.1)
 
   let mapCallback = () => { console.log("map callback") }
   let onClick = (d) => {
@@ -80,7 +88,6 @@ export default function () {
     selection.each(function () {
       const dom = d3.select(this)
       const svg = dom.append('svg')
-        .attr('class', 'bar-chart')
         .attr('height', height)
         .attr('width', width);
 
@@ -89,12 +96,10 @@ export default function () {
           // if map group doesn't exist, create it
           svg.append("g")
             .attr("id", "map")
-            .attr('height', height)
-            .attr('width', width);
         }
         // change threshold limit according to month. before august, cases detected where
         // lower due to shortness of case detection 
-        let thresholdLimit = formatTime(finish.value).getMonth() < 9 ? thresholds[selectedTimeType][0] : thresholds[selectedTimeType][1]
+        let thresholdLimit = formatTime(finish.value).getMonth() < 9 && formatTime(finish.value).getFullYear() == "2020" ? thresholds[selectedTimeType][0] : thresholds[selectedTimeType][1]
 
         mapColor = d3.scaleQuantize([1, thresholdLimit], colors[selectedTimeType])
         console.log("threshold limit is", thresholdLimit, finish.value, formatTime(finish.value));
@@ -104,7 +109,7 @@ export default function () {
           .attr("transform", "translate(" + (width / 80) + "," + (height - 50) + ")")
           .append(() => legend({
             color: mapColor,
-            title: selectedTimeType+" case for 100k inhabitants",
+            title: selectedTimeType + " case for 100k inhabitants",
             width: 320,
             thresholdLimit: thresholdLimit
           }));
@@ -182,7 +187,7 @@ export default function () {
         })
         // comput avg
         covidData[region].avg = total / covidData[region].cases.length
-        covidData[region].casesXpeople = total / regionData[region] * (region != 22 ? 100000 : 50000)
+        covidData[region].casesXpeople = total / regionData[region].population * (region != 22 ? 100000 : 50000)
       });
       updateData()
     }

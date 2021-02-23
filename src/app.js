@@ -179,10 +179,10 @@ const initUI = function () {
   let weekRadios = document.querySelectorAll('input[type=checkbox][name="week"]');
   function setWeeks(event) {
     let daySelected = [];
-    weekRadios.forEach( radio =>{
+    weekRadios.forEach(radio => {
       radio.checked && daySelected.push(Number(radio.value))
     })
-    window.app.daySelected = daySelected; 
+    window.app.daySelected = daySelected;
     console.log("updating days ", window.app.daySelected);
     window.app.setDays();
   }

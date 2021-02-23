@@ -1,10 +1,11 @@
 import * as d3 from 'd3'
+import * as regions from './../region'
 import { functions } from '../util'
 
 export default function () {
   let data = [];
 
-
+  let regionData = regions.default
   let updateData, zoom, brushended, highlight;
 
   let margin = { top: 50, right: 30, bottom: 30, left: 50 };
@@ -41,7 +42,7 @@ export default function () {
   let createLegend = function (legend) {
     for (let i = 0; i < clusterNumber.value; i++) {
       legend.append("circle").attr("cx", width + 2.5 * margin.right).attr("cy", (i + 1) * margin.top).attr("r", 6).style("fill", clusterColor(i))
-      legend.append("text").attr("x", width + 3 * margin.right).attr("y", (i + 1) * margin.top + 4.5).text("Cluster " + i).style("font-size", "13px").attr("alignment-baseline", "middle")
+      legend.append("text").attr("x", width + 3 * margin.right).attr("y", (i + 1) * margin.top + 4.5).text("Cluster " + (i + 1)).style("font-size", "13px").attr("alignment-baseline", "middle")
     }
   }
 
@@ -57,8 +58,8 @@ export default function () {
       svg.append("defs").append("clipPath")
         .attr("id", "clip")
         .append("rect")
-        .attr("width", width + 2+(margin.left + margin.right))
-        .attr("height", height + margin.top + margin.bottom);
+        .attr("width", width + 2 + (margin.left + margin.right))
+        .attr("height", height + margin.top);
 
       const focus = svg.append("g")
         .attr("class", "focus")
@@ -80,7 +81,7 @@ export default function () {
           y.domain(d3.extent(data, function (d) { return d["Y2"]; })).nice();
         }
 
-        let xAxis = d3.axisBottom(x), yAxis = d3.axisLeft(y);
+        let xAxis = d3.axisBottom(x).tickFormat(d => { return d != 0 ? d : "" }), yAxis = d3.axisLeft(y);
         // append scatter plot to main chart area
         focus.select("#axis--x").remove();
         focus.append("g")
@@ -92,110 +93,128 @@ export default function () {
         focus.append("g")
           .attr('id', "axis--y")
           .attr("class", "axis axis--y")
+          .attr("transform", "translate(" + x(0) + ", 0)")
           .call(yAxis);
-        if (svg.select("#axis--x--text").empty()) {
-          focus.append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("y", 0 - margin.left)
-            .attr("x", 0 - (height / 3))
-            .attr("dy", "1em")
-            .attr("id", "axis--x--text")
-            .style("text-anchor", "middle")
-            .text("Y[2]"/**chiavi[1]*/);
+        focus.select("#axis--x--text").remove();
+        focus.append("text")
+          //.attr("transform", "rotate(-90)")
+          .attr("y", y.range()[1])
+          .attr("x", x(0) + 10)
+          .attr("dy", "1em")
+          .attr("id", "axis--x--text")
+          .style("text-anchor", "middle")
+          .text("Y[2]");
+        focus.select("#axis--y--text").remove();
+        focus.append("text")
+          .attr("transform",
+            "translate(" + x.range()[1] + " ," +
+            (y(0) - 3) + ")")
+          .style("text-anchor", "middle")
+          .attr("id", "axis--y--text")
+          .text("Y[1]");
 
-          svg.append("text")
-            .attr("transform",
-              "translate(" + ((width + margin.right + margin.left) / 2) + " ," +
-              (height) + ")")
-            .style("text-anchor", "middle")
-            .text("Y[1]"/**chiavi[0]*/);
+        let idled = function () {
+          idleTimeout = null;
+        }
 
-          let idled = function () {
-            idleTimeout = null;
-          }
+        brushended = function () {
+          let s = d3.event.selection;
+          console.log("brushnede", s)
+          if (!s) {
+            //if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
+            //x.domain(d3.extent(data, function (d) { return d["Y1"]; }));
+            //y.domain(d3.extent(data, function (d) { return d["Y2"]; }));
+            //brushMode = false;
+          } else {
+            scatterBrush = true;
+            brushScatterButton.disabled = false;
+            if (zoomMode) {
+              x.domain([s[0][0], s[1][0]].map(x.invert, x));
+              y.domain([s[1][1], s[0][1]].map(y.invert, y));
+              focus.select(".scatterbrush").call(brush.move, null);
+              zoom();
 
-          brushended = function () {
-            let s = d3.event.selection;
-            console.log("brushnede", s)
-            if (!s) {
-              //if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
-              //x.domain(d3.extent(data, function (d) { return d["Y1"]; }));
-              //y.domain(d3.extent(data, function (d) { return d["Y2"]; }));
-              //brushMode = false;
-            } else {
-              scatterBrush = true;
-              brushScatterButton.disabled = false;
-              if (zoomMode) {
-                x.domain([s[0][0], s[1][0]].map(x.invert, x));
-                y.domain([s[1][1], s[0][1]].map(y.invert, y));
-                focus.select(".scatterbrush").call(brush.move, null);
-                zoom();
-
-              }
-              else {
-                let newX = x.copy();
-                let newY = y.copy();
-                newX.domain([s[0][0], s[1][0]].map(newX.invert, newX));
-                newY.domain([s[1][1], s[0][1]].map(newY.invert, newY));
-                highlight(newX, newY);
-              }
-              onBrushCompleted(views);
             }
-          }
-
-          highlight = function (newX, newY) {
-            console.log("highlight");
-
-            svg.selectAll("#dots")
-              .attr("cx", function (d) {
-                let xValue = newX(d["Y1"]);
-                let yValue = newY(d["Y2"]);
-                onBrush(
-                  brushMode, // brush mode
-                  d, // value to update
-                  xValue >= x.range()[0] && xValue <= x.range()[1] && yValue <= y.range()[0] && yValue >= y.range()[1],
-                  views, // views to update
-                  "selectedScatter"
-                );
-                return x(d["Y1"]);
-              })
-              .attr("cy", function (d) { return y(d["Y2"]); })
-              .attr("opacity", d => {
-                let xValue = newX(d["Y1"]);
-                let yValue = newY(d["Y2"]);
-                return xValue >= x.range()[0] && xValue <= x.range()[1] && yValue <= y.range()[0] && yValue >= y.range()[1] ? "1" : ".2"
-              });
-          }
-
-          zoom = function () {
-            console.log("zoom");
-            let transition = svg.transition().duration(750);
-            svg.select("#axis--x")
-              .transition(transition)
-              .attr("transform", "translate(0," + y(0) + ")")
-              .call(xAxis);
-            svg.select("#axis--y").transition(transition).call(yAxis);
-            svg.selectAll("#dots").transition(transition)
-              .attr("cx", function (d) {
-                let xValue = x(d["Y1"]);
-                let yValue = y(d["Y2"]);
-                onBrush(
-                  brushMode, // brush mode
-                  d, // value to update
-                  xValue >= x.range()[0] && xValue <= x.range()[1] && yValue <= y.range()[0] && yValue >= y.range()[1],
-                  views, // views to update
-                  "selectedScatter"
-                );
-                return xValue;
-              })
-              .attr("cy", function (d) { if (d.selectedRegion) return y(d["Y2"]); })
-              .attr("opacity", d => {
-                let xValue = x(d["Y1"]);
-                let yValue = y(d["Y2"]);
-                return xValue >= x.range()[0] && xValue <= x.range()[1] && yValue <= y.range()[0] && yValue >= y.range()[1] ? "1" : ".2"
-              });
+            else {
+              let newX = x.copy();
+              let newY = y.copy();
+              newX.domain([s[0][0], s[1][0]].map(newX.invert, newX));
+              newY.domain([s[1][1], s[0][1]].map(newY.invert, newY));
+              highlight(newX, newY);
+            }
+            onBrushCompleted(views);
           }
         }
+
+        highlight = function (newX, newY) {
+          console.log("highlight");
+
+          svg.selectAll("#dots")
+            .attr("cx", function (d) {
+              let xValue = newX(d["Y1"]);
+              let yValue = newY(d["Y2"]);
+              onBrush(
+                brushMode, // brush mode
+                d, // value to update
+                xValue >= x.range()[0] && xValue <= x.range()[1] && yValue <= y.range()[0] && yValue >= y.range()[1],
+                views, // views to update
+                "selectedScatter"
+              );
+              return x(d["Y1"]);
+            })
+            .attr("cy", function (d) { return y(d["Y2"]); })
+            .attr("opacity", d => {
+              let xValue = newX(d["Y1"]);
+              let yValue = newY(d["Y2"]);
+              return xValue >= x.range()[0] && xValue <= x.range()[1] && yValue <= y.range()[0] && yValue >= y.range()[1] ? "1" : ".2"
+            });
+        }
+
+        zoom = function () {
+          console.log("zoom");
+          let transition = svg.transition().duration(750);
+          svg.select("#axis--x")
+            .transition(transition)
+            .attr("transform", "translate(0," + y(0) + ")")
+            .call(xAxis);
+          svg.select("#axis--y")
+            .transition(transition)
+            .attr("transform", "translate(" + x(0) + ", 0)")
+            .call(yAxis);
+
+          focus.select("#axis--x--text")
+            .transition(transition)
+            .attr("transform",
+              "translate(" + x.range()[0] + " ," +
+              y.range()[1] + ")");
+
+          focus.select("#axis--y--text")
+            .transition(transition)
+            .attr("transform",
+              "translate(" + x.range()[1] + " ," +
+              (y(0) - 3) + ")");
+
+          svg.selectAll("#dots").transition(transition)
+            .attr("cx", function (d) {
+              let xValue = x(d["Y1"]);
+              let yValue = y(d["Y2"]);
+              onBrush(
+                brushMode, // brush mode
+                d, // value to update
+                xValue >= x.range()[0] && xValue <= x.range()[1] && yValue <= y.range()[0] && yValue >= y.range()[1],
+                views, // views to update
+                "selectedScatter"
+              );
+              return xValue;
+            })
+            .attr("cy", function (d) { if (d.selectedRegion) return y(d["Y2"]); })
+            .attr("opacity", d => {
+              let xValue = x(d["Y1"]);
+              let yValue = y(d["Y2"]);
+              return xValue >= x.range()[0] && xValue <= x.range()[1] && yValue <= y.range()[0] && yValue >= y.range()[1] ? "1" : ".2"
+            });
+        }
+
 
         if (!scatterBrush) {
           focus.select(".scatterbrush").remove();
@@ -207,7 +226,7 @@ export default function () {
             .attr("class", "scatterbrush")
             .call(brush);
         }
-        
+
         focus.selectAll(".dot").remove();
         let dots = focus.selectAll("circle")
           .data(data)
@@ -243,7 +262,7 @@ export default function () {
               .duration(200)
               .style("opacity", 1);
             div.html("<p><strong>Date:</strong> " + d.date.toLocaleDateString("en-CA")
-              + "</p><p><strong>Region:</strong> " + d.region + "</p>"
+              + "</p><p><strong>Region:</strong> " + regionData[d.region].name + "</p>"
               + "<p><strong>" + selectedTimeType + ":</strong> " + d[selectedTimeType] + " cases</p>"
               + "<p><strong>" + selectedMobility + ":</strong> " + d[selectedMobility] + "%</p>")
               .style("background", regionColor(d.region))

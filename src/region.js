@@ -1,25 +1,24 @@
 export default {
-    "0" : 60360000,//Italy
-    "01": 4311217, //Piemonte
-    "02": 125034, //Valle D'Aosta		
-    "03": 10027602,//Lombardia
-    "05": 4879133, //Veneto
-    "06": 1206216, //Friuli Venezia Giulia
-    "07": 1524826, //Liguria
-    "08": 4464119, //Emilia Romagna
-    "09": 3692555, //Toscana
-    "10": 870165, //Umbria
-    "11": 1512672,//Marche	
-    "12": 5755700,//Lazio
-    "13": 1293941, //Abruzzo
-    "14": 300516, //Molise
-    "15": 5712143, //Campania
-    "16": 3953305, //Puglia
-    "17": 553254, //Basilicata
-    "18": 1894110, //Calabria
-    "19": 4875290, //Sicilia
-    "20": 1611621, //Sardegna
-    "21": 106951 + 117417, //Bolzano
-    "22": 117417 + 106951 //Trento
-
+    "0" : {population:  60360000, name : "Italy"},
+    "01": {population:  4311217,  name : "Piemonte"},
+    "02": {population:  125034,  name : "Valle D'Aosta"},		
+    "03": {population:  10027602, name : "Lombardia"},
+    "05": {population:  4879133,  name : "Veneto"},
+    "06": {population:  1206216,  name : "Friuli Venezia Giulia"},
+    "07": {population:  1524826,  name : "Liguria"},
+    "08": {population:  4464119,  name : "Emilia Romagna"},
+    "09": {population:  3692555,  name : "Toscana"},
+    "10": {population:  870165,  name : "Umbria"},
+    "11": {population:  1512672, name : "Marche"},
+    "12": {population:  5755700, name : "Lazio"},
+    "13": {population:  1293941,  name : "Abruzzo"},
+    "14": {population:  300516,  name : "Molise"},
+    "15": {population:  5712143,  name : "Campania"},
+    "16": {population:  3953305,  name : "Puglia"},
+    "17": {population:  553254,  name : "Basilicata"},
+    "18": {population:  1894110,  name : "Calabria"},
+    "19": {population:  4875290,  name : "Sicilia"},
+    "20": {population:  1611621,  name : "Sardegna"},
+    "21": {population:  106951 + 117417,  name : "Bolzano"},
+    "22": {population:  117417 + 106951, name : "Trento"}
 }

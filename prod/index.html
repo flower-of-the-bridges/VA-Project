@@ -25,7 +25,7 @@
       <div class="header">
         <strong>Correlation Scatter</strong>
       </div>
-      <div style="display: inline-flex; margin-top: 10px; margin-left: 10px; padding-left: 10px;">
+      <div class="container" style="margin-top: 10px; margin-left: 10px; padding-left: 10px;">
         <button id="computeButton" onclick="app.computeAggregate(true)">Compute aggregate</button>
         <label style="margin-left: 10px" id="textClusterNumber">Number of clusters: <strong
             id="textCluster">3</strong></label>
@@ -37,6 +37,8 @@
           <label for="brushScatter">Brush</label>
           <input type="radio" id="zoomScatter" name="scatterMode" value="true">
           <label for="zoomScatter">Zoom</label>
+        </div>
+        <div id="clusterCheckDiv">
         </div>
         <progress style="margin-left: 10px" id="restLoading" value="50" max="100" hidden></progress>
       </div>
@@ -65,7 +67,6 @@
         <button id="brushMobilityButton" onclick="app.clearMobility()">Clear</button>
       </div>
     </div>
-
     <div id="map" class="boxmin" align="center">
       <div class="header">
         <strong>Italy Choropleth Map</strong>
@@ -102,12 +103,28 @@
             <input type="radio" id="zoomTime" name="timeMode" value="true">
             <label for="zoomTime">Zoom</label>
           </div>
+          <div class="container" align="center">
+            <input type="checkbox" id="mon" name="week" value="0" checked>
+            <label for="mon">Monday</label>
+            <input type="checkbox" id="tue" name="week" value="1" checked>
+            <label for="tue">Tuesday</label>
+            <input type="checkbox" id="wen" name="week" value="2" checked>
+            <label for="wen">Wednesday</label>
+            <input type="checkbox" id="mon" name="week" value="3" checked>
+            <label for="th">Thursday</label>
+            <input type="checkbox" id="th" name="week" value="4" checked>
+            <label for="fri">Friday</label>
+            <input type="checkbox" id="sat" name="week" value="5" checked>
+            <label for="sat">Saturday</label>
+            <input type="checkbox" id="sun" name="week" value="6" checked>
+            <label for="sat">Sunday</label>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
 
-<script type="text/javascript" src="main.js?c8ad1f1f2af13129e8f1"></script></body>
+<script type="text/javascript" src="main.js?2b6aaffe2772ab4eb257"></script></body>
 
 </html>

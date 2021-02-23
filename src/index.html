@@ -25,7 +25,7 @@
       <div class="header">
         <strong>Correlation Scatter</strong>
       </div>
-      <div style="display: inline-flex; margin-top: 10px; margin-left: 10px; padding-left: 10px;">
+      <div class="container" style="margin-top: 10px; margin-left: 10px; padding-left: 10px;">
         <button id="computeButton" onclick="app.computeAggregate(true)">Compute aggregate</button>
         <label style="margin-left: 10px" id="textClusterNumber">Number of clusters: <strong
             id="textCluster">3</strong></label>
@@ -37,6 +37,8 @@
           <label for="brushScatter">Brush</label>
           <input type="radio" id="zoomScatter" name="scatterMode" value="true">
           <label for="zoomScatter">Zoom</label>
+        </div>
+        <div id="clusterCheckDiv">
         </div>
         <progress style="margin-left: 10px" id="restLoading" value="50" max="100" hidden></progress>
       </div>
@@ -65,7 +67,6 @@
         <button id="brushMobilityButton" onclick="app.clearMobility()">Clear</button>
       </div>
     </div>
-
     <div id="map" class="boxmin" align="center">
       <div class="header">
         <strong>Italy Choropleth Map</strong>

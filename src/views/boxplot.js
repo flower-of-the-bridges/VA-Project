@@ -1,10 +1,13 @@
 import * as d3 from 'd3'
-import {functions} from '../util'
+import { functions } from '../util'
+import * as regions from './../region'
 
 export default function () {
   let data = [];
 
   let yTopic = "";
+
+  let regionData = regions.default;
 
   let brushMode = false;
   let boxBrush = false;
@@ -22,7 +25,7 @@ export default function () {
   let margin = { top: 20, right: 10, bottom: 30, left: 30 };
 
   let width = 400 - margin.left - margin.right;
-  let height = 250 - margin.top - margin.bottom;
+  let height = 260
 
   let x = d3.scaleBand().range([0, width]),
     y = d3.scaleLinear().range([height, 0]);
@@ -62,8 +65,8 @@ export default function () {
 
       let createLegend = function (legend) {
         selectedRegions.forEach((region, index) => {
-          legend.append("circle").attr("cx", width + 1.5 * margin.right).attr("cy", (index + 1) * margin.top).attr("r", 6).style("fill", regionColor(region.id))
-          legend.append("text").attr("x", width + 3 * margin.right).attr("y", (index + 1) * margin.top + 4.5).text(region.name).style("font-size", "13px").attr("alignment-baseline", "middle")
+          legend.append("circle").attr("cx", width + 4 * margin.right).attr("cy", (index + 1) * margin.top).attr("r", 6).style("fill", regionColor(region.id))
+          legend.append("text").attr("x", width + 5 * margin.right).attr("y", (index + 1) * margin.top + 4.5).text(region.name).style("font-size", "13px").attr("alignment-baseline", "middle")
         })
       }
 
@@ -80,14 +83,14 @@ export default function () {
           .attr("class", "focus")
           .attr("background", "lightsteelblue");
         createLegend(legend);
-        
+
         if (!brushMode && brush) {
           // remove brush if any
           focus.select(".brush").call(brush.move, null);
         }
         // Compute quartiles, median, inter quantile range min and max --> these info are then used to draw the box.
         const sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
-          .key(function (d) { return d.region; })
+          .key(function (d) { return regionData[d.region].name; })
           .rollup(function (d) {
             let q1 = d3.quantile(d.map(function (g) { return +g[yTopic]; }).sort(d3.ascending), .25)
             let median = d3.quantile(d.map(function (g) { return +g[yTopic]; }).sort(d3.ascending), .5)
@@ -99,7 +102,7 @@ export default function () {
           })
           .entries(data)
 
-        x.domain(selectedRegions.map(region => { return region.id }))
+        x.domain(selectedRegions.map(region => { return regionData[region.id].name }))
           .paddingInner(1)
           .paddingOuter(.5);
         y.domain(d3.extent(data, function (d) { return +d[yTopic]; }));
@@ -124,6 +127,40 @@ export default function () {
 
         focus.select("#vert-lines").lower();
 
+        // show max lines
+        focus.selectAll("#max-lines").remove();
+        const maxLines = focus
+          .selectAll("maxLines")
+          .data(sumstat);
+
+        maxLines
+          .enter()
+          .append("line")
+          .attr("id", "max-lines")
+          .attr("x1", function (d) { return (x(d.key) - boxWidth / 4) })
+          .attr("x2", function (d) { return (x(d.key) + boxWidth / 4) })
+          .attr("y1", function (d) { return (y(d.value.max)) })
+          .attr("y2", function (d) { return (y(d.value.max)) })
+          .attr("stroke", "black")
+          .attr("stroke-width", 2)
+
+        // show min lines
+        focus.selectAll("#min-lines").remove();
+        const minLines = focus
+          .selectAll("minLines")
+          .data(sumstat);
+
+        minLines
+          .enter()
+          .append("line")
+          .attr("id", "min-lines")
+          .attr("x1", function (d) { return (x(d.key) - boxWidth / 4) })
+          .attr("x2", function (d) { return (x(d.key) + boxWidth / 4) })
+          .attr("y1", function (d) { return (y(d.value.min)) })
+          .attr("y2", function (d) { return (y(d.value.min)) })
+          .attr("stroke", "black")
+          .attr("stroke-width", 2)
+
         // show the main boxes
         focus.selectAll("#boxes").remove();
 
@@ -139,7 +176,7 @@ export default function () {
           .attr("width", boxWidth)
           .attr("stroke", "black")
           .attr("opacity", ".8")
-          .style("fill", (d) => regionColor(d.key));
+          .style("fill", (d) => regionColor(Object.keys(regionData).filter(reg => { return regionData[reg].name == d.key })[0]));
 
         focus.select("#boxes").lower();
 
@@ -171,7 +208,7 @@ export default function () {
           .merge(points)
           .attr("id", "data-points")
           .attr("class", "dot")
-          .attr("cx", function (d) { return (x(d.region) - jitterWidth / 2 + d.jitter * jitterWidth) })
+          .attr("cx", function (d) { return (x(regionData[d.region].name) - jitterWidth / 2 + d.jitter * jitterWidth) })
           .attr("cy", function (d) { return (y(d[yTopic])) })
           .attr("r", 4)
           .style("fill", (d) => regionColor(d.region))
@@ -182,7 +219,7 @@ export default function () {
             //else {
             //  d.selectedMobility ? '1' : '.5';
             //}
-            if(scatterBrush){
+            if (scatterBrush) {
               return functions.isDrawable(d, timeBrush, boxBrush, scatterBrush) ? "1" : "0"
             }
             else
@@ -272,7 +309,7 @@ export default function () {
         selectedRegions.forEach(region => {
           // create new brush for region
           let mybrush = d3.brushY()
-            .extent([[x(region.id) - boxWidth / 2, 0], [x(region.id) + boxWidth / 2, height]])
+            .extent([[x(regionData[region.id].name) - boxWidth / 2, 0], [x(regionData[region.id].name) + boxWidth / 2, height]])
             .on("end", () => { console.log(region.id); brushended(region.id) })
           brushes.push(mybrush)
           lastBrush++;

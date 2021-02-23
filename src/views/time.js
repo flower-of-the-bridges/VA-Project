@@ -10,6 +10,8 @@ export default function () {
 
   let updateData, zoom, brushended, highlight;
 
+  let focusCircle, focusText;
+
   let lastBrush = 0;
   let brush = null;
 
@@ -69,12 +71,54 @@ export default function () {
         idleTimeout = null;
       }
 
+      // This allows to find the closest X index of the mouse:
+      let bisect = d3.bisector(function (d) { return d.date }).left;
+
+
+      let mouseover = function () {
+        focus.selectAll(".timepath").each(function (_, index) {
+          focus.select("#focusCircle" + index).style("opacity", 1)
+          svg.select("#focusText" + index).style("opacity", 1)
+        })
+      }
+
+      let mousemove = function () {
+
+        focus.selectAll(".timepath").each(function (pathData, index) {
+          if (pathData) {
+            // recover coordinate we need
+            let x0 = x.invert(d3.mouse(this)[0]);
+            let i = bisect(pathData, x0, 1);
+            let selectedData = pathData[i]
+            //console.log(selectedData, index);
+            focus.select("#focusCircle" + index)
+              .attr("cx", x(selectedData["date"]))
+              .attr("cy", y(selectedData[yTopic]))
+            svg.select("#focusText" + index)
+              .html("date:" + selectedData["date"].toLocaleDateString("en-CA") + "  -  " + "" + yTopic + ": " + selectedData[yTopic])
+              .attr("x", x(selectedData["date"]) + 15)
+              .attr("y", y(selectedData[yTopic]) + 20)
+          }
+        })
+      }
+
+      let mouseout = function () {
+        console.log("mouseout")
+        focus.selectAll(".timepath").each(function (_, index) {
+          focus.select("#focusCircle" + index).style("opacity", 0)
+          svg.select("#focusText" + index).style("opacity", 0)
+        })
+      }
 
       let createLegend = function (legend) {
         selectedRegions.forEach((region, index) => {
-          legend.append("circle").attr("cx", width + 1.5 * margin.right).attr("cy", (index + 1) * margin.top).attr("r", 6).style("fill", regionColor(region.id))
-          legend.append("text").attr("x", width + 2 * margin.right).attr("y", (index + 1) * margin.top + 4.5).text(region.name).style("font-size", "13px").attr("alignment-baseline", "middle")
+          legend.append("circle").attr("cx", width + 2.2 * margin.right).attr("cy", (index + 1) * margin.top).attr("r", 6).style("fill", regionColor(region.id))
+          legend.append("text").attr("x", width + 2.8 * margin.right).attr("y", (index + 1) * margin.top + 4.5).text(region.name).style("font-size", "13px").attr("alignment-baseline", "middle")
         })
+        legend.append("line").attr("x1", width + 2 * margin.right).attr("y1", (selectedRegions.length + 1) * margin.top + 4.5).attr("x2", width + 2.5 * margin.right).attr("y2", (selectedRegions.length + 1) * margin.top + 4.5).style("stroke", "black")
+        legend.append("line").attr("x1", width + 2 * margin.right).attr("y1", (selectedRegions.length + 0.7) * margin.top + 4.5).attr("x2", width + 2 * margin.right).attr("y2", (selectedRegions.length + 1.3) * margin.top + 4.5).style("stroke", "black")
+        legend.append("line").attr("x1", width + 2.5 * margin.right).attr("y1", (selectedRegions.length + 0.7) * margin.top + 4.5).attr("x2", width + 2.5 * margin.right).attr("y2", (selectedRegions.length + 1.3) * margin.top + 4.5).style("stroke", "black")
+        legend.append("text").attr("x", width + 2.8 * margin.right).attr("y", (selectedRegions.length + 1.2) * margin.top + 4.5).text("1 week").style("font-size", "13px").attr("alignment-baseline", "middle")
       }
 
       updateData = function () {
@@ -98,6 +142,138 @@ export default function () {
           .ease(d3.easeBackOut)
           .remove();
 
+        brushended = function () {
+          let s = d3.event.selection;
+          if (!s) {
+            //if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
+            //x.domain(d3.extent(data, function (d) { return d["date"]; }));
+            //brushMode = false;
+            //y.domain(d3.extent(data, function (d) { return +d[yTopic]; }));
+          } else {
+            //brushMode = true;
+            boxBrush = false;
+            timeBrush = true;
+            brushTimeButton.disabled = false;
+            if (!zoomMode) {
+              let newX = x.copy()
+              newX.domain(s.map(x.invert, x));
+              start.value = newX.domain()[0].toLocaleDateString("en-CA")
+              finish.value = newX.domain()[1].toLocaleDateString("en-CA")
+              highlight(newX);
+            }
+            else {
+              x.domain(s.map(x.invert, x));
+              //y.domain([s[0][1], s[1][1]].map(y.invert, y));
+              start.value = x.domain()[0].toLocaleDateString("en-CA")
+              finish.value = x.domain()[1].toLocaleDateString("en-CA")
+              focus.select(".timebrush").call(brush.move, null);
+              // update date inputs
+              zoom();
+            }
+
+            onBrushCompleted(views, true);
+          }
+        }
+
+        highlight = function (newX) {
+          console.log("highlight");
+
+          focus.selectAll(".timepath").each(function (pathData, index) {
+            if (pathData) {
+              pathData.forEach(d => {
+                let xValue = newX(d.date);
+                d.selectedTime = xValue >= newX.range()[0] && xValue <= newX.range()[1] && daySelected.includes(d.date.getDay()) // brushed
+                onBrush(
+                  brushMode, // brush mode
+                  d, // value to update
+                  d.selectedTime,//xValue >= newX.range()[0] && xValue <= newX.range()[1], // brushed 
+                  views, // views to update
+                  "selectedTime"
+                );
+              })
+
+              focus.select("#data--path--" + index)
+                .attr("d", selectedLine
+                  .x(function (d) { return x(d.date); })
+                  .y(function (d) { return y(d[yTopic]) })
+                )
+            }
+          });
+
+          focus.selectAll(".unselectedtimepath").each(function (pathData, index) {
+            if (pathData) {
+              pathData.forEach(d => {
+                let xValue = newX(d.date);
+                d.selectedTime = xValue >= newX.range()[0] && xValue <= newX.range()[1] && daySelected.includes(d.date.getDay())// brushed
+              })
+
+              focus.select("#unselected-path-" + index)
+                .attr("d", unselectedLine
+                  .x(function (d) { return x(d.date); })
+                  .y(function (d) { return y(d[yTopic]) })
+                )
+            }
+          });
+        }
+
+        zoom = function () {
+          console.log("zoom");
+          let transition = svg.transition().duration(750);
+          svg.select("#axis--x").transition(transition).call(xAxis);
+          svg.select("#axis2--x").transition(transition).call(xAxis2);
+          svg.select("#axis--y").transition(transition).call(yAxis);
+
+          focus.selectAll(".timepath").each(function (pathData, index) {
+            pathData.forEach(d => {
+              let xValue = x(d.date);
+              d.selectedTime = xValue >= x.range()[0] && xValue <= x.range()[1] && daySelected.includes(d.date.getDay()) // brushed
+              onBrush(
+                brushMode, // brush mode
+                d, // value to update
+                d.selectedTime,//xValue >= newX.range()[0] && xValue <= newX.range()[1], // brushed 
+                views, // views to update
+                "selectedTime"
+              );
+            })
+            focus.select("#data--path--" + index).transition(transition)
+              .attr("d", selectedLine
+                .x(function (d) { return x(d.date); })
+                .y(function (d) { return y(d[yTopic]) })
+              )
+          });
+
+          focus.selectAll(".unselectedtimepath").each(function (pathData, index) {
+            if (pathData) {
+              pathData.forEach(d => {
+                let xValue = x(d.date);
+                d.selectedTime = xValue >= x.range()[0] && xValue <= x.range()[1] && daySelected.includes(d.date.getDay())// brushed
+              })
+
+              focus.select("#unselected-path-" + index).transition(transition)
+                .attr("d", unselectedLine
+                  .x(function (d) { return x(d.date); })
+                  .y(function (d) { return y(d[yTopic]) })
+                )
+            }
+          });
+        }
+
+        if (!timeBrush) {
+          focus.select(".timebrush").remove();
+          brush = null;
+        }
+        if (!brush) {
+          brush = d3.brushX().extent([[0, 0], [width, height]]).on("end", brushended)
+          lastBrush++;
+          focus.append("g")
+            .attr("class", "timebrush")
+            .attr("id", "timebrush" + lastBrush)
+            //.on('mouseover', mouseover)
+            //.on('mousemove', mousemove)
+            //.on('mouseout', mouseout)
+            .call(brush);
+        }
+
         dataRegions = {};
 
         selectedRegions.forEach((region, index) => {
@@ -117,6 +293,7 @@ export default function () {
               selectedLine
                 .x(function (d) { return x(d.date) })
                 .y(function (d) { return y(d[yTopic]) })
+
             );
 
           focus.append("path")
@@ -132,12 +309,32 @@ export default function () {
                 .x(function (d) { return x(d.date) })
                 .y(function (d) { return y(d[yTopic]) })
             );
+
+          // Create the circle that travels along the curve of chart
+          focus
+            .append('g')
+            .append('circle')
+            .style("fill", "none")
+            .attr("stroke", regionColor(region.id))
+            .attr("stroke-width", "2")
+            .attr('r', 6)
+            .attr("id", "focusCircle" + index)
+            .style("opacity", 0)
+
+          // Create the text that travels along the curve of chart
+          svg
+            .append('text')
+            .style("opacity", 0)
+            .attr("dy", "2em")
+            .attr("text-anchor", "left")
+            .attr("alignment-baseline", "middle")
+            .attr("id", "focusText" + index)
         });
 
         /** AXIS */
         xAxis = d3.axisBottom(x)
           .tickFormat(d => {
-            return d.toLocaleDateString('en-US', { month: 'short' })
+            return d.toLocaleDateString('en-US', { month: 'short' }) + " " + d.getDate()
           })
           .ticks(d3.timeWeek.every(5))
 
@@ -160,6 +357,8 @@ export default function () {
             .attr("stroke-dasharray", "2,2"))
           .call(g => g.selectAll(".tick text")
             .attr("hidden", true))
+
+
 
         focus.selectAll("#axis--x").remove();
         focus.append("g")
@@ -184,122 +383,6 @@ export default function () {
 
         if (focus.select("#y-label").empty()) {
 
-          brushended = function () {
-            let s = d3.event.selection;
-            if (!s) {
-              //if (!idleTimeout) return idleTimeout = setTimeout(idled, idleDelay);
-              //x.domain(d3.extent(data, function (d) { return d["date"]; }));
-              //brushMode = false;
-              //y.domain(d3.extent(data, function (d) { return +d[yTopic]; }));
-            } else {
-              //brushMode = true;
-              boxBrush = false;
-              timeBrush = true;
-              brushTimeButton.disabled = false;
-              if (!zoomMode) {
-                let newX = x.copy()
-                newX.domain(s.map(x.invert, x));
-                start.value = newX.domain()[0].toLocaleDateString("en-CA")
-                finish.value = newX.domain()[1].toLocaleDateString("en-CA")
-                highlight(newX);
-              }
-              else {
-                x.domain(s.map(x.invert, x));
-                //y.domain([s[0][1], s[1][1]].map(y.invert, y));
-                start.value = x.domain()[0].toLocaleDateString("en-CA")
-                finish.value = x.domain()[1].toLocaleDateString("en-CA")
-                focus.select(".timebrush").call(brush.move, null);
-                // update date inputs
-                zoom();
-              }
-
-              onBrushCompleted(views, true);
-            }
-          }
-
-          highlight = function (newX) {
-            console.log("highlight");
-
-            focus.selectAll(".timepath").each(function (pathData, index) {
-              if (pathData) {
-                pathData.forEach(d => {
-                  let xValue = newX(d.date);
-                  d.selectedTime = xValue >= newX.range()[0] && xValue <= newX.range()[1] && daySelected.includes(d.date.getDay()) // brushed
-                  onBrush(
-                    brushMode, // brush mode
-                    d, // value to update
-                    d.selectedTime,//xValue >= newX.range()[0] && xValue <= newX.range()[1], // brushed 
-                    views, // views to update
-                    "selectedTime"
-                  );
-                })
-
-                focus.select("#data--path--" + index)
-                  .attr("d", selectedLine
-                    .x(function (d) { return x(d.date); })
-                    .y(function (d) { return y(d[yTopic]) })
-                  )
-              }
-            });
-
-            focus.selectAll(".unselectedtimepath").each(function (pathData, index) {
-              if (pathData) {
-                pathData.forEach(d => {
-                  let xValue = newX(d.date);
-                  d.selectedTime = xValue >= newX.range()[0] && xValue <= newX.range()[1] && daySelected.includes(d.date.getDay())// brushed
-                })
-
-                focus.select("#unselected-path-" + index)
-                  .attr("d", unselectedLine
-                    .x(function (d) { return x(d.date); })
-                    .y(function (d) { return y(d[yTopic]) })
-                  )
-              }
-            });
-          }
-
-          zoom = function () {
-            console.log("zoom");
-            let transition = svg.transition().duration(750);
-            svg.select("#axis--x").transition(transition).call(xAxis);
-            svg.select("#axis2--x").transition(transition).call(xAxis2);
-            svg.select("#axis--y").transition(transition).call(yAxis);
-
-            focus.selectAll(".timepath").each(function (pathData, index) {
-              pathData.forEach(d => {
-                let xValue = x(d.date);
-                d.selectedTime = xValue >= x.range()[0] && xValue <= x.range()[1] && daySelected.includes(d.date.getDay()) // brushed
-                onBrush(
-                  brushMode, // brush mode
-                  d, // value to update
-                  d.selectedTime,//xValue >= newX.range()[0] && xValue <= newX.range()[1], // brushed 
-                  views, // views to update
-                  "selectedTime"
-                );
-              })
-              focus.select("#data--path--" + index).transition(transition)
-                .attr("d", selectedLine
-                  .x(function (d) { return x(d.date); })
-                  .y(function (d) { return y(d[yTopic]) })
-                )
-            });
-
-            focus.selectAll(".unselectedtimepath").each(function (pathData, index) {
-              if (pathData) {
-                pathData.forEach(d => {
-                  let xValue = x(d.date);
-                  d.selectedTime = xValue >= x.range()[0] && xValue <= x.range()[1] && daySelected.includes(d.date.getDay())// brushed
-                })
-
-                focus.select("#unselected-path-" + index).transition(transition)
-                  .attr("d", unselectedLine
-                    .x(function (d) { return x(d.date); })
-                    .y(function (d) { return y(d[yTopic]) })
-                  )
-              }
-            });
-          }
-
           svg.append("text")
             .attr("transform", "rotate(-90)")
             .attr("id", "y-label")
@@ -315,18 +398,6 @@ export default function () {
               (height + 1.5 * margin.bottom) + ")")
             .style("text-anchor", "middle")
             .text("time");
-        }
-        if (!timeBrush) {
-          focus.select(".timebrush").remove();
-          brush = null;
-        }
-        if (!brush) {
-          brush = d3.brushX().extent([[0, 0], [width, height]]).on("end", brushended)
-          lastBrush++;
-          focus.append("g")
-            .attr("class", "timebrush")
-            .attr("id", "timebrush" + lastBrush)
-            .call(brush);
         }
       }
     })

@@ -244,8 +244,8 @@ class Controller {
     this.time.setBrushMode(false);
     start.value = "2020-02-24";
     finish.value = "2020-12-31";
-    document.querySelectorAll('input[type=checkbox][name="week"]').forEach(radio =>{
-       radio.checked = true
+    document.querySelectorAll('input[type=checkbox][name="week"]').forEach(radio => {
+      radio.checked = true
     })
     this.daySelected = [0, 1, 2, 3, 4, 5, 6];// days of week
     this.onMapUpdated();
@@ -254,6 +254,12 @@ class Controller {
   }
 
   clearScatter() {
+    // checkbox reset
+    clusterCheckDiv.querySelectorAll("*").forEach(checkbox => {
+      if (checkbox.type == "checkbox") {
+        checkbox.checked = true;
+      }
+    })
     // reset scatter zoom mode
     brushScatter.checked = true;
     this.scatter.setZoomMode(false);
@@ -290,6 +296,7 @@ class Controller {
     restLoading.hidden = false; // show loading scree
     computeButton.disabled = true; // disable button
     let clusters = clusterNumber.value;
+    this.setClusterCheck();
     clusterNumber.disabled = true;
     textCluster.textContent = clusters
     /** find index of the element to compute */
@@ -361,6 +368,46 @@ class Controller {
     });
     this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, this.aggregate);
     this.model.onEntriesListChanged();
+  }
+
+  setClusters() {
+    let currentClusters = clusterCheckDiv.querySelectorAll("*").length;
+    let selectedClusters = 0;
+    clusterCheckDiv.querySelectorAll("*").forEach(checkbox => {
+      if (checkbox.checked) {
+        selectedClusters++
+      }
+    })
+    this.scatterBrush = selectedClusters < currentClusters
+    brushScatterButton.disabled = !this.scatterBrush;
+    this.model.entries.forEach(entry => {
+      if (entry && entry.cluster != null) {
+        entry.selectedScatter = document.getElementById("clusterCheck" + entry.cluster).checked
+      }
+    });
+    this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, this.aggregate);
+    this.model.onEntriesListChanged();
+  }
+
+  setClusterCheck() {
+    // remove previous children
+    clusterCheckDiv.querySelectorAll("*").forEach(node => node.remove())
+    if (clusterNumber.value > 1) {
+      // add only if more than one cluster is selected
+      for (let i = 0; i < clusterNumber.value; i++) {
+        let clusterCheck = document.createElement("input")
+        let clusterLabel = document.createElement("label")
+        clusterCheck.setAttribute("type", "checkbox")
+        clusterCheck.setAttribute("id", "clusterCheck" + i)
+        clusterCheck.setAttribute("value", i)
+        clusterCheck.setAttribute("checked", true)
+        clusterCheck.addEventListener("change", this.setClusters.bind(this));
+        clusterLabel.setAttribute("for", clusterCheck.id)
+        clusterLabel.innerText = "Cluster " + (i + 1)
+        clusterCheckDiv.appendChild(clusterCheck)
+        clusterCheckDiv.appendChild(clusterLabel)
+      }
+    }
   }
 
 }
