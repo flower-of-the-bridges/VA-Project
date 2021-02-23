@@ -24,7 +24,7 @@ export default function () {
 
   let margin = { top: 20, right: 10, bottom: 30, left: 30 };
 
-  let width = 400 - margin.left - margin.right;
+  let width = 450 - margin.left - margin.right;
   let height = 260
 
   let x = d3.scaleBand().range([0, width]),
@@ -108,24 +108,60 @@ export default function () {
         y.domain(d3.extent(data, function (d) { return +d[yTopic]; }));
         /** boxplot */
 
-        // Show the main vertical line
-        focus.selectAll("#vert-lines").remove();
-        const lines = focus
+        xAxis = d3.axisBottom(x);
+        yAxis = d3.axisLeft(y);
+
+        focus.select("g.axis--x").remove();
+        focus.append("g")
+          .attr("class", "axis axis--x")
+          .attr('id', "axis--x")
+          .attr("transform", "translate(0," + y(0) + ")")
+          .call(xAxis);
+
+        focus.select("g.axis--y").remove();
+        focus.append("g")
+          .attr('id', "axis--y")
+          .attr("class", "axis axis--y")
+          .call(yAxis);
+
+        // Show the main vertical lines
+        focus.selectAll("#vert-lines-up").remove();
+        const linesUp = focus
           .selectAll("vertLines")
           .data(sumstat);
 
-        lines
+        linesUp
           .enter()
           .append("line")
-          .attr("id", "vert-lines")
+          .attr("id", "vert-lines-up")
           .attr("x1", function (d) { return (x(d.key)) })
           .attr("x2", function (d) { return (x(d.key)) })
-          .attr("y1", function (d) { return (y(d.value.min)) })
+          .attr("y1", function (d) { return (y(d.value.q3)) })
           .attr("y2", function (d) { return (y(d.value.max)) })
           .attr("stroke", "black")
+          .attr("stroke-dasharray", "5,5")
           .style("width", 40)
 
-        focus.select("#vert-lines").lower();
+        focus.select("#vert-lines-up").lower();
+
+        focus.selectAll("#vert-lines-down").remove();
+        const linesDown = focus
+          .selectAll("vertLines")
+          .data(sumstat);
+
+        linesDown
+          .enter()
+          .append("line")
+          .attr("id", "vert-lines-down")
+          .attr("x1", function (d) { return (x(d.key)) })
+          .attr("x2", function (d) { return (x(d.key)) })
+          .attr("y1", function (d) { return (y(d.value.q1)) })
+          .attr("y2", function (d) { return (y(d.value.min)) })
+          .attr("stroke", "black")
+          .attr("stroke-dasharray", "5,5")
+          .style("width", 40)
+
+        focus.select("#vert-lines-down").lower();
 
         // show max lines
         focus.selectAll("#max-lines").remove();
@@ -143,6 +179,68 @@ export default function () {
           .attr("y2", function (d) { return (y(d.value.max)) })
           .attr("stroke", "black")
           .attr("stroke-width", 2)
+
+        /** TEXT */
+        focus.selectAll(".boxtext").remove();
+        const maxText = focus
+          .selectAll("maxText")
+          .data(sumstat);
+        maxText
+          .enter()
+          .append("text")
+          .attr("x", function (d) { return (x(d.key) + boxWidth / 4) + 5 })
+          .attr("y", function (d) { return (y(d.value.max) + 3) })
+          .attr("text-anchor", "right")
+          .attr("class", "boxtext")
+          .text(function (d) { return d.value.max + "%" });
+
+        const minText = focus
+          .selectAll("minText")
+          .data(sumstat);
+        minText
+          .enter()
+          .append("text")
+          .attr("x", function (d) { return (x(d.key) + boxWidth / 4) + 5 })
+          .attr("y", function (d) { return (y(d.value.min) + 3) })
+          .attr("text-anchor", "right")
+          .attr("class", "boxtext")
+          .text(function (d) { return d.value.min + "%" });
+
+        const q1Text = focus
+          .selectAll("q1Text")
+          .data(sumstat);
+        q1Text
+          .enter()
+          .append("text")
+          .attr("x", function (d) { return (x(d.key) + boxWidth / 4) + 5 })
+          .attr("y", function (d) { return (y(d.value.q1) + 10) })
+          .attr("text-anchor", "right")
+          .attr("class", "boxtext")
+          .text(function (d) { return d.value.q1 + "%" });
+
+        const q3Text = focus
+          .selectAll("q3Text")
+          .data(sumstat);
+        q3Text
+          .enter()
+          .append("text")
+          .attr("x", function (d) { return (x(d.key) + boxWidth / 4) + 5 })
+          .attr("y", function (d) { return (y(d.value.q3) - 4) })
+          .attr("text-anchor", "right")
+          .attr("class", "boxtext")
+          .text(function (d) { return d.value.q3 + "%" });
+
+        const medianText = focus
+          .selectAll("medianText")
+          .data(sumstat);
+        medianText
+          .enter()
+          .append("text")
+          .attr("x", function (d) { return (x(d.key) + boxWidth / 2) + 5 })
+          .attr("y", function (d) { return (y(d.value.median)) })
+          .attr("text-anchor", "right")
+          .attr("class", "boxtext")
+          .text(function (d) { return d.value.median + "%" });
 
         // show min lines
         focus.selectAll("#min-lines").remove();
@@ -229,22 +327,7 @@ export default function () {
 
 
         /** AXIS */
-        xAxis = d3.axisBottom(x);
-        yAxis = d3.axisLeft(y);
-
-        focus.select("g.axis--x").remove();
-        focus.append("g")
-          .attr("class", "axis axis--x")
-          .attr('id', "axis--x")
-          .attr("transform", "translate(0," + y(0) + ")")
-          .call(xAxis);
-
-        focus.select("g.axis--y").remove();
-        focus.append("g")
-          .attr('id', "axis--y")
-          .attr("class", "axis axis--y")
-          .call(yAxis);
-
+    
         focus.append("text")
           .attr("transform", "rotate(-90)")
           .attr("y", 0 - margin.left)
