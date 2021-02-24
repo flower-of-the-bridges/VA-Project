@@ -12,46 +12,35 @@
 </head>
 
 <body>
-  <div class="header">
+  <div class="header" style="font-size: x-large;color: #8B0000;">
     <strong>Correlation between
       Covid-19
       and Mobility</strong><br />
-    <b id="selectedRecords" align="center">0</b>
-    <strong>records selected</strong>
+    <b id="selectedRecords" align="center" style="font-size: medium;">0</b>
+    <strong style="font-size: medium;">records selected</strong>
   </div>
-  <div class="container">
+  <div class="container" style="font-size: large;">
 
     <div id="time" class="box" align="center">
-      <div class="header">
+      <div class="header" style="background-color: 	 	#4682B4">
         <strong>Covid Time Series</strong>
       </div>
-      <div class="container" style="margin-bottom: 20px;">
-        <select id="covidChoice" onchange="app.changeTimeHandler()" style="max-width: 100%;">
-          <option value="new" checked>New Cases</option>
-          <option value="healed">Healed</option>
-          <option value="positives">Positives</option>
-          <option value="hospitalized">Hospitalized</option>
-          <option value="isolated">Isolated</option>
-          <option value="intensiveCare">Intensive Care</option>
-          <option value="death">Death</option>
-        </select>
-        <div style="margin-left: 10px;">
-          <div align="center">
-            <p style="display: inline;">Start:</p>
-            <input type="date" id="start" value="2020-02-24" min="2020-02-24" max="2020-12-31"
-              onchange="app.onMapUpdated()" disabled>
-            <span></span>
-            <p style="display: inline;">Finish:</p>
-            <input type="date" id="finish" value="2020-12-31" min="2020-02-24" max="2020-12-31"
-              onchange="app.onMapUpdated()" disabled>
-            <button id="brushTimeButton" onclick="app.clearTime()">Clear</button>
-
-            <input type="radio" id="brushTime" name="timeMode" value="false" checked>
-            <label for="brushTime">Brush</label>
-            <input type="radio" id="zoomTime" name="timeMode" value="true">
-            <label for="zoomTime">Zoom</label>
+      <div style="margin-bottom: 5px;">
+     
+        <div style="margin-right: 10px;">
+          <div align="center" style="margin-top: 10px; text-align: center;">
+            <select id="covidChoice" onchange="app.changeTimeHandler()" style="max-width: 100%;">
+              <option value="new" checked>New Cases</option>
+              <option value="healed">Healed</option>
+              <option value="positives">Positives</option>
+              <option value="hospitalized">Hospitalized</option>
+              <option value="isolated">Isolated</option>
+              <option value="intensiveCare">Intensive Care</option>
+              <option value="death">Death</option>
+            </select>
+           
           </div>
-          <div class="container" align="center">
+          <div class="container" style="margin-top: 15px; text-align: center;">
             <input type="checkbox" id="mon" name="week" value="0" checked>
             <label for="mon">Monday</label>
             <input type="checkbox" id="tue" name="week" value="1" checked>
@@ -67,16 +56,36 @@
             <input type="checkbox" id="sun" name="week" value="6" checked>
             <label for="sat">Sunday</label>
           </div>
+          <div style="justify-content: flex-end; ">
+          <div>
+          <br><input type="radio" id="brushTime" name="timeMode" value="false" checked>
+          <label for="brushTime">Brush</label>
+          <input type="radio" id="zoomTime" name="timeMode" value="true">
+          <label for="zoomTime">Zoom</label>
+          <button id="brushTimeButton" onclick="app.clearTime()">Clear</button>
+        </div>
+          <div style="text-align:left;margin-top:10px;margin-left:15px">
+          <p style="display: inline;">Start:</p>
+          <input type="date" id="start" value="2020-02-24" min="2020-02-24" max="2020-12-31"
+            onchange="app.onMapUpdated()" disabled>
+          <span></span>
+          <p style="display: inline;">Finish:</p>
+          <input type="date" id="finish" value="2020-12-31" min="2020-02-24" max="2020-12-31"
+            onchange="app.onMapUpdated()" disabled>
+          </div>
+          </div>
+          
+          
         </div>
       </div>
     </div>
 
-    <div id="mobility" class="box" align="center">
-      <div class="header">
+    <div id="mobility" class="box" align="center" >
+      <div class="header" style="background-color: #4682B4;">
         <strong>Mobility Boxplot</strong>
       </div>
       <!-- groceriesPharmacy,parks,residential,retailRecreation,transit,workplaces -->
-      <div align="center">
+      <div align="center" style="margin-top: 10px;">
         <select id="mobilityChoice" onchange="app.changeMobilityHandler()">
           <option value="groceriesPharmacy" checked>Groceries/Pharmacy</option>
 
@@ -95,17 +104,17 @@
       </div>
     </div>
 
-    <div id="map" class="boxmin" align="center">
-      <div class="header">
+    <div id="map" class="boxmin" align="center" >
+      <div class="header" style="background-color: #4682B4;">
         <strong>Italy Choropleth Map</strong>
       </div>
     </div>
 
     <div id="scatter" class="boxmin" align="center">
-      <div class="header">
+      <div class="header" style="background-color: #4682B4;">
         <strong>Correlation Scatter</strong>
       </div>
-      <div class="container" style="margin-top: 10px; margin-left: 10px; padding-left: 10px;justify-content: center;">
+      <div class="container" style="margin-top: 10px; margin-left: 10px; padding-left: 10px;justify-content: center; width:90%;">
         
         <div style="margin-right:130px; ">
         <label style="margin-left: 10px" id="textClusterNumber">Number of clusters: <strong

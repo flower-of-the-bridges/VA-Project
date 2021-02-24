@@ -8,7 +8,7 @@ export default function () {
   let regionData = regions.default
   let updateData, zoom, brushended, highlight;
 
-  let margin = { top: 50, right: 30, bottom: 30, left: 50 };
+  let margin = { top: 30, right: 30, bottom: 30, left: 50 };
 
   let width = 420;
   let height = 260;
@@ -52,7 +52,7 @@ export default function () {
     selection.each(function () {
       const dom = d3.select(this)
       const svg = dom.append("svg")
-        .attr("width", width + 2 * (margin.left + margin.right))
+        .attr("width", width + 4 * (margin.left + margin.right))
         .attr("height", height + margin.top);
 
       svg.append("defs").append("clipPath")
@@ -73,7 +73,8 @@ export default function () {
         svg.select("#legend").remove();
         let legend = svg.append("g")
           .attr("class", "focus")
-          .attr("id", "legend");
+          .attr("id", "legend")
+          .attr("transform", "translate(" + (10 + margin.left) + ","+ (10 + margin.top) + ")");
         clusterNumber.value > 1 ? createLegend(legend) : createRegionsLegend(legend);
         // domains
         if (!zoomMode) {

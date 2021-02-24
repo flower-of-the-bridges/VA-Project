@@ -40,7 +40,7 @@ export default function () {
   let margin = { top: 20, right: 30, bottom: 20, left: 50 };
 
   let width = 800 - margin.left - margin.right;
-  let height = 300 - margin.top - margin.bottom;
+  let height = 257 - margin.top - margin.bottom;
 
   let x = d3.scaleTime().range([0, width]),
     y = d3.scaleLinear().range([height, 0]);

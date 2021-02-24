@@ -8,7 +8,7 @@ export default function () {
     covidData = {},
     regionData = regions.default,
     width = 360,
-    height = 380;
+    height = 350;
 
   let updateData;
   let mapColor = null;
@@ -43,7 +43,7 @@ export default function () {
   // Geographic projection
   let projection = d3.geoAzimuthalEqualArea()
     .clipAngle(180 - 1e-3)
-    .scale(1800)
+    .scale(1700)
     .rotate([-12.22, -42, 0])
     .translate([width / 2, height / 2.2])
     .precision(0.1)

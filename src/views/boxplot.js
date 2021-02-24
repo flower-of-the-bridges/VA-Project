@@ -24,8 +24,8 @@ export default function () {
 
   let margin = { top: 20, right: 10, bottom: 30, left: 30 };
 
-  let width = 450 - margin.left - margin.right;
-  let height = 260
+  let width = 487.5 - margin.left - margin.right;
+  let height = 330
 
   let x = d3.scaleBand().range([0, width]),
     y = d3.scaleLinear().range([height, 0]);
@@ -50,7 +50,7 @@ export default function () {
     selection.each(function () {
       const dom = d3.select(this)
       const svg = dom.append("svg")
-        .attr("width", width + 4 * (margin.left + margin.right))
+        .attr("width", width + 7 * (margin.left + margin.right))
         .attr("height", height + margin.top + margin.bottom);
 
       svg.append("defs").append("clipPath")
@@ -61,7 +61,7 @@ export default function () {
 
       const focus = svg.append("g")
         .attr("class", "focus")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        .attr("transform", "translate(" + (70 + margin.left) + ","+ (10 + margin.top) + ")");
 
       let createLegend = function (legend) {
         selectedRegions.forEach((region, index) => {
@@ -81,7 +81,8 @@ export default function () {
         let legend = svg.append("g")
           .attr("id", "legend")
           .attr("class", "focus")
-          .attr("background", "lightsteelblue");
+          .attr("background", "lightsteelblue")
+          .attr("transform", "translate(" + (40 + margin.left) + ","+ (20 + margin.top) + ")");
         createLegend(legend);
 
         if (!brushMode && brush) {
