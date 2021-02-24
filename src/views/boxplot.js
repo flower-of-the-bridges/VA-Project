@@ -24,7 +24,7 @@ export default function () {
 
   let margin = { top: 20, right: 10, bottom: 30, left: 30 };
 
-  let width = 487.5 - margin.left - margin.right;
+  let width = 450 - margin.left - margin.right;
   let height = 330
 
   let x = d3.scaleBand().range([0, width]),
