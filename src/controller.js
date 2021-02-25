@@ -5,6 +5,21 @@ import { functions } from './util'
 
 class Controller {
   constructor() {
+    this.divs = {
+      "map-cnt": {
+        width: "30%"
+      }, 
+      "time-cnt": {
+        width: "70%"
+      }, 
+      "boxplot-cnt": {
+        width: "40%"
+      }, 
+      "scatter-cnt": {
+        width: "60%"
+      }
+    }
+    this.reduce = false;
     // Model
     this.model = model
     // Views
@@ -113,6 +128,22 @@ class Controller {
       // map data
       this.mapView.data(this.model.mapData, this.model.entries);
     }
+  }
+
+  zoomDiv(divToZoom, button){
+    Object.keys(this.divs).forEach(div =>{
+      let currentDiv = document.getElementById(div)
+      if(div!=divToZoom){
+        console.log("setting %s to none", div, currentDiv)
+        currentDiv.style.display = this.reduce ? "flex" : "none"
+      }
+      else{
+        currentDiv.style.width = this.reduce ? this.divs[div].width : "100%"
+        currentDiv.style.height = this.reduce ? "45.5vh" : "90vh"
+      }
+    })
+    this.reduce = !this.reduce
+    button.textContent = this.reduce ? "Reduce" : "Expand"
   }
 
   onTimeUpdated(){
@@ -390,7 +421,7 @@ class Controller {
         entry.selectedScatter = document.getElementById("clusterCheck" + entry.cluster).checked
       }
     });
-    this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, this.aggregate);
+    this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, false);
     this.model.onEntriesListChanged();
   }
 

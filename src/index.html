@@ -14,7 +14,7 @@
 <body>
 
   <p class="mainHeader">
-    Correlation between COVID-19 and Mobility in Italy
+    <strong>Correlation between COVID-19 and Mobility in Italy</strong>
     <br />
     <span id="selectedRecords">0</span> records selected
     <progress id="restLoading" value="50" max="100" hidden></progress>
@@ -26,6 +26,7 @@
       
       <p class="header">
         Italy - Choropleth Map
+        <button id="brushDivZoom" class="expand" onclick="app.zoomDiv('map-cnt', this)">Expand</button>
       </p>
 
     </div>
@@ -33,7 +34,8 @@
     <div id="time-cnt" class="mainItem">
       
       <p class="header">
-        COVID-19 - Time Series
+        <strong>COVID-19 - Time Series</strong>
+        <button id="timeDivZoom" class="expand" onclick="app.zoomDiv('time-cnt', this)">Expand</button>
       </p>
       <div class="menu-cnt">
         <div class="row-cnt">
@@ -53,6 +55,7 @@
             <input type="date" id="finish" value="2020-12-31" min="2020-02-24" max="2020-12-31"
               onchange="app.onTimeUpdated()">
           <button id="brushTimeButton" onclick="app.clearTime()">Clear</button>
+          
         </div>
 
         <div class="row-cnt">
@@ -87,7 +90,8 @@
     <div id="boxplot-cnt" class="mainItem">
       
       <p class="header">
-        Mobility - Boxplot
+        <strong>Mobility - Boxplot</strong>
+        <button id="boxDivZoom" class="expand" onclick="app.zoomDiv('boxplot-cnt', this)">Expand</button>
       </p>
       
       <!-- groceriesPharmacy,parks,residential,retailRecreation,transit,workplaces -->
@@ -110,12 +114,13 @@
       
       <p class="header">
         <strong>Correlation - Scatter Plot</strong>
+        <button id="scatterDivZoom" class="expand" onclick="app.zoomDiv('scatter-cnt', this)">Expand</button>
       </p>
       
       <div class="row-cnt">
         <label>Number of clusters: <strong
             id="textCluster">3</strong></label>
-        <input type="range" min="1" max="5" value="3" onchange="app.updateClusterNumber()" id="clusterNumber">
+        <input type="range" class="myrange" min="1" max="5" value="3" onchange="app.updateClusterNumber()" id="clusterNumber">
         <button id="computeButton" onclick="app.computeAggregate(true)">Compute aggregate</button>
         <button id="brushScatterButton" onclick="app.clearScatter()">Clear</button>
       </div>
