@@ -28,9 +28,9 @@ const app = async function () {
     // Create container
     const scatterContainer = d3.select('#scatter-cnt');
     const timeContainer = d3.select('#time-cnt')
-      .append("div")
-      .attr('class', 'mainItem')
-      .attr("id", "timeView");
+      //.append("div")
+      //.attr('class', 'mainItem')
+      //.attr("id", "timeView");
     const boxContainer = d3.select('#boxplot-cnt');
     const mapContainer = d3.select('#map-cnt');
     // Invoke view function

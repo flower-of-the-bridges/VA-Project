@@ -17,6 +17,7 @@
     Correlation between COVID-19 and Mobility in Italy
     <br />
     <span id="selectedRecords">0</span> records selected
+    <progress id="restLoading" value="50" max="100" hidden></progress>
   </p>
 
   <div class="mainContainer">
@@ -34,7 +35,6 @@
       <p class="header">
         COVID-19 - Time Series
       </p>
-      
       <div class="menu-cnt">
         <div class="row-cnt">
           <select id="covidChoice" onchange="app.changeTimeHandler()">
@@ -46,6 +46,12 @@
             <option value="intensiveCare">Intensive Care</option>
             <option value="death">Death</option>
           </select>
+            <label for="start">Start:</label>
+            <input type="date" id="start" value="2020-02-24" min="2020-02-24" max="2020-12-31"
+              onchange="app.onTimeUpdated()">
+            <label for="finish">Finish:</label>
+            <input type="date" id="finish" value="2020-12-31" min="2020-02-24" max="2020-12-31"
+              onchange="app.onTimeUpdated()">
           <button id="brushTimeButton" onclick="app.clearTime()">Clear</button>
         </div>
 
@@ -73,14 +79,7 @@
           <label for="zoomTime">Zoom</label>
         </div>
       
-        <div class="row-cnt">
-          Start:
-          <input type="date" id="start" value="2020-02-24" min="2020-02-24" max="2020-12-31"
-            onchange="app.onMapUpdated()" disabled>
-          Finish:
-          <input type="date" id="finish" value="2020-12-31" min="2020-02-24" max="2020-12-31"
-            onchange="app.onMapUpdated()" disabled>
-        </div>
+        
       </div>
 
     </div>
@@ -129,9 +128,6 @@
         <input type="radio" id="zoomScatter" name="scatterMode" value="true">
         <label for="zoomScatter">Zoom</label>
       </div>
-      
-      <progress id="restLoading" value="50" max="100" hidden></progress>
-
     </div>
 
   </div>

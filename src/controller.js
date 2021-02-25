@@ -115,6 +115,11 @@ class Controller {
     }
   }
 
+  onTimeUpdated(){
+    this.timeBrush = true;
+    this.onMapUpdated()
+    this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, this.aggregate);
+  }
   onMapUpdated() {
     console.log("update dates", new Date(start.value), new Date(finish.value), selectedRegions);
     start.max = finish.value;

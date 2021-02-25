@@ -57,11 +57,11 @@ export default function () {
         // .attr("width", width + 4 * (margin.left + margin.right))
         // .attr("height", height + margin.top);
 
-      svg.append("defs").append("clipPath")
-        .attr("id", "clip")
-        .append("rect")
-        .attr("width", actualWidth/*width + 2 + (margin.left + margin.right)*/)
-        .attr("height", actualHeight/*height + margin.top*/);
+      //svg.append("defs").append("clipPath")
+      //  .attr("id", "clipScatter")
+      //  .append("rect")
+        //.attr("width", actualWidth/*width + 2 + (margin.left + margin.right)*/)
+        //.attr("height", actualHeight/*height + margin.top*/);
 
       const focus = svg.append("g")
         .attr("class", "focus")
@@ -237,7 +237,7 @@ export default function () {
           .append("circle")
           .attr("id", "dots")
           .attr('class', 'dot')
-          .attr("clip-path", "url(#clip)")
+          //.attr("clip-path", "url(#clipScatter)")
           .attr("r", 5)
           .style("fill", d => clusterNumber.value > 1 ? clusterColor(d.cluster) : regionColor(d.region))
           .attr("stroke", "black")

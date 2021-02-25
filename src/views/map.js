@@ -84,19 +84,46 @@ export default function () {
       console.log("clicked %o with covidData %o. selected regions: %d", d, covidData[d.properties.reg_istat_code], data.clickCount);
     }
   }
+
+  let createPattern = (svg, color, id) => {
+    svg.append("pattern")
+      .attr("id", id)
+      .attr("width", 10)
+      .attr("height", 10)
+      .attr("patternTransform", "rotate(45 0 0)")
+      .attr("patternUnits", "userSpaceOnUse")
+      .append("line")
+        .attr("x1", "0")
+        .attr("x2", "0")
+        .attr("y1", "0")
+        .attr("y2", "10")
+        .style("stroke", color)
+        .style("stroke-width", "3")
+  }
+  let createPatternForRegions = () => {
+    selectedRegions.forEach(region =>{
+      createPattern(regionColor(region.id), region.id)
+    })
+    
+  } 
   const map = function (selection) {
     selection.each(function () {
       const dom = d3.select(this)
       const svg = dom.append('svg')
-        .attr('viewBox', '0 0 '+width+' '+height);
-        // .attr('height', height)
-        // .attr('width', width);
+        .attr('viewBox', '0 0 ' + width + ' ' + height);
+      // .attr('height', height)
+      // .attr('width', width);
 
       updateData = function () {
         if (svg.select("#map").empty()) {
           // if map group doesn't exist, create it
           svg.append("g")
             .attr("id", "map")
+
+          svg.append("g")
+            .attr("id", "map2")
+
+            //  width="10" height="10" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
         }
         // change threshold limit according to month. before august, cases detected where
         // lower due to shortness of case detection 
@@ -128,6 +155,44 @@ export default function () {
               )
               .style("stroke", d => d.properties.clicked ? regionColor(d.properties.reg_istat_code) : (data.clickCount == 0 ? regionColor(0) : "black"))
               .attr("stroke-width", "2")
+              //.on("click", d => {
+              //  onClick(d);
+              //})
+              ,
+            update => update
+              // change fill property based on the selection
+              .call(update => update
+                .transition()
+                .duration(1000)
+                .attr("fill", d => mapColor(covidData[d.properties.reg_istat_code] != null ? covidData[d.properties.reg_istat_code].casesXpeople : "black"))
+                //.style("stroke", d => d.properties.clicked ? regionColor(d.properties.reg_istat_code) : regionColor(0))
+                //.attr("stroke-width", d => d.properties.clicked || data.clickCount == 0 ? "2" : "1.5")
+                //.attr("opacity", d => data.wholeMap ? '1' : (d.properties.clicked ? '1' : '.5'))
+                //.style('fill', d => d.properties.clicked ? regionColor(d.properties.reg_istat_code) : regionColor(0))
+              ),
+            exit => exit
+              .call(exit => exit
+                .transition()
+                .duration(650)
+                .remove()
+              )
+          )
+
+        svg.select("#map2")
+          .selectAll("path")
+          .data(data.features) // set features
+          .join(
+            enter => enter
+              .append("path")
+              .attr("fill", d => {
+                createPattern(svg, regionColor("0"), "0")
+                return d.properties.clicked ? regionColor(d.properties.reg_istat_code) : (data.clickCount == 0 ? regionColor(0) : "black")}) // first time, no region is selected: all white 
+              .attr("d", d3.geoPath()
+                .projection(projection)
+              )
+              .style("stroke", d => d.properties.clicked ? regionColor(d.properties.reg_istat_code) : (data.clickCount == 0 ? regionColor(0) : "black"))
+              .attr("stroke-width", "2")
+              .attr("opacity", d => d.properties.clicked ? "1" : "0")
               .on("click", d => {
                 onClick(d);
               }),
@@ -135,10 +200,14 @@ export default function () {
               // change fill property based on the selection
               .call(update => update
                 .transition()
-                .duration(1000)
-                .attr("fill", d => mapColor(covidData[d.properties.reg_istat_code] != null ? covidData[d.properties.reg_istat_code].casesXpeople : "black"))
+                .duration(500)
+                .attr("fill", d => {
+                  d.properties.clicked && createPattern(svg, regionColor(d.properties.reg_istat_code), d.properties.reg_istat_code); 
+                  return d.properties.clicked ? "url(#"+d.properties.reg_istat_code+")" : ""
+                })
                 .style("stroke", d => d.properties.clicked ? regionColor(d.properties.reg_istat_code) : regionColor(0))
                 .attr("stroke-width", d => d.properties.clicked || data.clickCount == 0 ? "2" : "1.5")
+                .attr("opacity", d => d.properties.clicked ? "1" : "0")
                 //.attr("opacity", d => data.wholeMap ? '1' : (d.properties.clicked ? '1' : '.5'))
                 //.style('fill', d => d.properties.clicked ? regionColor(d.properties.reg_istat_code) : regionColor(0))
               ),

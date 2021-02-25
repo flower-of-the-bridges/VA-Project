@@ -37,8 +37,8 @@ export default function () {
 
   let idleTimeout, idleDelay = 350;
 
-  let width = 800, height = 210;
-  let margin = { top: 15, right: 20, bottom: 15, left: 50 };
+  let width = 830, height = 200;
+  let margin = { top: 15, right: 10, bottom: 15, left: 50 };
 
   let actualWidth = width - margin.left - margin.right;
   let actualHeight = height - margin.top - margin.bottom;
@@ -114,13 +114,13 @@ export default function () {
 
       let createLegend = function (legend) {
         selectedRegions.forEach((region, index) => {
-          legend.append("circle").attr("cx", actualWidth + 2.2 * margin.right).attr("cy", (index + 1) * margin.top).attr("r", 6).style("fill", regionColor(region.id))
-          legend.append("text").attr("x", actualWidth + 2.8 * margin.right).attr("y", (index + 1) * margin.top + 4.5).text(region.name).style("font-size", "13px").attr("alignment-baseline", "middle")
+          legend.append("circle").attr("cx", actualWidth + 5.5 * margin.right).attr("cy", (index + 1) * margin.top).attr("r", 5).style("fill", regionColor(region.id))
+          legend.append("text").attr("x", actualWidth + 6.5 * margin.right).attr("y", (index + 1) * margin.top + 4.5).text(region.name).style("font-size", "11px").attr("alignment-baseline", "middle")
         })
-        legend.append("line").attr("x1", actualWidth + 2 * margin.right).attr("y1", (selectedRegions.length + 1) * margin.top + 4.5).attr("x2", actualWidth + 2.5 * margin.right).attr("y2", (selectedRegions.length + 1) * margin.top + 4.5).style("stroke", "black")
-        legend.append("line").attr("x1", actualWidth + 2 * margin.right).attr("y1", (selectedRegions.length + 0.7) * margin.top + 4.5).attr("x2", actualWidth + 2 * margin.right).attr("y2", (selectedRegions.length + 1.3) * margin.top + 4.5).style("stroke", "black")
-        legend.append("line").attr("x1", actualWidth + 2.5 * margin.right).attr("y1", (selectedRegions.length + 0.7) * margin.top + 4.5).attr("x2", actualWidth + 2.5 * margin.right).attr("y2", (selectedRegions.length + 1.3) * margin.top + 4.5).style("stroke", "black")
-        legend.append("text").attr("x", actualWidth + 2.8 * margin.right).attr("y", (selectedRegions.length + 1.2) * margin.top + 4.5).text("1 week").style("font-size", "13px").attr("alignment-baseline", "middle")
+        legend.append("line").attr("x1", actualWidth + 5 * margin.right).attr("y1", (selectedRegions.length + 1) * margin.top + 4.5).attr("x2", actualWidth + 6 * margin.right).attr("y2", (selectedRegions.length + 1) * margin.top + 4.5).style("stroke", "black")
+        legend.append("line").attr("x1", actualWidth + 5 * margin.right).attr("y1", (selectedRegions.length + 0.7) * margin.top + 4.5).attr("x2", actualWidth + 5 * margin.right).attr("y2", (selectedRegions.length + 1.3) * margin.top + 4.5).style("stroke", "black")
+        legend.append("line").attr("x1", actualWidth + 6 * margin.right).attr("y1", (selectedRegions.length + 0.7) * margin.top + 4.5).attr("x2", actualWidth + 6 * margin.right).attr("y2", (selectedRegions.length + 1.3) * margin.top + 4.5).style("stroke", "black")
+        legend.append("text").attr("x", actualWidth + 6.5 * margin.right).attr("y", (selectedRegions.length + 1.2) * margin.top + 4.5).text("1 week").style("font-size", "11px").attr("alignment-baseline", "middle")
       }
 
       updateData = function () {

@@ -215,7 +215,7 @@ export default function () {
         q1Text
           .enter()
           .append("text")
-          .attr("x", function (d) { return (x(d.key) + boxWidth / 4) + 5 })
+          .attr("x", function (d) { return (x(d.key) + boxWidth / 2) + 5 })
           .attr("y", function (d) { return (y(d.value.q1) + 10) })
           .attr("text-anchor", "right")
           .attr("class", "boxtext")
@@ -227,7 +227,7 @@ export default function () {
         q3Text
           .enter()
           .append("text")
-          .attr("x", function (d) { return (x(d.key) + boxWidth / 4) + 5 })
+          .attr("x", function (d) { return (x(d.key) + boxWidth / 2) + 5 })
           .attr("y", function (d) { return (y(d.value.q3) - 4) })
           .attr("text-anchor", "right")
           .attr("class", "boxtext")

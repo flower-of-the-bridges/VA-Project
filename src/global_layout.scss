@@ -29,7 +29,6 @@ body {
     flex-wrap: wrap;
 
     // Just for debugging
-    background-color: greenyellow;
     // border: 2px solid red;
 }
 
@@ -48,38 +47,33 @@ div.mainItem {
 }
 
 #map-cnt {
-    width: 35%;
+    width: 30%;
 
     // Just for debugging
     // display: none;
-    background-color: hotpink;
     // border: 1px solid green;
 }
 
 #time-cnt {
-    width: 65%;
-
+    width: 70%;
     // Just for debugging
     // display: none;
-    background-color: indianred;
     // border: 1px solid green;
 }
 
 #boxplot-cnt {
-    width: 35%;
+    width: 40%;
 
     // Just for debugging
     // display: none;
-    background-color: gray;
     // border: 1px solid green;
 }
 
 #scatter-cnt {
-    width: 65%;
+    width: 60%;
 
     // Just for debugging
     // display: none;
-    background-color: rgb(117, 167, 117);
 }
 
 .header {
@@ -91,7 +85,7 @@ div.mainItem {
     font-weight: bold;
 
     border: 1px solid;
-    
+    background-color: steelblue;
     // Just for debugging
     // display: none;
 }
