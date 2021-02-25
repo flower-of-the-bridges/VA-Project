@@ -8,13 +8,14 @@ export default function () {
   let regionData = regions.default
   let updateData, zoom, brushended, highlight;
 
-  let margin = { top: 30, right: 30, bottom: 30, left: 50 };
+  let width = 600, height = 250;
+  let margin = { top: 15, right: 15, bottom: 15, left: 15 };
 
-  let width = 420;
-  let height = 260;
+  let actualWidth = width - margin.left - margin.right;
+  let actualHeight = height - margin.top - margin.bottom;
 
-  let x = d3.scaleLinear().range([0, width]),
-    y = d3.scaleLinear().range([height - margin.top - margin.bottom, 0]);
+  let x = d3.scaleLinear().range([0, actualWidth]),
+    y = d3.scaleLinear().range([actualHeight, 0]);
 
 
   let idleTimeout, idleDelay = 350;
@@ -52,14 +53,15 @@ export default function () {
     selection.each(function () {
       const dom = d3.select(this)
       const svg = dom.append("svg")
-        .attr("width", width + 4 * (margin.left + margin.right))
-        .attr("height", height + margin.top);
+        .attr('viewBox', '0 0 '+width+' '+height);
+        // .attr("width", width + 4 * (margin.left + margin.right))
+        // .attr("height", height + margin.top);
 
       svg.append("defs").append("clipPath")
         .attr("id", "clip")
         .append("rect")
-        .attr("width", width + 2 + (margin.left + margin.right))
-        .attr("height", height + margin.top);
+        .attr("width", actualWidth/*width + 2 + (margin.left + margin.right)*/)
+        .attr("height", actualHeight/*height + margin.top*/);
 
       const focus = svg.append("g")
         .attr("class", "focus")

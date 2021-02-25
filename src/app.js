@@ -26,12 +26,13 @@ const app = async function () {
   if (loaded && mapLoaded) {
     console.log("model loaded. entry #5000: %o", controller.model.entries[5000]);
     // Create container
-    const scatterContainer = d3.select('#scatter');
-    const timeContainer = d3.select('#time')
+    const scatterContainer = d3.select('#scatter-cnt');
+    const timeContainer = d3.select('#time-cnt')
       .append("div")
-      .attr("id", "#timeView");
-    const boxContainer = d3.select('#mobility');
-    const mapContainer = d3.select('#map');
+      .attr('class', 'mainItem')
+      .attr("id", "timeView");
+    const boxContainer = d3.select('#boxplot-cnt');
+    const mapContainer = d3.select('#map-cnt');
     // Invoke view function
     scatterContainer.call(window.app.scatter);
     timeContainer.call(window.app.time);

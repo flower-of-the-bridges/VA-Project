@@ -37,13 +37,14 @@ export default function () {
 
   let idleTimeout, idleDelay = 350;
 
-  let margin = { top: 20, right: 30, bottom: 20, left: 50 };
+  let width = 800, height = 210;
+  let margin = { top: 15, right: 20, bottom: 15, left: 50 };
 
-  let width = 750 - margin.left - margin.right;
-  let height = 257 - margin.top - margin.bottom;
+  let actualWidth = width - margin.left - margin.right;
+  let actualHeight = height - margin.top - margin.bottom;
 
-  let x = d3.scaleTime().range([0, width]),
-    y = d3.scaleLinear().range([height, 0]);
+  let x = d3.scaleTime().range([0, actualWidth]),
+    y = d3.scaleLinear().range([actualHeight, 0]);
 
   let xAxis, yAxis;
 
@@ -53,14 +54,15 @@ export default function () {
     selection.each(function () {
       const dom = d3.select(this)
       const svg = dom.append("svg")
-        .attr("width", width + 4 * (margin.left + margin.right))
-        .attr("height", height + margin.top + margin.bottom);
+        .attr('viewBox', '0 0 '+width+' '+height);
+        // .attr("width", actualWidth + 4 * (margin.left + margin.right))
+        // .attr("height", actualHeight + margin.top + margin.bottom);
 
       svg.append("defs").append("clipPath")
         .attr("id", "clip2")
         .append("rect")
-        .attr("width", width)
-        .attr("height", height);
+        .attr("width", actualWidth)
+        .attr("height", actualHeight);
 
 
       const focus = svg.append("g")
@@ -112,13 +114,13 @@ export default function () {
 
       let createLegend = function (legend) {
         selectedRegions.forEach((region, index) => {
-          legend.append("circle").attr("cx", width + 2.2 * margin.right).attr("cy", (index + 1) * margin.top).attr("r", 6).style("fill", regionColor(region.id))
-          legend.append("text").attr("x", width + 2.8 * margin.right).attr("y", (index + 1) * margin.top + 4.5).text(region.name).style("font-size", "13px").attr("alignment-baseline", "middle")
+          legend.append("circle").attr("cx", actualWidth + 2.2 * margin.right).attr("cy", (index + 1) * margin.top).attr("r", 6).style("fill", regionColor(region.id))
+          legend.append("text").attr("x", actualWidth + 2.8 * margin.right).attr("y", (index + 1) * margin.top + 4.5).text(region.name).style("font-size", "13px").attr("alignment-baseline", "middle")
         })
-        legend.append("line").attr("x1", width + 2 * margin.right).attr("y1", (selectedRegions.length + 1) * margin.top + 4.5).attr("x2", width + 2.5 * margin.right).attr("y2", (selectedRegions.length + 1) * margin.top + 4.5).style("stroke", "black")
-        legend.append("line").attr("x1", width + 2 * margin.right).attr("y1", (selectedRegions.length + 0.7) * margin.top + 4.5).attr("x2", width + 2 * margin.right).attr("y2", (selectedRegions.length + 1.3) * margin.top + 4.5).style("stroke", "black")
-        legend.append("line").attr("x1", width + 2.5 * margin.right).attr("y1", (selectedRegions.length + 0.7) * margin.top + 4.5).attr("x2", width + 2.5 * margin.right).attr("y2", (selectedRegions.length + 1.3) * margin.top + 4.5).style("stroke", "black")
-        legend.append("text").attr("x", width + 2.8 * margin.right).attr("y", (selectedRegions.length + 1.2) * margin.top + 4.5).text("1 week").style("font-size", "13px").attr("alignment-baseline", "middle")
+        legend.append("line").attr("x1", actualWidth + 2 * margin.right).attr("y1", (selectedRegions.length + 1) * margin.top + 4.5).attr("x2", actualWidth + 2.5 * margin.right).attr("y2", (selectedRegions.length + 1) * margin.top + 4.5).style("stroke", "black")
+        legend.append("line").attr("x1", actualWidth + 2 * margin.right).attr("y1", (selectedRegions.length + 0.7) * margin.top + 4.5).attr("x2", actualWidth + 2 * margin.right).attr("y2", (selectedRegions.length + 1.3) * margin.top + 4.5).style("stroke", "black")
+        legend.append("line").attr("x1", actualWidth + 2.5 * margin.right).attr("y1", (selectedRegions.length + 0.7) * margin.top + 4.5).attr("x2", actualWidth + 2.5 * margin.right).attr("y2", (selectedRegions.length + 1.3) * margin.top + 4.5).style("stroke", "black")
+        legend.append("text").attr("x", actualWidth + 2.8 * margin.right).attr("y", (selectedRegions.length + 1.2) * margin.top + 4.5).text("1 week").style("font-size", "13px").attr("alignment-baseline", "middle")
       }
 
       updateData = function () {
@@ -263,7 +265,7 @@ export default function () {
           brush = null;
         }
         if (!brush) {
-          brush = d3.brushX().extent([[0, 0], [width, height]]).on("end", brushended)
+          brush = d3.brushX().extent([[0, 0], [actualWidth, actualHeight]]).on("end", brushended)
           lastBrush++;
           focus.append("g")
             .attr("class", "timebrush")
@@ -349,7 +351,7 @@ export default function () {
         focus
           .attr("transform", `translate(${margin.left},0)`)
           .call(d3.axisRight(y)
-            .tickSize(width))
+            .tickSize(actualWidth))
           .call(g => g.select(".domain")
             .remove())
           .call(g => g.selectAll(".tick:not(:first-of-type) line")
@@ -365,14 +367,14 @@ export default function () {
           .attr("class", "axis axis--x")
           .attr('id', "axis--x")
           .attr("stroke-width", "2")
-          .attr("transform", "translate(0," + height + ")")
+          .attr("transform", "translate(0," + actualHeight + ")")
           .call(xAxis);
 
         focus.selectAll("#axis2--x").remove();
         focus.append("g")
           .attr("class", "axis axis--x")
           .attr('id', "axis2--x")
-          .attr("transform", "translate(0," + height + ")")
+          .attr("transform", "translate(0," + actualHeight + ")")
           .call(xAxis2);
 
         focus.selectAll("#axis--y").remove();
@@ -387,15 +389,15 @@ export default function () {
             .attr("transform", "rotate(-90)")
             .attr("id", "y-label")
             .attr("y", 0)
-            .attr("x", 0 - (height / 2))
+            .attr("x", 0 - (actualHeight / 2))
             .attr("dy", "1em")
             .style("text-anchor", "middle")
             .text("people");
 
           svg.append("text")
             .attr("transform",
-              "translate(" + ((width + margin.right + margin.left) / 2) + " ," +
-              (height + 1.5 * margin.bottom) + ")")
+              "translate(" + ((actualWidth + margin.right + margin.left) / 2) + " ," +
+              (actualHeight + 1.5 * margin.bottom) + ")")
             .style("text-anchor", "middle")
             .text("time");
         }

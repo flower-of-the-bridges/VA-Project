@@ -88,8 +88,9 @@ export default function () {
     selection.each(function () {
       const dom = d3.select(this)
       const svg = dom.append('svg')
-        .attr('height', height)
-        .attr('width', width);
+        .attr('viewBox', '0 0 '+width+' '+height);
+        // .attr('height', height)
+        // .attr('width', width);
 
       updateData = function () {
         if (svg.select("#map").empty()) {

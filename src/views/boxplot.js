@@ -22,13 +22,14 @@ export default function () {
   // rectangle for the main box
   let boxWidth = 100
 
+  let width = 450, height = 330;
   let margin = { top: 20, right: 10, bottom: 30, left: 30 };
 
-  let width = 420 - margin.left - margin.right;
-  let height = 330
+  let actualWidth = width - margin.left - margin.right;
+  let actualHeight = height - margin.top - margin.bottom;
 
-  let x = d3.scaleBand().range([0, width]),
-    y = d3.scaleLinear().range([height, 0]);
+  let x = d3.scaleBand().range([0, actualWidth]),
+    y = d3.scaleLinear().range([actualHeight, 0]);
 
   let xAxis, yAxis;
 
@@ -50,14 +51,15 @@ export default function () {
     selection.each(function () {
       const dom = d3.select(this)
       const svg = dom.append("svg")
-        .attr("width", width + 3.5 * (margin.left + margin.right))
-        .attr("height", height + margin.top + margin.bottom);
+        .attr('viewBox', '0 0 '+width+' '+height);
+        // .attr("width", actualWidth + 7 * (margin.left + margin.right))
+        // .attr("height", height + margin.top + margin.bottom);
 
       svg.append("defs").append("clipPath")
         .attr("id", "clip")
         .append("rect")
-        .attr("width", width)
-        .attr("height", height);
+        // .attr("width", actualWidth)
+        // .attr("height", height);
 
       const focus = svg.append("g")
         .attr("class", "focus")
@@ -65,8 +67,8 @@ export default function () {
 
       let createLegend = function (legend) {
         selectedRegions.forEach((region, index) => {
-          legend.append("circle").attr("cx", width + 4 * margin.right).attr("cy", (index + 1) * margin.top).attr("r", 6).style("fill", regionColor(region.id))
-          legend.append("text").attr("x", width + 5 * margin.right).attr("y", (index + 1) * margin.top + 4.5).text(region.name).style("font-size", "13px").attr("alignment-baseline", "middle")
+          legend.append("circle").attr("cx", actualWidth + 4 * margin.right).attr("cy", (index + 1) * margin.top).attr("r", 6).style("fill", regionColor(region.id))
+          legend.append("text").attr("x", actualWidth + 5 * margin.right).attr("y", (index + 1) * margin.top + 4.5).text(region.name).style("font-size", "13px").attr("alignment-baseline", "middle")
         })
       }
 
@@ -332,7 +334,7 @@ export default function () {
         focus.append("text")
           .attr("transform", "rotate(-90)")
           .attr("y", 0 - margin.left)
-          .attr("x", 0 - (height / 3))
+          .attr("x", 0 - (actualHeight / 3))
           .attr("dy", "1em")
           .style("text-anchor", "middle")
           .text("%");
@@ -393,7 +395,7 @@ export default function () {
         selectedRegions.forEach(region => {
           // create new brush for region
           let mybrush = d3.brushY()
-            .extent([[x(regionData[region.id].name) - boxWidth / 2, 0], [x(regionData[region.id].name) + boxWidth / 2, height]])
+            .extent([[x(regionData[region.id].name) - boxWidth / 2, 0], [x(regionData[region.id].name) + boxWidth / 2, actualHeight]])
             .on("end", () => { console.log(region.id); brushended(region.id) })
           brushes.push(mybrush)
           lastBrush++;
