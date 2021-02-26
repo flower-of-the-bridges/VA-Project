@@ -10,8 +10,9 @@ const app = async function () {
   window.selectedRegions = [{ id: "0", name: "Italy" }];
   initUI();
   //await preProcessData();
-  window.regionColor = d3.scaleOrdinal(d3.schemeTableau10);
-  window.clusterColor = d3.scaleOrdinal(d3.schemeSet3);
+  window.regionColor = d3.scaleOrdinal(['#4682B4','#008080','#FF42F9','#FF7F50','#4F4F4F ','#C20041','#0000A1','#A1E2FF','#00FFB2','#FF9F71'
+,'#B1B1D2','#00A0E0','#E29FC8','#b15928','#FF0041','#A1A100','#D2B06A','#FFC281','#8B008B','#BC8F8F','#B0E0E6','#CD5C5C','#DDA0DD' ]);
+  window.clusterColor = d3.scaleOrdinal(['#FFFF00 ','#fb9a99','#00E0E0','#984ea3','#600000']);
 
   let mapLoaded = await loadMap()
     .catch(err => {
