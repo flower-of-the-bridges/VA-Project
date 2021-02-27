@@ -104,11 +104,14 @@ class Controller {
     this.model.deleteEntry(entryId)
   }
   //
-  onEntriesListChanged(views) {
-    // first: update counter
+  setRecordText(){
     selectedRecords.textContent = this.model.entries.filter(d => {
       return d.selectedRegion && functions.isDrawable(d, this.timeBrush, this.boxBrush, this.scatterBrush)
     }).length;
+  }
+  onEntriesListChanged(views) {
+    // first: update counter
+    this.setRecordText();
     // if views are specified, update only them
     if (views && Array.isArray(views)) {
       views.forEach(view => {
@@ -267,6 +270,7 @@ class Controller {
     this.time.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush);
     this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, false);
     brushMobilityButton.disabled = true;
+    this.setRecordText();
   }
 
   clearTime() {
@@ -287,6 +291,7 @@ class Controller {
     this.onMapUpdated();
     this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, this.aggregate);
     brushTimeButton.disabled = true;
+    this.setRecordText();
   }
 
   clearScatter() {
@@ -305,6 +310,7 @@ class Controller {
     this.time.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush);
     this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, this.aggregate);
     brushScatterButton.disabled = true;
+    this.setRecordText();
   }
 
   canSelectData(data) {

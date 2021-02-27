@@ -1,10 +1,25 @@
 import * as d3 from 'd3'
+import { format } from 'd3';
 import { functions } from '../util'
+import { significativeDates } from './../significative_dates'
 
 export default function () {
   let data = [];
   let bins = [];
   let dataRegions = {};
+
+  let formatTime = d3.timeParse("%Y-%m-%d");
+
+  let findSignificativeDateIndex = function(date){
+    let dateIndex = -1;
+    significativeDates.forEach((significativeDate, index) =>{
+      
+      if(date.toLocaleDateString("en-CA") == significativeDate.date){
+        dateIndex = index
+      }
+    })
+    return dateIndex
+  }
 
   let yTopic = "";
 
@@ -40,7 +55,7 @@ export default function () {
   let width = 830, height = 200;
   let margin = { top: 15, right: 10, bottom: 15, left: 50 };
 
-  let actualWidth = width - 3 *(margin.left - margin.right);
+  let actualWidth = width - 3 * (margin.left - margin.right);
   let actualHeight = height - margin.top - margin.bottom;
 
   let x = d3.scaleTime().range([0, actualWidth]),
@@ -82,11 +97,12 @@ export default function () {
           focus.select("#focusCircle" + index).style("opacity", 1)
           svg.select("#dateText" + index).style("opacity", 1)
           svg.select("#yText" + index).style("opacity", 1)
+          svg.selectAll(".significativeText").attr("opacity", ".5")
         })
       }
 
       let mousemove = function () {
-
+        let currentDate = null;
         focus.selectAll(".timepath").each(function (pathData, index) {
           if (pathData) {
             let xOffset = 15;
@@ -95,23 +111,30 @@ export default function () {
             let x0 = x.invert(d3.mouse(this)[0]);
             let i = bisect(pathData, x0, 1);
             let selectedData = pathData[i]
+            currentDate = selectedData["date"]
             //console.log(selectedData, index);
             focus.select("#focusCircle" + index)
               .attr("cx", x(selectedData["date"]))
               .attr("cy", y(selectedData[yTopic]))
-            if(index == 0){
-            svg.select("#dateText" + index)
-              .text(selectedData.date.toLocaleDateString('en-US', { month: 'short' }) + " " + selectedData.date.getDate())
-              .attr("x", x(selectedData["date"]) + 2.33*xOffset)
-              .attr("y", y(0)+2)
+            if (index == 0) {
+              svg.select("#dateText" + index)
+                .text(selectedData.date.toLocaleDateString('en-US', { month: 'short' }) + " " + selectedData.date.getDate())
+                .attr("x", x(selectedData["date"]) + 2.33 * xOffset)
+                .attr("y", y(0) + 2)
             }
-            index!=0 && console.log(svg.select("#yText"+(index-1)).attr("y"))
+            index != 0 && console.log(svg.select("#yText" + (index - 1)).attr("y"))
             svg.select("#yText" + index)
               .text(selectedData[yTopic])
-              .attr("x", x(selectedData["date"])+60)//(index==0 ? x(selectedData["date"]) + xOffset : ((Number(svg.select("#yText"+(index-1)).attr("x"))+25))))
-              .attr("y", y(selectedData[yTopic]) +yOffset - (10*index))
+              .attr("x", x(selectedData["date"]) + 60)//(index==0 ? x(selectedData["date"]) + xOffset : ((Number(svg.select("#yText"+(index-1)).attr("x"))+25))))
+              .attr("y", y(selectedData[yTopic]) + yOffset - (10 * index))
           }
         })
+
+        if(currentDate){
+          let index = findSignificativeDateIndex(currentDate)
+          console.log(index, currentDate)
+          index!=-1 && svg.select("#significativeText_"+index).attr("opacity", "1")
+        } 
       }
 
       let mouseout = function () {
@@ -271,7 +294,13 @@ export default function () {
           svg.select("#axis--x").transition(transition).call(xAxis);
           svg.select("#axis2--x").transition(transition).call(xAxis2);
           svg.select("#axis--y").transition(transition).call(yAxis);
-
+          // update significative dates
+          svg.selectAll(".significativeDate").transition(transition)
+            .attr("x1", function () { return margin.left + x(formatTime(significativeDates[this.id.split("_")[1]].date)) })
+            .attr("x2", function () { return margin.left + x(formatTime(significativeDates[this.id.split("_")[1]].date)) })
+          svg.selectAll(".significativeText").transition(transition)
+            .attr("y", function () { return margin.left + x(formatTime(significativeDates[this.id.split("_")[1]].date)) })
+        
           focus.selectAll(".timepath").each(function (pathData, index) {
             pathData.forEach(d => {
               let xValue = x(d.date);
@@ -367,7 +396,7 @@ export default function () {
             .attr("stroke", regionColor(region.id))
             .attr("class", "focusCircle")
             .attr("stroke-width", "2")
-            .attr('r', 6)
+            .attr('r', 4)
             .attr("id", "focusCircle" + index)
             .style("opacity", 0)
 
@@ -444,21 +473,58 @@ export default function () {
           .attr("class", "axis axis--y")
           .call(yAxis);
 
-        if (focus.select("#y-label").empty()) {
+        svg.selectAll(".significativeDate").remove();
+        svg.selectAll(".significativeText").remove();
+        significativeDates.forEach((significativeDate, index) => {
+          svg.append("line")
+            .attr('id', "significativeDate_" + index)
+            .attr('class', 'significativeDate')
+            .attr("x1", margin.left + x(formatTime(significativeDate.date)))
+            .attr("x2", margin.left + x(formatTime(significativeDate.date)))
+            .attr("y1", y.range()[0])
+            .attr("y2", y.range()[1])
+            .attr("stroke-opacity", 0.5)
+            .attr("stroke-dasharray", "2,2")
+            .style("stroke", "black")
+            //.on("mouseover", function(){
+            //  let index = this.id.split("_")[1]
+            //  svg.select("#significativeText_"+index).attr("opacity", "1")
+            //})
+            //.on("mouseout", function(){
+            //  let index = this.id.split("_")[1]
+            //  svg.select("#significativeText_"+index).attr("opacity", ".5")
+            //})
+          svg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("id", "significativeText_" + index)
+            .attr("class", "significativeText")
+            .attr("y", margin.left + x(formatTime(significativeDate.date)))
+            .attr("x", 0 - (actualHeight / 2))
+            .attr("dy", "1em")
+            .attr("opacity", ".5")
+            .style("text-anchor", "middle")
+            .attr("font-weight", "bold")
+            .text(significativeDate.label);
+        })
+
+
+        if (focus.select("#y-label-text").empty()) {
 
           svg.append("text")
             .attr("transform", "rotate(-90)")
-            .attr("id", "y-label")
-            .attr("y", 0)
+            .attr("id", "y-label-text")
+            .attr("y", -10)
             .attr("x", 0 - (actualHeight / 2))
             .attr("dy", "1em")
             .style("text-anchor", "middle")
+            .attr("font-weight", "bold")
             .text("people");
 
           svg.append("text")
             .attr("transform",
-              "translate(" + ((actualWidth + margin.right + margin.left) / 2) + " ," +
-              (actualHeight + 1.5 * margin.bottom) + ")")
+              "translate(" + (actualWidth + 1.4*margin.right + margin.left) + " ," +
+              (actualHeight + 6) + ")")
+            .attr("font-weight", "bold")
             .style("text-anchor", "middle")
             .text("time");
         }

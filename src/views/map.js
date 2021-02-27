@@ -13,6 +13,8 @@ export default function () {
   let updateData;
   let mapColor = null;
 
+  let margin = { top: 20, right: 10, bottom: 30, left: 30 };
+
   let thresholds = {
     new: [1000, 5000],
     healed: [50000, 100000],
@@ -104,8 +106,20 @@ export default function () {
     selectedRegions.forEach(region =>{
       createPattern(regionColor(region.id), region.id)
     })
-    
   } 
+
+  let createLegend = function (svg) {
+    let legend = svg.append("g")
+          .attr("id", "legend")
+          .attr("class", "focus")
+          .attr("background", "lightsteelblue")
+          .attr("transform", "translate(" + margin.left - 10 + ","+ (20 + margin.top) + ")")
+    selectedRegions.forEach((region, index) => {
+      legend.append("circle").attr("cx", width - 100 ).attr("cy", (index + 1) * margin.top).attr("r", 6).style("fill", regionColor(region.id))
+      legend.append("text").attr("x", width -100 + margin.right).attr("y", (index + 1) * margin.top + 4.5).text(region.name).style("font-size", "13px").attr("alignment-baseline", "middle")
+    })
+  }
+
   const map = function (selection) {
     selection.each(function () {
       const dom = d3.select(this)
@@ -113,7 +127,7 @@ export default function () {
         .attr('viewBox', '0 0 ' + width + ' ' + height);
       // .attr('height', height)
       // .attr('width', width);
-
+      createLegend(svg)
       updateData = function () {
         if (svg.select("#map").empty()) {
           // if map group doesn't exist, create it
@@ -195,6 +209,8 @@ export default function () {
               .attr("opacity", d => d.properties.clicked ? "1" : "0")
               .on("click", d => {
                 onClick(d);
+                svg.select("#legend").remove()
+                createLegend(svg)
               }),
             update => update
               // change fill property based on the selection

@@ -297,7 +297,7 @@ export default function () {
           .style("width", 80);
 
         // Add individual points with jitter
-        var jitterWidth = 50;
+        var jitterWidth = boxWidth - 20;
 
         focus.selectAll("#data-points").remove();
         let points = focus
@@ -320,7 +320,7 @@ export default function () {
             //else {
             //  d.selectedMobility ? '1' : '.5';
             //}
-            if (scatterBrush) {
+            if (scatterBrush || boxBrush) {
               return functions.isDrawable(d, timeBrush, boxBrush, scatterBrush) ? "1" : "0"
             }
             else

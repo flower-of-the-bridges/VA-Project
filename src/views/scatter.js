@@ -8,7 +8,7 @@ export default function () {
   let regionData = regions.default
   let updateData, zoom, brushended, highlight;
 
-  let width = 600, height = 250;
+  let width = 570, height = 250;
   let margin = { top: 15, right: 15, bottom: 15, left: 15 };
 
   let actualWidth = width - margin.left - margin.right;
@@ -39,12 +39,12 @@ export default function () {
 
     selectedRegions.forEach((region, index) => {
       legend.append("circle")
-        .attr("cx", width - 0.09*width)
+        .attr("cx", width - 30)
         .attr("cy", (index+1)*3*radius)
         .attr("r", radius)
         .style("fill", regionColor(region.id))
       legend.append("text")
-        .attr("x",  width - 0.08*width)
+        .attr("x",  width -20)
         .attr("y", (index+1)*3*radius + radius)
         .text(region.name)
         .style("font-size", "13px")
@@ -56,12 +56,12 @@ export default function () {
 
     for (let i = 0; i < clusterNumber.value; i++) {
       legend.append("circle")
-        .attr("cx",  width - 0.09*width)
+        .attr("cx",  width - 30)
         .attr("cy", (i+1)*3*radius)
         .attr("r", radius)
         .style("fill", clusterColor(i))
       legend.append("text")
-        .attr("x", width - 0.08*width)
+        .attr("x", width - 20)
         .attr("y", (i+1)*3*radius + radius)
         .text("Cluster " + (i + 1))
         .style("font-size", "13px")
