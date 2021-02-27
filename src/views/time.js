@@ -40,7 +40,7 @@ export default function () {
   let width = 830, height = 200;
   let margin = { top: 15, right: 10, bottom: 15, left: 50 };
 
-  let actualWidth = width - margin.left - margin.right;
+  let actualWidth = width - 3 *(margin.left - margin.right);
   let actualHeight = height - margin.top - margin.bottom;
 
   let x = d3.scaleTime().range([0, actualWidth]),
@@ -54,9 +54,9 @@ export default function () {
     selection.each(function () {
       const dom = d3.select(this)
       const svg = dom.append("svg")
-        .attr('viewBox', '0 0 '+width+' '+height);
-        // .attr("width", actualWidth + 4 * (margin.left + margin.right))
-        // .attr("height", actualHeight + margin.top + margin.bottom);
+        .attr('viewBox', '0 0 ' + width + ' ' + height);
+      // .attr("width", actualWidth + 4 * (margin.left + margin.right))
+      // .attr("height", actualHeight + margin.top + margin.bottom);
 
       svg.append("defs").append("clipPath")
         .attr("id", "clip2")
@@ -80,7 +80,8 @@ export default function () {
       let mouseover = function () {
         focus.selectAll(".timepath").each(function (_, index) {
           focus.select("#focusCircle" + index).style("opacity", 1)
-          svg.select("#focusText" + index).style("opacity", 1)
+          svg.select("#dateText" + index).style("opacity", 1)
+          svg.select("#yText" + index).style("opacity", 1)
         })
       }
 
@@ -88,6 +89,8 @@ export default function () {
 
         focus.selectAll(".timepath").each(function (pathData, index) {
           if (pathData) {
+            let xOffset = 15;
+            let yOffset = -10
             // recover coordinate we need
             let x0 = x.invert(d3.mouse(this)[0]);
             let i = bisect(pathData, x0, 1);
@@ -96,10 +99,17 @@ export default function () {
             focus.select("#focusCircle" + index)
               .attr("cx", x(selectedData["date"]))
               .attr("cy", y(selectedData[yTopic]))
-            svg.select("#focusText" + index)
-              .html("date:" + selectedData["date"].toLocaleDateString("en-CA") + "  -  " + "" + yTopic + ": " + selectedData[yTopic])
-              .attr("x", x(selectedData["date"]) + 15)
-              .attr("y", y(selectedData[yTopic]) + 20)
+            if(index == 0){
+            svg.select("#dateText" + index)
+              .text(selectedData.date.toLocaleDateString('en-US', { month: 'short' }) + " " + selectedData.date.getDate())
+              .attr("x", x(selectedData["date"]) + 2.33*xOffset)
+              .attr("y", y(0)+2)
+            }
+            index!=0 && console.log(svg.select("#yText"+(index-1)).attr("y"))
+            svg.select("#yText" + index)
+              .text(selectedData[yTopic])
+              .attr("x", x(selectedData["date"])+60)//(index==0 ? x(selectedData["date"]) + xOffset : ((Number(svg.select("#yText"+(index-1)).attr("x"))+25))))
+              .attr("y", y(selectedData[yTopic]) +yOffset - (10*index))
           }
         })
       }
@@ -108,48 +118,50 @@ export default function () {
         console.log("mouseout")
         focus.selectAll(".timepath").each(function (_, index) {
           focus.select("#focusCircle" + index).style("opacity", 0)
-          svg.select("#focusText" + index).style("opacity", 0)
+          svg.select("#dateText" + index).style("opacity", 0)
+          svg.select("#yText" + index).style("opacity", 0)
         })
       }
 
       let createLegend = function (legend) {
         let radius = 5;
+        let timeOffset = 10;
 
         selectedRegions.forEach((region, index) => {
           legend.append("circle")
             // .attr("cx", actualWidth + 5.5 * margin.right)
-            .attr("cx", width - 0.06*width)
-            .attr("cy", (index+1)*2*radius)
+            .attr("cx", width - 0.06 * width)
+            .attr("cy", (index + 1) * 2 * radius)
             .attr("r", radius)
             .style("fill", regionColor(region.id))
           legend.append("text")
-            .attr("x", width - 0.05*width)
-            .attr("y", (index+1)*2*radius + radius/2)
+            .attr("x", width - 0.05 * width)
+            .attr("y", (index + 1) * 2 * radius + radius / 2)
             .text(region.name)
             .style("font-size", "11px")
             .attr("alignment-baseline", "middle")
         })
         legend.append("line")
-          .attr("x1", (width - 0.06*width) - radius)
-          .attr("y1", (selectedRegions.length + 1) * margin.top + 4.5)
-          .attr("x2", ((width - 0.06*width) - radius) + 2*radius)
-          .attr("y2", (selectedRegions.length + 1) * margin.top + 4.5)
+          .attr("x1", (width - 0.06 * width) - radius)
+          .attr("y1", (selectedRegions.length + 1) * timeOffset)
+          .attr("x2", ((width - 0.06 * width) - radius) + 2 * radius)
+          .attr("y2", (selectedRegions.length + 1) * timeOffset)
           .style("stroke", "black")
         legend.append("line")
-          .attr("x1", (width - 0.06*width) - radius)
-          .attr("y1", (selectedRegions.length + 0.7) * margin.top + 4.5)
-          .attr("x2", (width - 0.06*width) - radius)
-          .attr("y2", (selectedRegions.length + 1.3) * margin.top + 4.5)
+          .attr("x1", (width - 0.06 * width) - radius)
+          .attr("y1", (selectedRegions.length + 0.7) * timeOffset)
+          .attr("x2", (width - 0.06 * width) - radius)
+          .attr("y2", (selectedRegions.length + 1.3) * timeOffset)
           .style("stroke", "black")
         legend.append("line")
-          .attr("x1", ((width - 0.06*width) - radius) + 2*radius)
-          .attr("y1", (selectedRegions.length + 0.7) * margin.top + 4.5)
-          .attr("x2", ((width - 0.06*width) - radius) + 2*radius)
-          .attr("y2", (selectedRegions.length + 1.3) * margin.top + 4.5)
+          .attr("x1", ((width - 0.06 * width) - radius) + 2 * radius)
+          .attr("y1", (selectedRegions.length + 0.7) * timeOffset)
+          .attr("x2", ((width - 0.06 * width) - radius) + 2 * radius)
+          .attr("y2", (selectedRegions.length + 1.3) * timeOffset)
           .style("stroke", "black")
         legend.append("text")
-          .attr("x", width - 0.05*width)
-          .attr("y", (selectedRegions.length + 1.2) * margin.top + 4.5)
+          .attr("x", width - 0.05 * width)
+          .attr("y", (selectedRegions.length + 1.2) * timeOffset)
           .text("1 week")
           .style("font-size", "11px")
           .attr("alignment-baseline", "middle")
@@ -169,7 +181,10 @@ export default function () {
         }
         functions.logViewStatus("time series", data.length, timeBrush, boxBrush, scatterBrush)
         /** path */
-
+        /** remove previous data */
+        focus.selectAll(".dateText").remove()
+        svg.selectAll(".yText").remove()
+        focus.selectAll(".focusCircle").remove()
         focus.selectAll("path")
           .transition()
           .duration(500)
@@ -302,9 +317,9 @@ export default function () {
           focus.append("g")
             .attr("class", "timebrush")
             .attr("id", "timebrush" + lastBrush)
-            //.on('mouseover', mouseover)
-            //.on('mousemove', mousemove)
-            //.on('mouseout', mouseout)
+            .on('mouseover', mouseover)
+            .on('mousemove', mousemove)
+            .on('mouseout', mouseout)
             .call(brush);
         }
 
@@ -337,7 +352,7 @@ export default function () {
             .attr("stroke-width", "2")
             .attr("class", "unselectedtimepath")
             .attr("clip-path", "url(#clip2)")
-            .attr("opacity", ".5")
+            .attr("opacity", ".3")
             .attr("d",
               unselectedLine
                 .x(function (d) { return x(d.date) })
@@ -350,6 +365,7 @@ export default function () {
             .append('circle')
             .style("fill", "none")
             .attr("stroke", regionColor(region.id))
+            .attr("class", "focusCircle")
             .attr("stroke-width", "2")
             .attr('r', 6)
             .attr("id", "focusCircle" + index)
@@ -360,9 +376,22 @@ export default function () {
             .append('text')
             .style("opacity", 0)
             .attr("dy", "2em")
+            .attr("class", "dateText")
+            .attr("text-anchor", "center")
+            .attr("alignment-baseline", "middle")
+            //.attr("fill", regionColor(region.id))
+            .attr("font-weight", "bold")
+            .attr("id", "dateText" + index)
+          svg
+            .append('text')
+            .style("opacity", 0)
+            .attr("dy", "2em")
+            .attr("class", "yText")
             .attr("text-anchor", "left")
             .attr("alignment-baseline", "middle")
-            .attr("id", "focusText" + index)
+            .attr("fill", regionColor(region.id))
+            .attr("font-weight", "bold")
+            .attr("id", "yText" + index)
         });
 
         /** AXIS */

@@ -111,7 +111,7 @@ export default function () {
         y.domain(d3.extent(data, function (d) { return +d[yTopic]; }));
         /** boxplot */
 
-        xAxis = d3.axisBottom(x);
+        xAxis = d3.axisBottom(x).tickFormat((_) => "");
         yAxis = d3.axisLeft(y);
 
         focus.select("g.axis--x").remove();
@@ -194,7 +194,7 @@ export default function () {
           .attr("x", function (d) { return (x(d.key) + boxWidth / 4) + 5 })
           .attr("y", function (d) { return (y(d.value.max) + 3) })
           .attr("text-anchor", "right")
-          .attr("class", "boxtext")
+          .attr("class", "boxtext").attr("font-weight", "bold")
           .text(function (d) { return d.value.max + "%" });
 
         const minText = focus
@@ -206,7 +206,7 @@ export default function () {
           .attr("x", function (d) { return (x(d.key) + boxWidth / 4) + 5 })
           .attr("y", function (d) { return (y(d.value.min) + 3) })
           .attr("text-anchor", "right")
-          .attr("class", "boxtext")
+          .attr("class", "boxtext").attr("font-weight", "bold")
           .text(function (d) { return d.value.min + "%" });
 
         const q1Text = focus
@@ -218,7 +218,7 @@ export default function () {
           .attr("x", function (d) { return (x(d.key) + boxWidth / 2) + 5 })
           .attr("y", function (d) { return (y(d.value.q1) + 10) })
           .attr("text-anchor", "right")
-          .attr("class", "boxtext")
+          .attr("class", "boxtext").attr("font-weight", "bold")
           .text(function (d) { return d.value.q1 + "%" });
 
         const q3Text = focus
@@ -230,7 +230,7 @@ export default function () {
           .attr("x", function (d) { return (x(d.key) + boxWidth / 2) + 5 })
           .attr("y", function (d) { return (y(d.value.q3) - 4) })
           .attr("text-anchor", "right")
-          .attr("class", "boxtext")
+          .attr("class", "boxtext").attr("font-weight", "bold")
           .text(function (d) { return d.value.q3 + "%" });
 
         const medianText = focus
@@ -242,7 +242,7 @@ export default function () {
           .attr("x", function (d) { return (x(d.key) + boxWidth / 2) + 5 })
           .attr("y", function (d) { return (y(d.value.median)) })
           .attr("text-anchor", "right")
-          .attr("class", "boxtext")
+          .attr("class", "boxtext").attr("font-weight", "bold")
           .text(function (d) { return d.value.median + "%" });
 
         // show min lines
