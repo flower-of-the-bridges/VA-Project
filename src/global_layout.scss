@@ -37,7 +37,7 @@ div.mainItem {
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
-    justify-content: center;
+    // justify-content: center;
     align-items: stretch;
 
     // Just for debugging
@@ -99,6 +99,10 @@ div.mainItem {
 .row-cnt {
     text-align: center;
 }
+
+// svg {
+//     margin: 25px;
+// }
 
 p {
     margin: 0;
