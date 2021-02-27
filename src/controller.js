@@ -329,7 +329,10 @@ class Controller {
 
   computeAggregate(updateAggregateField) {
     /** ui check */
-    restLoading.hidden = false; // show loading scree
+    // Show loader, hide scatterplot
+    document.getElementById('loader').style.display = "flex";
+    document.querySelector("#scatter-cnt svg").style.display = "none";
+
     computeButton.disabled = true; // disable button
     let clusters = clusterNumber.value;
     this.setClusterCheck();
@@ -380,7 +383,11 @@ class Controller {
           entry["Y2"] = responseData[1];
           entry["cluster"] = responseData[2];
         });
-        restLoading.hidden = true;
+
+        // Hide loader, show scatter plot
+        document.getElementById('loader').style.display = "none";
+        document.querySelector("#scatter-cnt svg").style.display = "initial";
+
         computeButton.disabled = false; // disable button
         clusterNumber.disabled = false;
 
