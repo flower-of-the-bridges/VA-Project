@@ -35,15 +35,37 @@ export default function () {
 
 
   let createRegionsLegend = function (legend) {
+    let radius = 5;
+
     selectedRegions.forEach((region, index) => {
-      legend.append("circle").attr("cx", width + 1.5 * margin.right).attr("cy", (index + 1) * margin.top).attr("r", 6).style("fill", regionColor(region.id))
-      legend.append("text").attr("x", width + 2 * margin.right).attr("y", (index + 1) * margin.top + 4.5).text(region.name).style("font-size", "13px").attr("alignment-baseline", "middle")
+      legend.append("circle")
+        .attr("cx", width - 0.09*width)
+        .attr("cy", (index+1)*3*radius)
+        .attr("r", radius)
+        .style("fill", regionColor(region.id))
+      legend.append("text")
+        .attr("x",  width - 0.08*width)
+        .attr("y", (index+1)*3*radius + radius)
+        .text(region.name)
+        .style("font-size", "13px")
+        .attr("alignment-baseline", "middle")
     })
   }
   let createLegend = function (legend) {
+    let radius = 5;
+
     for (let i = 0; i < clusterNumber.value; i++) {
-      legend.append("circle").attr("cx", width + 2.5 * margin.right).attr("cy", (i + 1) * margin.top).attr("r", 6).style("fill", clusterColor(i))
-      legend.append("text").attr("x", width + 3 * margin.right).attr("y", (i + 1) * margin.top + 4.5).text("Cluster " + (i + 1)).style("font-size", "13px").attr("alignment-baseline", "middle")
+      legend.append("circle")
+        .attr("cx",  width - 0.09*width)
+        .attr("cy", (i+1)*3*radius)
+        .attr("r", radius)
+        .style("fill", clusterColor(i))
+      legend.append("text")
+        .attr("x", width - 0.08*width)
+        .attr("y", (i+1)*3*radius + radius)
+        .text("Cluster " + (i + 1))
+        .style("font-size", "13px")
+        .attr("alignment-baseline", "middle")
     }
   }
 
