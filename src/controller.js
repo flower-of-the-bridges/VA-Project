@@ -446,6 +446,18 @@ class Controller {
     }
   }
 
+  credits(){
+    alert(
+      "Datasets:\n"+
+      "- Dati COVID-19 Italia [pcm-dpc] (CC-BY-4.0)\n"+
+      "- COVID-19 Community Mobility Reports [google] (CC-BY-4.0)\n"+
+      "Authors:\n"+
+      "- Giovanni Fiordeponti\n"+
+      "- Antonio Ionta\n"+
+      "- Silvia Marchiori\n"
+    )
+  }
+
 }
 
 export default new Controller()
