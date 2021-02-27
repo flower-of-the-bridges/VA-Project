@@ -265,7 +265,7 @@ class Controller {
     this.scatter.setBrushMode(false);
     this.boxplot.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush);
     this.time.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush);
-    this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, this.aggregate);
+    this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, false);
     brushMobilityButton.disabled = true;
   }
 
