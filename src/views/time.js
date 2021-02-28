@@ -53,7 +53,7 @@ export default function () {
   let idleTimeout, idleDelay = 350;
 
   let width = 830, height = 200;
-  let margin = { top: 15, right: 10, bottom: 15, left: 50 };
+  let margin = { top: 15, right: 10, bottom: 30, left: 60 };
 
   let actualWidth = width - 3 * (margin.left - margin.right);
   let actualHeight = height - margin.top - margin.bottom;
@@ -439,7 +439,6 @@ export default function () {
         yAxis = d3.axisLeft(y);
 
         focus
-          .attr("transform", `translate(${margin.left},0)`)
           .call(d3.axisRight(y)
             .tickSize(actualWidth))
           .call(g => g.select(".domain")
@@ -481,8 +480,8 @@ export default function () {
             .attr('class', 'significativeDate')
             .attr("x1", margin.left + x(formatTime(significativeDate.date)))
             .attr("x2", margin.left + x(formatTime(significativeDate.date)))
-            .attr("y1", y.range()[0])
-            .attr("y2", y.range()[1])
+            .attr("y1", margin.top + y.range()[0])
+            .attr("y2", margin.top + y.range()[1])
             .attr("stroke-opacity", 0.5)
             .attr("stroke-dasharray", "2,2")
             .style("stroke", "black")
@@ -513,7 +512,7 @@ export default function () {
           svg.append("text")
             .attr("transform", "rotate(-90)")
             .attr("id", "y-label-text")
-            .attr("y", -10)
+            .attr("y", 0)
             .attr("x", 0 - (actualHeight / 2))
             .attr("dy", "1em")
             .style("text-anchor", "middle")
@@ -521,9 +520,7 @@ export default function () {
             .text("people");
 
           svg.append("text")
-            .attr("transform",
-              "translate(" + (actualWidth + 1.4*margin.right + margin.left) + " ," +
-              (actualHeight + 6) + ")")
+            .attr("transform", 'translate(' + (actualWidth+1.3*margin.left) + ', ' + (actualHeight+1.2*margin.top) + ')')
             .attr("font-weight", "bold")
             .style("text-anchor", "middle")
             .text("time");
