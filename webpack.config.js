@@ -39,6 +39,10 @@ const config = {
             loader: 'file-loader',
           },
         ],
+      },
+      {
+        test: /\.(svg|eot|woff|woff2|ttf)$/,
+        use: ['file-loader']
       }
     ]
   },
