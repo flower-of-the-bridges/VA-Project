@@ -146,7 +146,14 @@ class Controller {
       }
     })
     this.reduce = !this.reduce
-    button.textContent = this.reduce ? "Reduce" : "Expand"
+    if(this.reduce) {
+      document.querySelector(`#${divToZoom} .fa-expand`).style.display = "none";
+      document.querySelector(`#${divToZoom} .fa-compress`).style.display = "initial";
+    }
+    else {
+      document.querySelector(`#${divToZoom} .fa-compress`).style.display = "none";
+      document.querySelector(`#${divToZoom} .fa-expand`).style.display = "initial";
+    }
   }
 
   onTimeUpdated(){
@@ -465,13 +472,34 @@ class Controller {
     alert(
       "Datasets:\n"+
       "- Dati COVID-19 Italia [pcm-dpc] (CC-BY-4.0)\n"+
+      "https://github.com/pcm-dpc/COVID-19\n"+
       "- COVID-19 Community Mobility Reports [google] (CC-BY-4.0)\n"+
+      "https://www.google.com/covid19/mobility/\n\n"+
       "Authors:\n"+
       "- Giovanni Fiordeponti\n"+
       "- Antonio Ionta\n"+
       "- Silvia Marchiori\n"
     )
   }
+
+  collapsible(cntId) {
+    let coll = document.querySelector(`#${cntId} .collapsible`);
+
+    coll.classList.toggle("active");
+    
+    let content = document.querySelector(`#${cntId} .menu-cnt`);
+    if (!content.style.display || content.style.display == "none") {
+      content.style.display = "flex";
+      let h = document.querySelector(`#${cntId} .header`).offsetHeight;
+      content.style.top = `${h}px`;
+      document.querySelector(`#${cntId} .fa-chevron-down`).style.display = "none";
+      document.querySelector(`#${cntId} .fa-chevron-up`).style.display = "initial";
+    }
+    else {
+      content.style.display = "none";
+      document.querySelector(`#${cntId} .fa-chevron-up`).style.display = "none";
+      document.querySelector(`#${cntId} .fa-chevron-down`).style.display = "initial";
+    } 
 
 }
 

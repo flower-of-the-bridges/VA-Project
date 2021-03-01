@@ -3,6 +3,7 @@ $loader-color: #fff;
 $loader-size: 3em;
 
 #loader {
+    z-index: 2;
     position: absolute;
     top: 50%;
     left: 50%;

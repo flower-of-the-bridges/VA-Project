@@ -5,7 +5,7 @@ body {
     flex-direction: column;
     flex-wrap: nowrap;
 
-    font-family: sans-serif;
+    font-family: 'Roboto', sans-serif;
 }
 
 .mainHeader {
@@ -14,6 +14,9 @@ body {
 
     text-align: center;
     font-weight: bold;
+    font-size: 1.1em;
+
+    padding: 4px;
 
     background-color: steelblue;
 
@@ -32,7 +35,7 @@ body {
 }
 
 div.mainItem {
-    height: 45.5vh;
+    height: 45vh;
 
     display: flex;
     flex-direction: column;
@@ -48,6 +51,8 @@ div.mainItem {
 #map-cnt {
     width: 30%;
 
+    position: relative;
+
     // Just for debugging
     // display: none;
     // border: 1px solid green;
@@ -55,6 +60,9 @@ div.mainItem {
 
 #time-cnt {
     width: 70%;
+
+    position: relative;
+
     // Just for debugging
     // display: none;
     // border: 1px solid green;
@@ -62,6 +70,8 @@ div.mainItem {
 
 #boxplot-cnt {
     width: 40%;
+
+    position: relative;
 
     // Just for debugging
     // display: none;
@@ -79,6 +89,8 @@ div.mainItem {
 
 .header {
     align-self: flex-start;
+
+    position: relative;
 
     width: 100%;
 
@@ -123,8 +135,33 @@ text.boxtext {
     padding-top: -10px;
 }
 
-button.expand {
-    background-color: steelblue;
-    border-radius: 10px;
-    border-color: #000;
+.header button, .mainHeader button {
+    border: none;
+    background-color: transparent;
+}
+
+#credits {
+    color: white;
+    cursor: pointer;
+}
+#credits:hover {
+    background-color: #555;
+}
+
+.header .expand {
+    position: absolute;
+    right: 85px;
+
+    // background-color: #777;
+    color: white;
+    cursor: pointer;
+}
+.header .expand:hover {
+    background-color: #555;
+}
+.header .fa-compress {
+    display: none;
+}
+#map-cnt .expand {
+    right: 0;
 }

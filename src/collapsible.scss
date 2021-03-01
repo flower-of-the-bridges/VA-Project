@@ -1,0 +1,59 @@
+.collapsible {
+    position: absolute;
+    right: 0;
+
+    // background-color: #777;
+    color: white;
+    cursor: pointer;
+}
+.header .fa-chevron-up {
+    display: none;
+}
+
+.active, .collapsible:hover {
+    background-color: #555;
+}
+
+.menu-cnt {
+    display: none;
+
+    width: 100%;
+
+    background-color: #f1f1f1;
+    opacity: 0.85;
+
+    position: absolute;
+
+    animation: rotateX 375ms ease-in-out forwards;
+    transform-origin: top center;
+    @keyframes rotateX {
+        0% {
+          opacity: 0;
+          transform: rotateX(-90deg);
+        }
+        50% {
+          transform: rotateX(-20deg);
+        }
+        100% {
+          opacity: 0.85;
+          transform: rotateX(0deg);
+        }
+    }
+}
+
+.menu-cnt .row-cnt {
+    padding: 4px;
+
+    :first-child {
+        margin-top: 8px;
+    }
+    :last-child {
+        margin-bottom: 8px;
+    }
+}
+.menu-cnt .row-cnt:first-child {
+    padding-top: 8px;
+}
+.menu-cnt .row-cnt:last-child {
+    padding-bottom: 8px;
+}
