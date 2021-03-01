@@ -10,5 +10,8 @@ export const significativeDates = [
     },
     {
         label: "Start: Localized Lockdown", date: "2020-11-04"
+    },
+    {
+        label: "Start: Christmas Restrictions", date: "2020-12-21"
     }
 ]    

@@ -10,11 +10,11 @@ export default function () {
 
   let formatTime = d3.timeParse("%Y-%m-%d");
 
-  let findSignificativeDateIndex = function(date){
+  let findSignificativeDateIndex = function (date) {
     let dateIndex = -1;
-    significativeDates.forEach((significativeDate, index) =>{
-      
-      if(date.toLocaleDateString("en-CA") == significativeDate.date){
+    significativeDates.forEach((significativeDate, index) => {
+
+      if (date.toLocaleDateString("en-CA") == significativeDate.date) {
         dateIndex = index
       }
     })
@@ -116,7 +116,7 @@ export default function () {
             focus.select("#focusCircle" + index)
               .attr("cx", x(selectedData["date"]))
               .attr("cy", y(selectedData[yTopic]))
-              .style("opacity", function(){ return functions.isDrawable(selectedData, timeBrush, boxBrush, scatterBrush) ? "1" : ".4"})
+              .style("opacity", function () { return functions.isDrawable(selectedData, timeBrush, boxBrush, scatterBrush) ? "1" : ".4" })
             if (index == 0) {
               svg.select("#dateText" + index)
                 .text(selectedData.date.toLocaleDateString('en-US', { month: 'short' }) + " " + selectedData.date.getDate())
@@ -127,14 +127,14 @@ export default function () {
               .text(selectedData[yTopic])
               .attr("x", x(selectedData["date"]) + 60)//(index==0 ? x(selectedData["date"]) + xOffset : ((Number(svg.select("#yText"+(index-1)).attr("x"))+25))))
               .attr("y", y(selectedData[yTopic]) + yOffset - (10 * index))
-              .style("opacity", function(){ return functions.isDrawable(selectedData, timeBrush, boxBrush, scatterBrush) ? "1" : ".4"})
+              .style("opacity", function () { return functions.isDrawable(selectedData, timeBrush, boxBrush, scatterBrush) ? "1" : ".4" })
           }
         })
 
-        if(currentDate){
+        if (currentDate) {
           let index = findSignificativeDateIndex(currentDate)
-          index!=-1 && svg.select("#significativeText_"+index).attr("opacity", "1")
-        } 
+          index != -1 && svg.select("#significativeText_" + index).attr("opacity", "1")
+        }
       }
 
       let mouseout = function () {
@@ -300,7 +300,7 @@ export default function () {
             .attr("x2", function () { return margin.left + x(formatTime(significativeDates[this.id.split("_")[1]].date)) })
           svg.selectAll(".significativeText").transition(transition)
             .attr("y", function () { return margin.left + x(formatTime(significativeDates[this.id.split("_")[1]].date)) })
-        
+
           focus.selectAll(".timepath").each(function (pathData, index) {
             pathData.forEach(d => {
               let xValue = x(d.date);
@@ -485,14 +485,14 @@ export default function () {
             .attr("stroke-opacity", 0.5)
             .attr("stroke-dasharray", "2,2")
             .style("stroke", "black")
-            //.on("mouseover", function(){
-            //  let index = this.id.split("_")[1]
-            //  svg.select("#significativeText_"+index).attr("opacity", "1")
-            //})
-            //.on("mouseout", function(){
-            //  let index = this.id.split("_")[1]
-            //  svg.select("#significativeText_"+index).attr("opacity", ".5")
-            //})
+          //.on("mouseover", function(){
+          //  let index = this.id.split("_")[1]
+          //  svg.select("#significativeText_"+index).attr("opacity", "1")
+          //})
+          //.on("mouseout", function(){
+          //  let index = this.id.split("_")[1]
+          //  svg.select("#significativeText_"+index).attr("opacity", ".5")
+          //})
           svg.append("text")
             .attr("transform", "rotate(-90)")
             .attr("id", "significativeText_" + index)
@@ -506,21 +506,20 @@ export default function () {
             .text(significativeDate.label);
         })
 
-
-        if (focus.select("#y-label-text").empty()) {
-
+        svg.select("#y-label-text").remove();
+        svg.append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("id", "y-label-text")
+          .attr("y", 0)
+          .attr("x", 0 - (actualHeight / 2))
+          .attr("dy", "1em")
+          .style("text-anchor", "middle")
+          .attr("font-weight", "bold")
+          .text(yTopic + " cases (# of people)");
+        if (focus.select("#x-label-text").empty()) {
           svg.append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("id", "y-label-text")
-            .attr("y", 0)
-            .attr("x", 0 - (actualHeight / 2))
-            .attr("dy", "1em")
-            .style("text-anchor", "middle")
-            .attr("font-weight", "bold")
-            .text("people");
-
-          svg.append("text")
-            .attr("transform", 'translate(' + (actualWidth+1.3*margin.left) + ', ' + (actualHeight+1.2*margin.top) + ')')
+            .attr("id", "x-label-text")
+            .attr("transform", 'translate(' + (actualWidth + 1.3 * margin.left) + ', ' + (actualHeight + 1.2 * margin.top) + ')')
             .attr("font-weight", "bold")
             .style("text-anchor", "middle")
             .text("time");

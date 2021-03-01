@@ -330,18 +330,17 @@ export default function () {
 
 
         /** AXIS */
-
-        if (focus.select("#y-text-label").empty()) {
-          focus.append("text")
+        focus.select("#y-text-label").remove();
+        focus.append("text")
             .attr("id", "y-text-label")
-            .attr("y", y(0) - 10)//- (actualHeight / 2))
-            .attr("x", - 1.2 * margin.left)//- margin.left )
+            .attr("transform", "rotate(-90)")
+            .attr("x",  -actualHeight / 2)
+            .attr("y", - 2.5* margin.left)//- margin.left )
             .attr("dy", "1em")
             .style("text-anchor", "middle")
             //.attr("font-weight", "bold")
             .attr("font-size", "1.5em")
-            .text("%");
-        }
+            .text(yTopic+" (%)");
 
         if (focus.select("#boxbrush").empty()) {
 

@@ -247,14 +247,15 @@ class Controller {
       selectedMobility = mobilityChoice.value;
       console.log("selectedMobility is ", selectedMobility);
       this.model.entries = this.model.entries.map(e => {
-        let date = e.id.split("_")[0];
+        let date = new Date(e.id.split("_")[0]);
         e.selectedMobility = false;
-        e.selectedTime = new Date(start.value) <= new Date(date) && new Date(finish.value) >= new Date(date);
+        e.selectedTime = new Date(start.value) <= date && new Date(finish.value) >= date && this.daySelected.includes(date.getDay());
         return e;
       });
       //this.updateTimeSeries();
       this.updateBoxPlot();
-      this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, this.aggregate);
+      this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, false);
+      this.onEntriesListChanged();
     }
     else {
       // restore select
