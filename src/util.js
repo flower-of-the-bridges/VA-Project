@@ -8,7 +8,7 @@ export const functions = {
             return d.selectedTime && d.selectedScatter
         }
         else if (scatterBrush && boxBrush) {
-            return d.selectedTime && d.selectedMobility
+            return d.selectedScatter && d.selectedMobility
         }
         else if (timeBrush && boxBrush) {
             return d.selectedTime && d.selectedMobility

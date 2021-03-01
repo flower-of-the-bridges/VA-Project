@@ -22,13 +22,14 @@ export default function () {
   // rectangle for the main box
   let boxWidth = 100
 
+  let width = 450, height = 330;
   let margin = { top: 20, right: 10, bottom: 30, left: 30 };
 
-  let width = 420 - margin.left - margin.right;
-  let height = 330
+  let actualWidth = width - margin.left - margin.right;
+  let actualHeight = height - margin.top - margin.bottom;
 
-  let x = d3.scaleBand().range([0, width]),
-    y = d3.scaleLinear().range([height, 0]);
+  let x = d3.scaleBand().range([0, actualWidth]),
+    y = d3.scaleLinear().range([actualHeight, 0]);
 
   let xAxis, yAxis;
 
@@ -50,23 +51,24 @@ export default function () {
     selection.each(function () {
       const dom = d3.select(this)
       const svg = dom.append("svg")
-        .attr("width", width + 3.5 * (margin.left + margin.right))
-        .attr("height", height + margin.top + margin.bottom);
+        .attr('viewBox', '0 0 ' + width + ' ' + height);
+      // .attr("width", actualWidth + 7 * (margin.left + margin.right))
+      // .attr("height", height + margin.top + margin.bottom);
 
       svg.append("defs").append("clipPath")
         .attr("id", "clip")
         .append("rect")
-        .attr("width", width)
-        .attr("height", height);
+      // .attr("width", actualWidth)
+      // .attr("height", height);
 
       const focus = svg.append("g")
         .attr("class", "focus")
-        .attr("transform", "translate(" + ( margin.left - 10) + ","+ (10 + margin.top) + ")");
+        .attr("transform", "translate(" + (margin.left - 10) + "," + (10 + margin.top) + ")");
 
       let createLegend = function (legend) {
         selectedRegions.forEach((region, index) => {
-          legend.append("circle").attr("cx", width + 4 * margin.right).attr("cy", (index + 1) * margin.top).attr("r", 6).style("fill", regionColor(region.id))
-          legend.append("text").attr("x", width + 5 * margin.right).attr("y", (index + 1) * margin.top + 4.5).text(region.name).style("font-size", "13px").attr("alignment-baseline", "middle")
+          legend.append("circle").attr("cx", actualWidth + 4 * margin.right).attr("cy", (index + 1) * margin.top).attr("r", 6).style("fill", regionColor(region.id))
+          legend.append("text").attr("x", actualWidth + 5 * margin.right).attr("y", (index + 1) * margin.top + 4.5).text(region.name).style("font-size", "13px").attr("alignment-baseline", "middle")
         })
       }
 
@@ -82,7 +84,7 @@ export default function () {
           .attr("id", "legend")
           .attr("class", "focus")
           .attr("background", "lightsteelblue")
-          .attr("transform", "translate(" + ( margin.left - 40) + ","+ (20 + margin.top) + ")");
+          .attr("transform", "translate(" + (margin.left - 40) + "," + (20 + margin.top) + ")");
         createLegend(legend);
 
         if (!brushMode && brush) {
@@ -109,7 +111,7 @@ export default function () {
         y.domain(d3.extent(data, function (d) { return +d[yTopic]; }));
         /** boxplot */
 
-        xAxis = d3.axisBottom(x);
+        xAxis = d3.axisBottom(x).tickFormat((_) => "");
         yAxis = d3.axisLeft(y);
 
         focus.select("g.axis--x").remove();
@@ -189,10 +191,10 @@ export default function () {
         maxText
           .enter()
           .append("text")
-          .attr("x", function (d) { return (x(d.key) + boxWidth / 4) + 5 })
+          .attr("x", function (d) { return (x(d.key) + boxWidth / 2) + 5 })
           .attr("y", function (d) { return (y(d.value.max) + 3) })
           .attr("text-anchor", "right")
-          .attr("class", "boxtext")
+          .attr("class", "boxtext").attr("font-weight", "bold")
           .text(function (d) { return d.value.max + "%" });
 
         const minText = focus
@@ -201,10 +203,10 @@ export default function () {
         minText
           .enter()
           .append("text")
-          .attr("x", function (d) { return (x(d.key) + boxWidth / 4) + 5 })
+          .attr("x", function (d) { return (x(d.key) + boxWidth / 2) + 5 })
           .attr("y", function (d) { return (y(d.value.min) + 3) })
           .attr("text-anchor", "right")
-          .attr("class", "boxtext")
+          .attr("class", "boxtext").attr("font-weight", "bold")
           .text(function (d) { return d.value.min + "%" });
 
         const q1Text = focus
@@ -213,10 +215,10 @@ export default function () {
         q1Text
           .enter()
           .append("text")
-          .attr("x", function (d) { return (x(d.key) + boxWidth / 4) + 5 })
+          .attr("x", function (d) { return (x(d.key) + boxWidth / 2) + 5 })
           .attr("y", function (d) { return (y(d.value.q1) + 10) })
           .attr("text-anchor", "right")
-          .attr("class", "boxtext")
+          .attr("class", "boxtext").attr("font-weight", "bold")
           .text(function (d) { return d.value.q1 + "%" });
 
         const q3Text = focus
@@ -225,10 +227,10 @@ export default function () {
         q3Text
           .enter()
           .append("text")
-          .attr("x", function (d) { return (x(d.key) + boxWidth / 4) + 5 })
+          .attr("x", function (d) { return (x(d.key) + boxWidth / 2) + 5 })
           .attr("y", function (d) { return (y(d.value.q3) - 4) })
           .attr("text-anchor", "right")
-          .attr("class", "boxtext")
+          .attr("class", "boxtext").attr("font-weight", "bold")
           .text(function (d) { return d.value.q3 + "%" });
 
         const medianText = focus
@@ -240,7 +242,7 @@ export default function () {
           .attr("x", function (d) { return (x(d.key) + boxWidth / 2) + 5 })
           .attr("y", function (d) { return (y(d.value.median)) })
           .attr("text-anchor", "right")
-          .attr("class", "boxtext")
+          .attr("class", "boxtext").attr("font-weight", "bold")
           .text(function (d) { return d.value.median + "%" });
 
         // show min lines
@@ -295,7 +297,7 @@ export default function () {
           .style("width", 80);
 
         // Add individual points with jitter
-        var jitterWidth = 50;
+        var jitterWidth = boxWidth - 20;
 
         focus.selectAll("#data-points").remove();
         let points = focus
@@ -318,7 +320,7 @@ export default function () {
             //else {
             //  d.selectedMobility ? '1' : '.5';
             //}
-            if (scatterBrush) {
+            if (scatterBrush || boxBrush) {
               return functions.isDrawable(d, timeBrush, boxBrush, scatterBrush) ? "1" : "0"
             }
             else
@@ -328,14 +330,18 @@ export default function () {
 
 
         /** AXIS */
-    
-        focus.append("text")
-          .attr("transform", "rotate(-90)")
-          .attr("y", 0 - margin.left)
-          .attr("x", 0 - (height / 3))
-          .attr("dy", "1em")
-          .style("text-anchor", "middle")
-          .text("%");
+
+        if (focus.select("#y-text-label").empty()) {
+          focus.append("text")
+            .attr("id", "y-text-label")
+            .attr("y", y(0) - 10)//- (actualHeight / 2))
+            .attr("x", - 1.2 * margin.left)//- margin.left )
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            //.attr("font-weight", "bold")
+            .attr("font-size", "1.5em")
+            .text("%");
+        }
 
         if (focus.select("#boxbrush").empty()) {
 
@@ -393,7 +399,7 @@ export default function () {
         selectedRegions.forEach(region => {
           // create new brush for region
           let mybrush = d3.brushY()
-            .extent([[x(regionData[region.id].name) - boxWidth / 2, 0], [x(regionData[region.id].name) + boxWidth / 2, height]])
+            .extent([[x(regionData[region.id].name) - boxWidth / 2, 0], [x(regionData[region.id].name) + boxWidth / 2, actualHeight]])
             .on("end", () => { console.log(region.id); brushended(region.id) })
           brushes.push(mybrush)
           lastBrush++;

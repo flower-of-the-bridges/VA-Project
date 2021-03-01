@@ -5,6 +5,21 @@ import { functions } from './util'
 
 class Controller {
   constructor() {
+    this.divs = {
+      "map-cnt": {
+        width: "30%"
+      }, 
+      "time-cnt": {
+        width: "70%"
+      }, 
+      "boxplot-cnt": {
+        width: "40%"
+      }, 
+      "scatter-cnt": {
+        width: "60%"
+      }
+    }
+    this.reduce = false;
     // Model
     this.model = model
     // Views
@@ -89,11 +104,14 @@ class Controller {
     this.model.deleteEntry(entryId)
   }
   //
-  onEntriesListChanged(views) {
-    // first: update counter
+  setRecordText(){
     selectedRecords.textContent = this.model.entries.filter(d => {
       return d.selectedRegion && functions.isDrawable(d, this.timeBrush, this.boxBrush, this.scatterBrush)
     }).length;
+  }
+  onEntriesListChanged(views) {
+    // first: update counter
+    this.setRecordText();
     // if views are specified, update only them
     if (views && Array.isArray(views)) {
       views.forEach(view => {
@@ -115,6 +133,27 @@ class Controller {
     }
   }
 
+  zoomDiv(divToZoom, button){
+    Object.keys(this.divs).forEach(div =>{
+      let currentDiv = document.getElementById(div)
+      if(div!=divToZoom){
+        console.log("setting %s to none", div, currentDiv)
+        currentDiv.style.display = this.reduce ? "flex" : "none"
+      }
+      else{
+        currentDiv.style.width = this.reduce ? this.divs[div].width : "100%"
+        currentDiv.style.height = this.reduce ? "45.5vh" : "90vh"
+      }
+    })
+    this.reduce = !this.reduce
+    button.textContent = this.reduce ? "Reduce" : "Expand"
+  }
+
+  onTimeUpdated(){
+    this.timeBrush = true;
+    this.onMapUpdated()
+    this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, this.aggregate);
+  }
   onMapUpdated() {
     console.log("update dates", new Date(start.value), new Date(finish.value), selectedRegions);
     start.max = finish.value;
@@ -229,8 +268,9 @@ class Controller {
     this.scatter.setBrushMode(false);
     this.boxplot.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush);
     this.time.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush);
-    this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, this.aggregate);
+    this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, false);
     brushMobilityButton.disabled = true;
+    this.setRecordText();
   }
 
   clearTime() {
@@ -251,6 +291,7 @@ class Controller {
     this.onMapUpdated();
     this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, this.aggregate);
     brushTimeButton.disabled = true;
+    this.setRecordText();
   }
 
   clearScatter() {
@@ -269,6 +310,7 @@ class Controller {
     this.time.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush);
     this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, this.aggregate);
     brushScatterButton.disabled = true;
+    this.setRecordText();
   }
 
   canSelectData(data) {
@@ -293,7 +335,10 @@ class Controller {
 
   computeAggregate(updateAggregateField) {
     /** ui check */
-    restLoading.hidden = false; // show loading scree
+    // Show loader, hide scatterplot
+    document.getElementById('loader').style.display = "flex";
+    document.querySelector("#scatter-cnt svg").style.display = "none";
+
     computeButton.disabled = true; // disable button
     let clusters = clusterNumber.value;
     this.setClusterCheck();
@@ -328,6 +373,7 @@ class Controller {
     this.model.entries = this.model.entries.map(entry => {
       if (entry["Y1"]) delete entry["Y1"]
       if (entry["Y2"]) delete entry["Y2"]
+      if (entry["cluster"]) delete entry["cluster"]
       return entry
     })
     xmlhttp.send(JSON.stringify(request));
@@ -344,7 +390,11 @@ class Controller {
           entry["Y2"] = responseData[1];
           entry["cluster"] = responseData[2];
         });
-        restLoading.hidden = true;
+
+        // Hide loader, show scatter plot
+        document.getElementById('loader').style.display = "none";
+        document.querySelector("#scatter-cnt svg").style.display = "initial";
+
         computeButton.disabled = false; // disable button
         clusterNumber.disabled = false;
 
@@ -385,7 +435,7 @@ class Controller {
         entry.selectedScatter = document.getElementById("clusterCheck" + entry.cluster).checked
       }
     });
-    this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, this.aggregate);
+    this.scatter.data(this.model.entries, this.boxBrush, this.timeBrush, this.scatterBrush, false);
     this.model.onEntriesListChanged();
   }
 
@@ -408,6 +458,18 @@ class Controller {
         clusterCheckDiv.appendChild(clusterLabel)
       }
     }
+  }
+
+  credits(){
+    alert(
+      "Datasets:\n"+
+      "- Dati COVID-19 Italia [pcm-dpc] (CC-BY-4.0)\n"+
+      "- COVID-19 Community Mobility Reports [google] (CC-BY-4.0)\n"+
+      "Authors:\n"+
+      "- Giovanni Fiordeponti\n"+
+      "- Antonio Ionta\n"+
+      "- Silvia Marchiori\n"
+    )
   }
 
 }

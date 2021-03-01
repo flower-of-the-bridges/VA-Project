@@ -8,13 +8,14 @@ export default function () {
   let regionData = regions.default
   let updateData, zoom, brushended, highlight;
 
-  let margin = { top: 30, right: 30, bottom: 30, left: 50 };
+  let width = 570, height = 250;
+  let margin = { top: 15, right: 15, bottom: 15, left: 15 };
 
-  let width = 420;
-  let height = 260;
+  let actualWidth = width - margin.left - margin.right;
+  let actualHeight = height - margin.top - margin.bottom;
 
-  let x = d3.scaleLinear().range([0, width]),
-    y = d3.scaleLinear().range([height - margin.top - margin.bottom, 0]);
+  let x = d3.scaleLinear().range([0, actualWidth]),
+    y = d3.scaleLinear().range([actualHeight, 0]);
 
 
   let idleTimeout, idleDelay = 350;
@@ -34,15 +35,37 @@ export default function () {
 
 
   let createRegionsLegend = function (legend) {
+    let radius = 5;
+
     selectedRegions.forEach((region, index) => {
-      legend.append("circle").attr("cx", width + 1.5 * margin.right).attr("cy", (index + 1) * margin.top).attr("r", 6).style("fill", regionColor(region.id))
-      legend.append("text").attr("x", width + 2 * margin.right).attr("y", (index + 1) * margin.top + 4.5).text(region.name).style("font-size", "13px").attr("alignment-baseline", "middle")
+      legend.append("circle")
+        .attr("cx", width - 0.09 * width)
+        .attr("cy", (index + 1) * 3 * radius)
+        .attr("r", radius)
+        .style("fill", regionColor(region.id))
+      legend.append("text")
+        .attr("x", width - 0.08 * width)
+        .attr("y", (index + 1) * 3 * radius + radius)
+        .text(region.name)
+        .style("font-size", "13px")
+        .attr("alignment-baseline", "middle")
     })
   }
   let createLegend = function (legend) {
+    let radius = 5;
+
     for (let i = 0; i < clusterNumber.value; i++) {
-      legend.append("circle").attr("cx", width + 2.5 * margin.right).attr("cy", (i + 1) * margin.top).attr("r", 6).style("fill", clusterColor(i))
-      legend.append("text").attr("x", width + 3 * margin.right).attr("y", (i + 1) * margin.top + 4.5).text("Cluster " + (i + 1)).style("font-size", "13px").attr("alignment-baseline", "middle")
+      legend.append("circle")
+        .attr("cx", width - 0.09 * width)
+        .attr("cy", (i + 1) * 3 * radius)
+        .attr("r", radius)
+        .style("fill", clusterColor(i))
+      legend.append("text")
+        .attr("x", width - 0.08 * width)
+        .attr("y", (i + 1) * 3 * radius + radius)
+        .text("Cluster " + (i + 1))
+        .style("font-size", "13px")
+        .attr("alignment-baseline", "middle")
     }
   }
 
@@ -52,14 +75,15 @@ export default function () {
     selection.each(function () {
       const dom = d3.select(this)
       const svg = dom.append("svg")
-        .attr("width", width + 4 * (margin.left + margin.right))
-        .attr("height", height + margin.top);
+        .attr('viewBox', '0 0 ' + width + ' ' + height);
+      // .attr("width", width + 4 * (margin.left + margin.right))
+      // .attr("height", height + margin.top);
 
-      svg.append("defs").append("clipPath")
-        .attr("id", "clip")
-        .append("rect")
-        .attr("width", width + 2 + (margin.left + margin.right))
-        .attr("height", height + margin.top);
+      //svg.append("defs").append("clipPath")
+      //  .attr("id", "clipScatter")
+      //  .append("rect")
+      //.attr("width", actualWidth/*width + 2 + (margin.left + margin.right)*/)
+      //.attr("height", actualHeight/*height + margin.top*/);
 
       const focus = svg.append("g")
         .attr("class", "focus")
@@ -74,7 +98,7 @@ export default function () {
         let legend = svg.append("g")
           .attr("class", "focus")
           .attr("id", "legend")
-          .attr("transform", "translate(" + (10 + margin.left) + ","+ (10 + margin.top) + ")");
+          .attr("transform", "translate(" + (10 + margin.left) + "," + (10 + margin.top) + ")");
         clusterNumber.value > 1 ? createLegend(legend) : createRegionsLegend(legend);
         // domains
         if (!zoomMode) {
@@ -235,13 +259,18 @@ export default function () {
           .append("circle")
           .attr("id", "dots")
           .attr('class', 'dot')
-          .attr("clip-path", "url(#clip)")
+          //.attr("clip-path", "url(#clipScatter)")
           .attr("r", 5)
           .style("fill", d => clusterNumber.value > 1 ? clusterColor(d.cluster) : regionColor(d.region))
           .attr("stroke", "black")
           .attr("stroke-width", "1")
           .attr("opacity", d => {
-            return functions.isDrawable(d, timeBrush, boxBrush, scatterBrush) ? "1" : ".2"
+            if (d.cluster!=null) {
+              return functions.isDrawable(d, timeBrush, boxBrush, scatterBrush) ? "1" : ".2"
+            }
+            else{
+              return "0"
+            }
           })
           .attr("cx", function (d) { return x(d["Y1"]) })
           .attr("cy", function (d) { return y(d["Y2"]) });
@@ -262,7 +291,7 @@ export default function () {
             div.transition()
               .duration(200)
               .style("opacity", "1");
-            div.html("<p><strong>Date:</strong> " + d.date.toLocaleDateString("en-CA")+" ("+d.date.toLocaleString('en-us', {weekday:'short'})+")"
+            div.html("<p><strong>Date:</strong> " + d.date.toLocaleDateString("en-CA") + " (" + d.date.toLocaleString('en-us', { weekday: 'short' }) + ")"
               + "</p><p><strong>Region:</strong> " + regionData[d.region].name + "</p>"
               + "<p><strong>" + selectedTimeType + ":</strong> " + d[selectedTimeType] + " cases</p>"
               + "<p><strong>" + selectedMobility + ":</strong> " + d[selectedMobility] + "%</p>")

@@ -12,119 +12,134 @@
 </head>
 
 <body>
-  <div class="header">
-    <strong>Correlation between
-      Covid-19
-      and Mobility</strong><br />
-    <b id="selectedRecords" align="center">0</b>
-    <strong>records selected</strong>
-  </div>
-  <div class="container">
 
-    <div id="scatter" class="boxmin" align="center">
-      <div class="header">
-        <strong>Correlation Scatter</strong>
-      </div>
-      <div class="container" style="margin-top: 10px; margin-left: 10px; padding-left: 10px;">
-        <button id="computeButton" onclick="app.computeAggregate(true)">Compute aggregate</button>
-        <label style="margin-left: 10px" id="textClusterNumber">Number of clusters: <strong
-            id="textCluster">3</strong></label>
-        <input style="margin-left: 10px" type="range" min="1" max="5" value="3" onchange="app.updateClusterNumber()"
-          id="clusterNumber">
-        <button id="brushScatterButton" onclick="app.clearScatter()">Clear</button>
-        <div align="center">
-          <input type="radio" id="brushScatter" name="scatterMode" value="false" checked>
-          <label for="brushScatter">Brush</label>
-          <input type="radio" id="zoomScatter" name="scatterMode" value="true">
-          <label for="zoomScatter">Zoom</label>
-        </div>
-        <div id="clusterCheckDiv">
-        </div>
-        <progress style="margin-left: 10px" id="restLoading" value="50" max="100" hidden></progress>
-      </div>
+  <p class="mainHeader">
+    <strong>Correlation between COVID-19 and Mobility in Italy</strong> <button class="expand" onclick="app.credits()"><span class="info">&#8505;</span></button>
+    <br />
+    <span id="selectedRecords">0</span> records selected
+  </p>
+
+  <div class="mainContainer">
+
+    <div id="map-cnt" class="mainItem">
+      
+      <p class="header">
+        Italy - Choropleth Map
+        <button id="brushDivZoom" class="expand" onclick="app.zoomDiv('map-cnt', this)">Expand</button>
+      </p>
+
     </div>
 
-    <div id="mobility" class="box" align="center">
-      <div class="header">
-        <strong>Mobility Boxplot</strong>
+    <div id="time-cnt" class="mainItem">
+      
+      <p class="header">
+        <strong>COVID-19 - Time Series</strong>
+        <button id="timeDivZoom" class="expand" onclick="app.zoomDiv('time-cnt', this)">Expand</button>
+      </p>
+      <div class="menu-cnt">
+        <div class="row-cnt">
+          <select id="covidChoice" onchange="app.changeTimeHandler()">
+            <option value="new" checked>New Cases</option>
+            <option value="healed">Healed</option>
+            <option value="positives">Positives</option>
+            <option value="hospitalized">Hospitalized</option>
+            <option value="isolated">Isolated</option>
+            <option value="intensiveCare">Intensive Care</option>
+            <option value="death">Death</option>
+          </select>
+            <label for="start">Start:</label>
+            <input type="date" id="start" value="2020-02-24" min="2020-02-24" max="2020-12-31"
+              onchange="app.onTimeUpdated()">
+            <label for="finish">Finish:</label>
+            <input type="date" id="finish" value="2020-12-31" min="2020-02-24" max="2020-12-31"
+              onchange="app.onTimeUpdated()">
+          <button id="brushTimeButton" onclick="app.clearTime()">Clear</button>
+          
+        </div>
+
+        <div class="row-cnt">
+          <input type="checkbox" id="mon" name="week" value="0" checked>
+          <label for="mon">Monday</label>
+          <input type="checkbox" id="tue" name="week" value="1" checked>
+          <label for="tue">Tuesday</label>
+          <input type="checkbox" id="wen" name="week" value="2" checked>
+          <label for="wen">Wednesday</label>
+          <input type="checkbox" id="mon" name="week" value="3" checked>
+          <label for="th">Thursday</label>
+          <input type="checkbox" id="th" name="week" value="4" checked>
+          <label for="fri">Friday</label>
+          <input type="checkbox" id="sat" name="week" value="5" checked>
+          <label for="sat">Saturday</label>
+          <input type="checkbox" id="sun" name="week" value="6" checked>
+          <label for="sat">Sunday</label>
+        </div>
+
+        <div class="row-cnt">
+          <input type="radio" id="brushTime" name="timeMode" value="false" checked>
+          <label for="brushTime">Brush</label>
+          <input type="radio" id="zoomTime" name="timeMode" value="true">
+          <label for="zoomTime">Zoom</label>
+        </div>
+      
+        
       </div>
+
+    </div>
+
+    <div id="boxplot-cnt" class="mainItem">
+      
+      <p class="header">
+        <strong>Mobility - Boxplot</strong>
+        <button id="boxDivZoom" class="expand" onclick="app.zoomDiv('boxplot-cnt', this)">Expand</button>
+      </p>
+      
       <!-- groceriesPharmacy,parks,residential,retailRecreation,transit,workplaces -->
-      <div align="center">
+      <div class="row-cnt">
         <select id="mobilityChoice" onchange="app.changeMobilityHandler()">
           <option value="groceriesPharmacy" checked>Groceries/Pharmacy</option>
-
           <option value="parks">Parks</option>
-
           <option value="residential">Residential</option>
-
           <option value="retailRecreation">Retail/Recreation</option>
-
           <option value="transit">Transit</option>
-
           <!-- <input type="radio" id="workplaces" name="mobil" value="workplaces">
         <label for="workplaces">Workplaces</label> -->
         </select>
         <button id="brushMobilityButton" onclick="app.clearMobility()">Clear</button>
       </div>
+
     </div>
-    <div id="map" class="boxmin" align="center">
-      <div class="header">
-        <strong>Italy Choropleth Map</strong>
+
+    <div id="scatter-cnt" class="mainItem">
+
+      <div id="loader">
+        <span>{</span><span>}</span>
+      </div>
+      
+      <p class="header">
+        <strong>Correlation - Scatter Plot</strong>
+        <button id="scatterDivZoom" class="expand" onclick="app.zoomDiv('scatter-cnt', this)">Expand</button>
+      </p>
+      
+      <div class="row-cnt">
+        <label>Number of clusters: <strong
+            id="textCluster">3</strong></label>
+        <input type="range" class="myrange" min="1" max="5" value="3" onchange="app.updateClusterNumber()" id="clusterNumber">
+        <button id="computeButton" onclick="app.computeAggregate(true)">Compute aggregate</button>
+        <button id="brushScatterButton" onclick="app.clearScatter()">Clear</button>
+      </div>
+
+      <div id="clusterCheckDiv" class="row-cnt"></div>
+      
+      <div class="row-cnt">
+        <input type="radio" id="brushScatter" name="scatterMode" value="false" checked>
+        <label for="brushScatter">Brush</label>
+        <input type="radio" id="zoomScatter" name="scatterMode" value="true">
+        <label for="zoomScatter">Zoom</label>
       </div>
     </div>
 
-    <div id="time" class="box" align="center">
-      <div class="header">
-        <strong>Covid Time Series</strong>
-      </div>
-      <div class="container" style="margin-bottom: 20px;">
-        <select id="covidChoice" onchange="app.changeTimeHandler()" style="max-width: 100%;">
-          <option value="new" checked>New Cases</option>
-          <option value="healed">Healed</option>
-          <option value="positives">Positives</option>
-          <option value="hospitalized">Hospitalized</option>
-          <option value="isolated">Isolated</option>
-          <option value="intensiveCare">Intensive Care</option>
-          <option value="death">Death</option>
-        </select>
-        <div style="margin-left: 10px;">
-          <div align="center">
-            <p style="display: inline;">Start:</p>
-            <input type="date" id="start" value="2020-02-24" min="2020-02-24" max="2020-12-31"
-              onchange="app.onMapUpdated()" disabled>
-            <span></span>
-            <p style="display: inline;">Finish:</p>
-            <input type="date" id="finish" value="2020-12-31" min="2020-02-24" max="2020-12-31"
-              onchange="app.onMapUpdated()" disabled>
-            <button id="brushTimeButton" onclick="app.clearTime()">Clear</button>
-
-            <input type="radio" id="brushTime" name="timeMode" value="false" checked>
-            <label for="brushTime">Brush</label>
-            <input type="radio" id="zoomTime" name="timeMode" value="true">
-            <label for="zoomTime">Zoom</label>
-          </div>
-          <div class="container" align="center">
-            <input type="checkbox" id="mon" name="week" value="0" checked>
-            <label for="mon">Monday</label>
-            <input type="checkbox" id="tue" name="week" value="1" checked>
-            <label for="tue">Tuesday</label>
-            <input type="checkbox" id="wen" name="week" value="2" checked>
-            <label for="wen">Wednesday</label>
-            <input type="checkbox" id="mon" name="week" value="3" checked>
-            <label for="th">Thursday</label>
-            <input type="checkbox" id="th" name="week" value="4" checked>
-            <label for="fri">Friday</label>
-            <input type="checkbox" id="sat" name="week" value="5" checked>
-            <label for="sat">Saturday</label>
-            <input type="checkbox" id="sun" name="week" value="6" checked>
-            <label for="sat">Sunday</label>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 
-
-<script type="text/javascript" src="main.js?2b6aaffe2772ab4eb257"></script></body>
+<script type="text/javascript" src="main.js?1dc60239ef30dbf72092"></script></body>
 
 </html>
