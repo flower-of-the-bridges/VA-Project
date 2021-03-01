@@ -8,7 +8,7 @@ export default function () {
   let regionData = regions.default
   let updateData, zoom, brushended, highlight;
 
-  let width = 570, height = 250;
+  let width = 380, height = 230;
   let margin = { top: 15, right: 15, bottom: 15, left: 15 };
 
   let actualWidth = width - margin.left - margin.right;
