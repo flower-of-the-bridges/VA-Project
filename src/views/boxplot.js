@@ -51,19 +51,19 @@ export default function () {
     selection.each(function () {
       const dom = d3.select(this)
       const svg = dom.append("svg")
-        .attr('viewBox', '0 0 '+width+' '+height);
-        // .attr("width", actualWidth + 7 * (margin.left + margin.right))
-        // .attr("height", height + margin.top + margin.bottom);
+        .attr('viewBox', '0 0 ' + width + ' ' + height);
+      // .attr("width", actualWidth + 7 * (margin.left + margin.right))
+      // .attr("height", height + margin.top + margin.bottom);
 
       svg.append("defs").append("clipPath")
         .attr("id", "clip")
         .append("rect")
-        // .attr("width", actualWidth)
-        // .attr("height", height);
+      // .attr("width", actualWidth)
+      // .attr("height", height);
 
       const focus = svg.append("g")
         .attr("class", "focus")
-        .attr("transform", "translate(" + ( margin.left - 10) + ","+ (10 + margin.top) + ")");
+        .attr("transform", "translate(" + (margin.left - 10) + "," + (10 + margin.top) + ")");
 
       let createLegend = function (legend) {
         selectedRegions.forEach((region, index) => {
@@ -84,7 +84,7 @@ export default function () {
           .attr("id", "legend")
           .attr("class", "focus")
           .attr("background", "lightsteelblue")
-          .attr("transform", "translate(" + ( margin.left - 40) + ","+ (20 + margin.top) + ")");
+          .attr("transform", "translate(" + (margin.left - 40) + "," + (20 + margin.top) + ")");
         createLegend(legend);
 
         if (!brushMode && brush) {
@@ -191,7 +191,7 @@ export default function () {
         maxText
           .enter()
           .append("text")
-          .attr("x", function (d) { return (x(d.key) + boxWidth / 4) + 5 })
+          .attr("x", function (d) { return (x(d.key) + boxWidth / 2) + 5 })
           .attr("y", function (d) { return (y(d.value.max) + 3) })
           .attr("text-anchor", "right")
           .attr("class", "boxtext").attr("font-weight", "bold")
@@ -203,7 +203,7 @@ export default function () {
         minText
           .enter()
           .append("text")
-          .attr("x", function (d) { return (x(d.key) + boxWidth / 4) + 5 })
+          .attr("x", function (d) { return (x(d.key) + boxWidth / 2) + 5 })
           .attr("y", function (d) { return (y(d.value.min) + 3) })
           .attr("text-anchor", "right")
           .attr("class", "boxtext").attr("font-weight", "bold")
@@ -330,14 +330,18 @@ export default function () {
 
 
         /** AXIS */
-    
-        focus.append("text")
-          .attr("transform", "rotate(-90)")
-          .attr("y", 0 - margin.left)
-          .attr("x", 0 - (actualHeight / 3))
-          .attr("dy", "1em")
-          .style("text-anchor", "middle")
-          .text("%");
+
+        if (focus.select("#y-text-label").empty()) {
+          focus.append("text")
+            .attr("id", "y-text-label")
+            .attr("y", y(0) - 10)//- (actualHeight / 2))
+            .attr("x", - 1.2 * margin.left)//- margin.left )
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            //.attr("font-weight", "bold")
+            .attr("font-size", "1.5em")
+            .text("%");
+        }
 
         if (focus.select("#boxbrush").empty()) {
 

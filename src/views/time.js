@@ -116,23 +116,23 @@ export default function () {
             focus.select("#focusCircle" + index)
               .attr("cx", x(selectedData["date"]))
               .attr("cy", y(selectedData[yTopic]))
+              .style("opacity", function(){ return functions.isDrawable(selectedData, timeBrush, boxBrush, scatterBrush) ? "1" : ".4"})
             if (index == 0) {
               svg.select("#dateText" + index)
                 .text(selectedData.date.toLocaleDateString('en-US', { month: 'short' }) + " " + selectedData.date.getDate())
-                .attr("x", x(selectedData["date"]) + 2.33 * xOffset)
-                .attr("y", y(0) + 2)
+                .attr("x", x(selectedData["date"]) + 3 * xOffset)
+                .attr("y", y(0) + 20)
             }
-            index != 0 && console.log(svg.select("#yText" + (index - 1)).attr("y"))
             svg.select("#yText" + index)
               .text(selectedData[yTopic])
               .attr("x", x(selectedData["date"]) + 60)//(index==0 ? x(selectedData["date"]) + xOffset : ((Number(svg.select("#yText"+(index-1)).attr("x"))+25))))
               .attr("y", y(selectedData[yTopic]) + yOffset - (10 * index))
+              .style("opacity", function(){ return functions.isDrawable(selectedData, timeBrush, boxBrush, scatterBrush) ? "1" : ".4"})
           }
         })
 
         if(currentDate){
           let index = findSignificativeDateIndex(currentDate)
-          console.log(index, currentDate)
           index!=-1 && svg.select("#significativeText_"+index).attr("opacity", "1")
         } 
       }

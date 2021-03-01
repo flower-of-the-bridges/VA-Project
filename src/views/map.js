@@ -141,7 +141,7 @@ export default function () {
         }
         // change threshold limit according to month. before august, cases detected where
         // lower due to shortness of case detection 
-        let thresholdLimit = formatTime(finish.value).getMonth() < 9 && formatTime(finish.value).getFullYear() == "2020" ? thresholds[selectedTimeType][0] : thresholds[selectedTimeType][1]
+        let thresholdLimit = formatTime(finish.value).getMonth() <= 9 && formatTime(finish.value).getFullYear() == "2020" ? thresholds[selectedTimeType][0] : thresholds[selectedTimeType][1]
 
         mapColor = d3.scaleQuantize([1, thresholdLimit], colors[selectedTimeType])
         console.log("threshold limit is", thresholdLimit, finish.value, formatTime(finish.value));

@@ -373,6 +373,7 @@ class Controller {
     this.model.entries = this.model.entries.map(entry => {
       if (entry["Y1"]) delete entry["Y1"]
       if (entry["Y2"]) delete entry["Y2"]
+      if (entry["cluster"]) delete entry["cluster"]
       return entry
     })
     xmlhttp.send(JSON.stringify(request));
