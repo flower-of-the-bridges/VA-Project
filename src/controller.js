@@ -499,7 +499,8 @@ class Controller {
       content.style.display = "none";
       document.querySelector(`#${cntId} .fa-chevron-up`).style.display = "none";
       document.querySelector(`#${cntId} .fa-chevron-down`).style.display = "initial";
-    } 
+    }
+  }
 
 }
 
