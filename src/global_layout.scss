@@ -37,7 +37,7 @@ div.mainItem {
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
-    // justify-content: center;
+    // justify-content: space-between;
     align-items: stretch;
 
     // Just for debugging
@@ -102,9 +102,9 @@ div.mainItem {
     text-align: center;
 }
 
-// svg {
-//     margin: 25px;
-// }
+svg {
+    flex: 1; // equivalent to flex: 1 1 0 <--> shorthand for flex-grow, flex-shrink and flex-basis combined.
+}
 
 p {
     margin: 0;
