@@ -9,14 +9,18 @@
   <title>
     Correlation between Covid19 and Mobility
   </title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+  </style> 
 </head>
 
 <body>
 
   <p class="mainHeader">
-    <strong>Correlation between COVID-19 and Mobility in Italy</strong> <button class="expand" onclick="app.credits()"><span class="info">&#8505;</span></button>
+    Correlation between COVID-19 and Mobility in Italy
     <br />
     <span id="selectedRecords">0</span> records selected
+    <button id="credits" onclick="app.credits()"><i class="fas fa-info"></i></button>
   </p>
 
   <div class="mainContainer">
@@ -25,7 +29,10 @@
       
       <p class="header">
         Italy - Choropleth Map
-        <button id="brushDivZoom" class="expand" onclick="app.zoomDiv('map-cnt', this)">Expand</button>
+        <button id="brushDivZoom" class="expand" onclick="app.zoomDiv('map-cnt', this)">
+          <i class="fas fa-expand"></i>
+          <i class="fas fa-compress"></i>
+        </button>
       </p>
 
     </div>
@@ -33,9 +40,17 @@
     <div id="time-cnt" class="mainItem">
       
       <p class="header">
-        <strong>COVID-19 - Time Series</strong>
-        <button id="timeDivZoom" class="expand" onclick="app.zoomDiv('time-cnt', this)">Expand</button>
+        COVID-19 - Time Series
+        <button id="timeDivZoom" class="expand" onclick="app.zoomDiv('time-cnt', this)">
+          <i class="fas fa-expand"></i>
+          <i class="fas fa-compress"></i>
+        </button>
+        <button class="collapsible" onclick="app.collapsible('time-cnt')">
+          <i class="fas fa-chevron-down"> menu</i>
+          <i class="fas fa-chevron-up"> menu</i>
+        </button>
       </p>
+
       <div class="menu-cnt">
         <div class="row-cnt">
           <select id="covidChoice" onchange="app.changeTimeHandler()">
@@ -53,8 +68,7 @@
             <label for="finish">Finish:</label>
             <input type="date" id="finish" value="2020-12-31" min="2020-02-24" max="2020-12-31"
               onchange="app.onTimeUpdated()">
-          <button id="brushTimeButton" onclick="app.clearTime()">Clear</button>
-          
+          <button id="brushTimeButton" class="clear" onclick="app.clearTime()">Clear</button>
         </div>
 
         <div class="row-cnt">
@@ -90,21 +104,29 @@
       
       <p class="header">
         <strong>Mobility - Boxplot</strong>
-        <button id="boxDivZoom" class="expand" onclick="app.zoomDiv('boxplot-cnt', this)">Expand</button>
+        <button id="boxDivZoom" class="expand" onclick="app.zoomDiv('boxplot-cnt', this)">
+          <i class="fas fa-expand"></i>
+          <i class="fas fa-compress"></i>
+        </button>
+        <button class="collapsible" onclick="app.collapsible('boxplot-cnt')">
+          <i class="fas fa-chevron-down"> menu</i>
+          <i class="fas fa-chevron-up"> menu</i>
+        </button>
       </p>
       
-      <!-- groceriesPharmacy,parks,residential,retailRecreation,transit,workplaces -->
-      <div class="row-cnt">
-        <select id="mobilityChoice" onchange="app.changeMobilityHandler()">
-          <option value="groceriesPharmacy" checked>Groceries/Pharmacy</option>
-          <option value="parks">Parks</option>
-          <option value="residential">Residential</option>
-          <option value="retailRecreation">Retail/Recreation</option>
-          <option value="transit">Transit</option>
-          <!-- <input type="radio" id="workplaces" name="mobil" value="workplaces">
-        <label for="workplaces">Workplaces</label> -->
-        </select>
-        <button id="brushMobilityButton" onclick="app.clearMobility()">Clear</button>
+      <div class="menu-cnt">
+        <div class="row-cnt">
+          <select id="mobilityChoice" onchange="app.changeMobilityHandler()">
+            <option value="groceriesPharmacy" checked>Groceries/Pharmacy</option>
+            <option value="parks">Parks</option>
+            <option value="residential">Residential</option>
+            <option value="retailRecreation">Retail/Recreation</option>
+            <option value="transit">Transit</option>
+            <!-- <input type="radio" id="workplaces" name="mobil" value="workplaces">
+          <label for="workplaces">Workplaces</label> -->
+          </select>
+          <button id="brushMobilityButton" class="clear" onclick="app.clearMobility()">Clear</button>
+        </div>
       </div>
 
     </div>
@@ -117,29 +139,38 @@
       
       <p class="header">
         <strong>Correlation - Scatter Plot</strong>
-        <button id="scatterDivZoom" class="expand" onclick="app.zoomDiv('scatter-cnt', this)">Expand</button>
+        <button id="scatterDivZoom" class="expand" onclick="app.zoomDiv('scatter-cnt', this)">
+          <i class="fas fa-expand"></i>
+          <i class="fas fa-compress"></i>
+        </button>
+        <button class="collapsible" onclick="app.collapsible('scatter-cnt')">
+          <i class="fas fa-chevron-down"> menu</i>
+          <i class="fas fa-chevron-up"> menu</i>
+        </button>
       </p>
       
-      <div class="row-cnt">
-        <label>Number of clusters: <strong
-            id="textCluster">3</strong></label>
-        <input type="range" class="myrange" min="1" max="5" value="3" onchange="app.updateClusterNumber()" id="clusterNumber">
-        <button id="computeButton" onclick="app.computeAggregate(true)">Compute aggregate</button>
-        <button id="brushScatterButton" onclick="app.clearScatter()">Clear</button>
-      </div>
+      <div class="menu-cnt">
+        <div class="row-cnt">
+          <label>Number of clusters: <strong
+              id="textCluster">3</strong></label>
+          <input type="range" class="myrange" min="1" max="5" value="3" onchange="app.updateClusterNumber()" id="clusterNumber">
+          <button id="computeButton" onclick="app.computeAggregate(true)">Compute aggregate</button>
+          <button id="brushScatterButton" class="clear" onclick="app.clearScatter()">Clear</button>
+        </div>
 
-      <div id="clusterCheckDiv" class="row-cnt"></div>
-      
-      <div class="row-cnt">
-        <input type="radio" id="brushScatter" name="scatterMode" value="false" checked>
-        <label for="brushScatter">Brush</label>
-        <input type="radio" id="zoomScatter" name="scatterMode" value="true">
-        <label for="zoomScatter">Zoom</label>
+        <div id="clusterCheckDiv" class="row-cnt"></div>
+        
+        <div class="row-cnt">
+          <input type="radio" id="brushScatter" name="scatterMode" value="false" checked>
+          <label for="brushScatter">Brush</label>
+          <input type="radio" id="zoomScatter" name="scatterMode" value="true">
+          <label for="zoomScatter">Zoom</label>
+        </div>
       </div>
     </div>
 
   </div>
 
-<script type="text/javascript" src="main.js?1dc60239ef30dbf72092"></script></body>
+<script type="text/javascript" src="main.js?dc2ceea84eb867d35cbc"></script></body>
 
 </html>
