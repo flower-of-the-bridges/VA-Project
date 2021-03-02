@@ -79,11 +79,11 @@ export default function () {
       // .attr("width", width + 4 * (margin.left + margin.right))
       // .attr("height", height + margin.top);
 
-      //svg.append("defs").append("clipPath")
-      //  .attr("id", "clipScatter")
-      //  .append("rect")
-      //.attr("width", actualWidth/*width + 2 + (margin.left + margin.right)*/)
-      //.attr("height", actualHeight/*height + margin.top*/);
+      svg.append("defs").append("clipPath")
+        .attr("id", "clipScatter")
+        .append("rect")
+        .attr("width", actualWidth/*width + 2 + (margin.left + margin.right)*/)
+        .attr("height", actualHeight/*height + margin.top*/);
 
       const focus = svg.append("g")
         .attr("class", "focus")
@@ -253,7 +253,7 @@ export default function () {
         }
 
         focus.selectAll(".dot").remove();
-        let dots = focus.selectAll("circle")
+        let dots = focus.selectAll("#dots")
           .data(data)
           .enter()
           .append("circle")
@@ -265,10 +265,10 @@ export default function () {
           .attr("stroke", "black")
           .attr("stroke-width", "1")
           .attr("opacity", d => {
-            if (d.cluster!=null) {
+            if (d.cluster != null && d.Y1 != null && d.Y2 != null) {
               return functions.isDrawable(d, timeBrush, boxBrush, scatterBrush) ? "1" : ".2"
             }
-            else{
+            else {
               return "0"
             }
           })

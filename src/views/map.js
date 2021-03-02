@@ -95,29 +95,34 @@ export default function () {
       .attr("patternTransform", "rotate(45 0 0)")
       .attr("patternUnits", "userSpaceOnUse")
       .append("line")
-        .attr("x1", "0")
-        .attr("x2", "0")
-        .attr("y1", "0")
-        .attr("y2", "10")
-        .style("stroke", color)
-        .style("stroke-width", "3")
+      .attr("x1", "0")
+      .attr("x2", "0")
+      .attr("y1", "0")
+      .attr("y2", "10")
+      .style("stroke", color)
+      .style("stroke-width", "3")
   }
   let createPatternForRegions = () => {
-    selectedRegions.forEach(region =>{
+    selectedRegions.forEach(region => {
       createPattern(regionColor(region.id), region.id)
     })
-  } 
+  }
 
   let createLegend = function (svg) {
     let legend = svg.append("g")
-          .attr("id", "legend")
-          .attr("class", "focus")
-          .attr("background", "lightsteelblue")
-          .attr("transform", "translate(" + margin.left - 10 + ","+ (20 + margin.top) + ")")
+      .attr("id", "legend")
+      .attr("class", "focus")
+      .attr("background", "lightsteelblue")
+      .attr("transform", "translate(" + margin.left - 10 + "," + (20 + margin.top) + ")")
     selectedRegions.forEach((region, index) => {
-      legend.append("circle").attr("cx", width - 100 ).attr("cy", (index + 1) * margin.top).attr("r", 6).style("fill", regionColor(region.id))
-      legend.append("text").attr("x", width -100 + margin.right).attr("y", (index + 1) * margin.top + 4.5).text(region.name).style("font-size", "13px").attr("alignment-baseline", "middle")
+      legend.append("circle").attr("cx", width - 100).attr("cy", (index + 1) * margin.top).attr("r", 6).style("fill", regionColor(region.id))
+      legend.append("text").attr("x", width - 100 + margin.right).attr("y", (index + 1) * margin.top + 4.5).text(region.name).style("font-size", "13px").attr("alignment-baseline", "middle")
     })
+    legend.append("text")
+      .attr("x", width - 100)
+      .attr("y", (selectedRegions.length + 1.2) * margin.top)
+      .style("font-size", "13px").attr("alignment-baseline", "middle")
+      .text(selectedRegions.findIndex((reg) => reg.id == "0")!=-1 ? "" : "regions: "+selectedRegions.length+"/3")
   }
 
   const map = function (selection) {
@@ -137,7 +142,7 @@ export default function () {
           svg.append("g")
             .attr("id", "map2")
 
-            //  width="10" height="10" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+          //  width="10" height="10" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
         }
         // change threshold limit according to month. before august, cases detected where
         // lower due to shortness of case detection 
@@ -169,10 +174,10 @@ export default function () {
               )
               .style("stroke", d => d.properties.clicked ? regionColor(d.properties.reg_istat_code) : (data.clickCount == 0 ? regionColor(0) : "black"))
               .attr("stroke-width", "2")
-              //.on("click", d => {
-              //  onClick(d);
-              //})
-              ,
+            //.on("click", d => {
+            //  onClick(d);
+            //})
+            ,
             update => update
               // change fill property based on the selection
               .call(update => update
@@ -200,7 +205,8 @@ export default function () {
               .append("path")
               .attr("fill", d => {
                 createPattern(svg, regionColor("0"), "0")
-                return d.properties.clicked ? regionColor(d.properties.reg_istat_code) : (data.clickCount == 0 ? regionColor(0) : "black")}) // first time, no region is selected: all white 
+                return d.properties.clicked ? regionColor(d.properties.reg_istat_code) : (data.clickCount == 0 ? regionColor(0) : "black")
+              }) // first time, no region is selected: all white 
               .attr("d", d3.geoPath()
                 .projection(projection)
               )
@@ -218,8 +224,8 @@ export default function () {
                 .transition()
                 .duration(500)
                 .attr("fill", d => {
-                  d.properties.clicked && createPattern(svg, regionColor(d.properties.reg_istat_code), d.properties.reg_istat_code); 
-                  return d.properties.clicked ? "url(#"+d.properties.reg_istat_code+")" : ""
+                  d.properties.clicked && createPattern(svg, regionColor(d.properties.reg_istat_code), d.properties.reg_istat_code);
+                  return d.properties.clicked ? "url(#" + d.properties.reg_istat_code + ")" : ""
                 })
                 .style("stroke", d => d.properties.clicked ? regionColor(d.properties.reg_istat_code) : regionColor(0))
                 .attr("stroke-width", d => d.properties.clicked || data.clickCount == 0 ? "2" : "1.5")
