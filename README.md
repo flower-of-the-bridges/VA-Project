@@ -16,5 +16,7 @@ The application is available on [Github pages](https://giovfiordeponti.github.io
 Some articles from [VisComm: Workshop on Visualization for Communication](https://virtual.ieeevis.org/session_w-comm.html):
 * [Mapping the Landscape of COVID-19 Crisis Visualizations](https://osf.io/kd3y9/)
 * [Tile Narrative: Scrollytelling with Grid Maps](https://osf.io/xr64m)
+* 
 An article from [IEEE VIS: Visualization & Visual Analytics 2020](http://ieeevis.org/year/2020/info/papers-sessions):
+
 * [A Visual Analytics Based Decision Making Environment for COVID-19 Modeling and Visualization](https://www.researchgate.net/publication/344828659_A_Visual_Analytics_Based_Decision_Making_Environment_for_COVID-19_Modeling_and_Visualization)
